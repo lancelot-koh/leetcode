@@ -1,0 +1,40 @@
+
+Dynamic Array
+
+initialize:
+List<Integer> list1 = new ArrayList<>();
+List<Integer> list2 = null;
+
+Integer[] a = {0, 1, 2, 3, 4};
+list2 = new ArrayList<>(Arrays.asList(a));
+
+List<Integer> list3 = new ArrayList<>(list2);
+
+iterate:
+for (int i = 0; i < v1.size(); ++i) {
+            System.out.print(" " + v1.get(i));
+}
+for (int item : v1) {
+            System.out.print(" " + item);
+}
+
+method:
+size:
+list3.size();
+set:
+list3.set(0, 5);
+list3.set(1, 3);
+get:
+list3.get(0);
+
+sort:
+Collections.sort(list3);
+
+add:
+list3.add(-1);
+
+remove:
+list3.remove()
+remove(int index)
+remove(Object o)
+
