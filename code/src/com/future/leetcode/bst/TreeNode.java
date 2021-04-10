@@ -1,4 +1,4 @@
-package com.future.leetcode.binarytree;
+package com.future.leetcode.bst;
 
 public class TreeNode {
     int value;

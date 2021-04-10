@@ -66,6 +66,48 @@ public class PreOrder {
     }
 
 
+    public static List<Integer> MorrisTraversal(TreeNode root) {
+        /**
+         * Morris traversal rule
+         * Current node - curr
+         *
+         * 1 curr has no left child, curr move to its right: curr = curr.right
+         * 2 curr has left child, find the right most node(rightMostNode) of the current sub trees.
+         *  2.1 if rightMostNode.right point to null, then  rightMostNode.right = curr,
+         *      and curr move left: curr = curr.left.
+         *  2.2 if rightMostNode.right point to curr, then rightMostNode.right = null,
+         *      and curr move right: curr = curr.right
+         */
+        LinkedList<Integer> res = new LinkedList<>();
+
+        TreeNode node = root;
+        while (node != null) {
+            // rule 1
+            if (node.left == null) {
+                res.add(node.value);
+                node = node.right;
+            } else {
+                TreeNode predecessor = node.left;
+                // find the right most node
+                while (predecessor.right != null && predecessor.right != node) {
+                    predecessor = predecessor.right;
+                }
+
+//               rule 2.1
+                if(predecessor.right == null) {
+                    res.add(node.value);
+                    predecessor.right = node;
+                    node = node.left;
+                } else {
+                    predecessor.right = null;
+                    node = node.right;
+                }
+            }
+        }
+        return res;
+    }
+
+
     public static void main(String[] args) {
         BinaryTree tree = new BinaryTree(1);
 
@@ -76,7 +118,12 @@ public class PreOrder {
 
         tree.root.right.left = new TreeNode(6);
         tree.root.right.right = new TreeNode(7);
-        preOrderTraversal(tree.root);
-        preOrderTraversal2(tree.root);
+//        preOrderTraversal(tree.root);
+        List<Integer> res = preOrderTraversal2(tree.root);
+        for (Integer t: res) {
+            System.out.println(t);
+        }
+
+        MorrisTraversal(tree.root);
     }
 }

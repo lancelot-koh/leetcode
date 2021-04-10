@@ -19,6 +19,8 @@ public class PostOrder {
 
         postOrderTraversal(tree.root);
         postOrderTraversal2(tree.root);
+
+        PostOrderTraversal3(tree.root);
     }
 
     private static List<Integer> postOrderTraversal(TreeNode root) {
@@ -67,5 +69,35 @@ public class PostOrder {
         helper(node.left, res);
         helper(node.right,res);
         res.add(node.value);
+    }
+
+
+    private static List<Integer> PostOrderTraversal3(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode curr = root;
+
+
+        while (curr != null || !stack.isEmpty()) {
+            while (curr != null) {
+                if (curr.right != null) {
+                    stack.push(curr.right);
+                }
+                stack.push(curr);
+                curr = curr.left;
+            }
+            curr = stack.pop();
+
+            if(!stack.isEmpty() && curr.right == stack.peek()) {
+                stack.pop();
+                stack.push(curr);
+                curr = curr.right;
+            } else {
+                res.add(curr.value);
+                curr = null;
+
+            }
+        }
+        return  res;
     }
 }
