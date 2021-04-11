@@ -1,0 +1,31 @@
+Interface hierarchy
+
+            Iterable
+                |
+             iterator
+                |
+
+             Collection
+                |
+               size()
+
+    |           |           |
+   List        Set         Queue
+
+                |           |
+              SortedSet    Deque
+                |
+              NavigableSet
+
+
+              Map
+               |
+             keyset()
+             valueset()
+
+                |
+             SortedMap
+
+                |
+             NavigableMap
+
