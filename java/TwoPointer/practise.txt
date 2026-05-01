@@ -1,0 +1,207 @@
+Great—here are 10 Google-level Two Pointers problems, grouped by pattern, with why they matter and what to focus on (no full solutions so you can practice).
+
+⸻
+
+🧱 1. Opposite Direction (Left–Right)
+
+⸻
+
+1️⃣ Two Sum II
+
+Pattern: Opposite pointers
+Why important:
+
+Classic sorted array pruning
+Foundation of many problems
+
+Focus:
+
+Move left/right based on sum
+Explain WHY movement is correct
+
+
+⸻
+
+2️⃣ Container With Most Water ⭐
+
+Pattern: Opposite pointers + Greedy
+Why Google likes it:
+
+Requires reasoning, not brute force
+
+Focus:
+
+Why move the shorter side only
+Proof of correctness
+
+
+⸻
+
+⚙️ 2. Fast–Slow Pointer (In-place / Linked List)
+
+⸻
+
+3️⃣ Remove Duplicates from Sorted Array
+
+Pattern: Fast–slow
+Focus:
+
+Write index vs read index
+In-place overwrite
+
+
+⸻
+
+4️⃣ Linked List Cycle ⭐
+
+Pattern: Fast–slow (Floyd)
+Why important:
+
+Classic pointer math question
+
+Focus:
+
+Why fast=2x catches slow
+
+
+⸻
+
+🔁 3. Same Direction (Matching / Subsequence)
+
+⸻
+
+5️⃣ Is Subsequence
+
+Pattern: Same direction
+Focus:
+
+One pointer matches, one scans
+
+
+⸻
+
+6️⃣ Backspace String Compare ⭐
+
+Pattern: Reverse two pointers
+Why Google likes it:
+
+Requires simulation + pointer trick
+
+Focus:
+
+Process from right to left
+Skip logic
+
+
+⸻
+
+🔀 4. Partition / Rearrangement
+
+⸻
+
+7️⃣ Sort Colors ⭐
+
+Pattern: 3-way partition
+Why important:
+
+Dutch National Flag problem
+
+Focus:
+
+3 pointers: low, mid, high
+Maintain invariant regions
+
+
+⸻
+
+8️⃣ Move Zeroes
+
+Pattern: Stable partition
+Focus:
+
+Keep relative order
+Swap vs overwrite trade-off
+
+
+⸻
+
+🔗 5. Merge Pattern
+
+⸻
+
+9️⃣ Merge Sorted Array ⭐
+
+Pattern: Merge (reverse pointers)
+Why important:
+
+In-place + backward pointers
+
+Focus:
+
+Fill from end to avoid overwrite
+
+
+⸻
+
+🔢 6. K-Sum (Fix + Two Pointers)
+
+⸻
+
+🔟 3Sum ⭐⭐⭐
+
+Pattern: Sorting + two pointers
+Why Google LOVES it:
+
+Combines:
+sorting
+deduplication
+pointer logic
+
+Focus:
+
+Skip duplicates correctly
+Fix i → solve 2Sum
+
+
+⸻
+
+🧠 Bonus (If you want harder)
+
+➕ Trapping Rain Water
+
+Two pointers + prefix idea
+
+➕ Minimum Window Subsequence
+
+Advanced same-direction pointer
+
+
+⸻
+
+🎯 How to practice (very important)
+
+For each problem, train yourself to answer:
+
+1. Why can we use two pointers?
+2. What invariant do we maintain?
+3. Why pointer movement is correct?
+4. What is the time complexity?
+
+
+⸻
+
+🔥 Most important takeaway
+
+Google doesn’t test if you know Two Pointers—
+they test if you can justify pointer movement and invariants.
+
+⸻
+
+If you want next
+
+I can:
+
+👉 Walk you step-by-step through 3Sum (Google-level deep dive)
+👉 Or build a pattern → system design mapping (Ads / RAG)
+
+Just tell me 👍
