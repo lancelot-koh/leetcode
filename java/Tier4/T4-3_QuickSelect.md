@@ -8,6 +8,40 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+After Lomuto partition, the pivot element lands at its final sorted position `pivotIdx`. Every element to its left is smaller-or-equal, every element to its right is larger. This means the pivot's rank in the fully sorted array is known immediately — without actually sorting either side. If `pivotIdx` equals our target rank `k`, we are done. Otherwise we throw away the half that cannot contain rank `k` and recurse into the other half. Each call eliminates at least one element (the pivot), and on average eliminates half the array, giving O(n) expected total work: n + n/2 + n/4 + … = 2n. Without pivot randomization, a sorted input always picks the smallest element as pivot, shrinking by only one each time and degrading to O(n²).
+
+**Key invariant:** After each partition call, `nums[pivotIdx]` is in its correct sorted position. The left subarray `[lo..pivotIdx-1]` contains only values ≤ pivot, and the right subarray `[pivotIdx+1..hi]` contains only values ≥ pivot.
+
+**Common mistake:** Forgetting to convert between "k-th largest" and the 0-indexed target. The k-th largest in an array of length n is at 0-indexed position `n - k`. Confusing 1-indexed with 0-indexed here causes off-by-one errors.
+
+---
+
+## Step-by-Step Trace
+
+```
+Input: [3,2,1,5,6,4], find 2nd largest → target index = 6-2 = 4
+
+Partition [0..5] around pivot=4 (idx 5): [3,2,1,4,6,5] → wait, let's trace Lomuto:
+  pivot=4, i=0; scan j=0..4:
+    j=0: nums[0]=3 ≤ 4 → swap(0,0), i=1
+    j=1: nums[1]=2 ≤ 4 → swap(1,1), i=2
+    j=2: nums[2]=1 ≤ 4 → swap(2,2), i=3
+    j=3: nums[3]=5 > 4 → skip
+    j=4: nums[4]=6 > 4 → skip
+  swap(i=3, hi=5): [3,2,1,4,6,5] → [3,2,1,4,6,5]... pivotIdx=3
+
+pivotIdx=3 < target=4 → recurse right [4..5]
+Partition [4..5] around pivot=5: nums=[...,6,5]
+  pivot=5, i=4; j=4: nums[4]=6 > 5 → skip
+  swap(i=4, hi=5): [...,5,6]  pivotIdx=4
+
+pivotIdx=4 == target=4 → return nums[4] = 5  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -36,24 +70,25 @@ public int findKthLargest(int[] nums, int k) {
 }
 
 int quickSelect(int[] nums, int lo, int hi, int k) {
-    if (lo == hi) return nums[lo];
+    if (lo == hi) { return nums[lo]; }
 
     int pivotIdx = partition(nums, lo, hi);
-    if (pivotIdx == k)      return nums[pivotIdx];
-    else if (pivotIdx < k)  return quickSelect(nums, pivotIdx + 1, hi, k);
-    else                    return quickSelect(nums, lo, pivotIdx - 1, k);
+    if (pivotIdx == k)      { return nums[pivotIdx]; }
+    else if (pivotIdx < k)  { return quickSelect(nums, pivotIdx + 1, hi, k); }
+    else                    { return quickSelect(nums, lo, pivotIdx - 1, k); }
 }
 
 int partition(int[] nums, int lo, int hi) {
-    // Randomize pivot to avoid O(n²) worst case
+    // Randomize pivot to avoid O(n²) worst case on sorted/reverse-sorted input
     int randIdx = lo + (int)(Math.random() * (hi - lo + 1));
-    swap(nums, randIdx, hi);
+    swap(nums, randIdx, hi);  // move chosen pivot to the end as Lomuto expects
 
-    int pivot = nums[hi], i = lo;
-    for (int j = lo; j < hi; j++)
-        if (nums[j] <= pivot) swap(nums, i++, j);
-    swap(nums, i, hi);
-    return i;
+    int pivot = nums[hi], i = lo;  // i = boundary: everything left of i is ≤ pivot
+    for (int j = lo; j < hi; j++) {
+        if (nums[j] <= pivot) { swap(nums, i++, j); }  // extend the ≤-pivot region
+    }
+    swap(nums, i, hi);  // place pivot at its correct position i
+    return i;           // pivot's final sorted index
 }
 
 void swap(int[] nums, int a, int b) {
@@ -92,12 +127,13 @@ public int findKthLargest(int[] nums, int k) {
 
 int quickSelect(int[] nums, int lo, int hi, int target) {
     int pivot = nums[hi], i = lo;
-    for (int j = lo; j < hi; j++)
-        if (nums[j] <= pivot) swap(nums, i++, j);
+    for (int j = lo; j < hi; j++) {
+        if (nums[j] <= pivot) { swap(nums, i++, j); }
+    }
     swap(nums, i, hi);
 
-    if (i == target)     return nums[i];
-    if (i < target)      return quickSelect(nums, i + 1, hi, target);
+    if (i == target)     { return nums[i]; }
+    if (i < target)      { return quickSelect(nums, i + 1, hi, target); }
     return quickSelect(nums, lo, i - 1, target);
 }
 

@@ -7,6 +7,30 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+Naively computing `base^exp` multiplies `base` by itself `exp` times — O(exp) multiplications. Fast exponentiation uses the binary representation of `exp`. If the current bit of `exp` is 1, multiply the running result by the current power of base; then square the base and shift the exponent right. This way the algorithm processes each bit of `exp` exactly once, giving O(log exp) multiplications. Think of it as: `base^13 = base^(1101₂) = base^8 × base^4 × base^1` — you accumulate only the contributions from set bits. Squaring the base each step means that after `k` steps the base variable holds `base^(2^k)` — exactly the power you need if bit `k` is set. For modular arithmetic, take `mod` after every multiplication to keep numbers small and prevent overflow.
+
+**Key invariant:** At the start of each loop iteration, `result` holds the product of `base^(2^k)` for every bit position `k` below the current one that was set. When the loop ends, `result` is the complete answer.
+
+**Common mistake:** Using `int n` instead of `long exp` when negating `Integer.MIN_VALUE`. `-Integer.MIN_VALUE` in int arithmetic overflows back to `Integer.MIN_VALUE` (a negative number), making the negative-exponent branch loop forever. Always cast to `long` before negating.
+
+---
+
+## Step-by-Step Trace
+
+```
+2^13 (exp = 13 = 1101₂):
+
+exp=13 (odd)  → result *= 2 → result=2;   base=2²=4;  exp=6
+exp=6  (even) → skip;                      base=4²=16; exp=3
+exp=3  (odd)  → result *= 16 → result=32;  base=16²=256; exp=1
+exp=1  (odd)  → result *= 256 → result=8192; base=256²; exp=0
+Loop ends → return 8192 = 2^13  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -26,14 +50,14 @@
 
 ```java
 public double myPow(double x, int n) {
-    long exp = n;
-    if (exp < 0) { x = 1 / x; exp = -exp; }
+    long exp = n;                              // cast to long: negating Integer.MIN_VALUE overflows int
+    if (exp < 0) { x = 1 / x; exp = -exp; }  // x^(-n) = (1/x)^n; now exp is guaranteed non-negative
     double result = 1.0;
 
     while (exp > 0) {
-        if ((exp & 1) == 1) result *= x;   // odd exponent: multiply result
-        x *= x;                             // square the base
-        exp >>= 1;                          // halve the exponent
+        if ((exp & 1) == 1) { result *= x; }  // current bit is 1 → accumulate this power of base into result
+        x *= x;                                // square the base: x now represents base^(2^(k+1))
+        exp >>= 1;                             // shift to inspect the next higher bit
     }
     return result;
 }
@@ -46,10 +70,10 @@ static final int MOD = 1_000_000_007;
 
 long powMod(long base, long exp, long mod) {
     long result = 1;
-    base %= mod;
+    base %= mod;              // reduce base before any multiplication to keep numbers small from the start
     while (exp > 0) {
-        if ((exp & 1) == 1) result = result * base % mod;
-        base = base * base % mod;
+        if ((exp & 1) == 1) { result = result * base % mod; }  // take mod immediately: result * base < mod² which fits in long
+        base = base * base % mod;  // square and reduce; without %mod, base² could overflow long
         exp >>= 1;
     }
     return result;
@@ -68,10 +92,10 @@ long modInverse(long a, long p) {
 
 ```java
 long nCr(int n, int r, int p) {
-    if (r > n) return 0;
+    if (r > n) { return 0; }
     long[] fact = new long[n + 1];
     fact[0] = 1;
-    for (int i = 1; i <= n; i++) fact[i] = fact[i-1] * i % p;
+    for (int i = 1; i <= n; i++) { fact[i] = fact[i-1] * i % p; }
 
     return fact[n] * modInverse(fact[r], p) % p * modInverse(fact[n-r], p) % p;
 }
@@ -100,7 +124,7 @@ public double myPow(double x, int n) {
     if (exp < 0) { x = 1 / x; exp = -exp; }
     double result = 1.0;
     while (exp > 0) {
-        if ((exp & 1) == 1) result *= x;
+        if ((exp & 1) == 1) { result *= x; }
         x *= x;
         exp >>= 1;
     }

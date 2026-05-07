@@ -22,6 +22,35 @@
 
 ---
 
+## How it Works — Mental Model 算法原理
+
+Backtracking is systematic trial and error on a **decision tree**. At each node you make one choice (add an element, place a queen), recurse to explore all subtrees rooted at that choice, then undo the choice so the parent node can try its next option. The power comes from **pruning**: if you can detect early that a partial candidate can never be extended to a valid solution, you cut off that entire subtree without visiting it. Without the "unchoose" step, each recursive call would see a corrupted state and produce wrong results. Without pruning, backtracking degenerates to brute-force enumeration.
+
+**Key invariant:** When `backtrack` is called, `current` contains only choices made on the current root-to-node path; when it returns, `current` is restored exactly to its state before the call.
+
+**Common mistake / gotcha:** Adding `current` directly to `result` instead of copying it: `result.add(current)` stores a reference that will be emptied by later `remove` calls. Always use `result.add(new ArrayList<>(current))`.
+
+---
+
+## Step-by-Step Trace 执行步骤示意
+
+Example: Subsets of `[1, 2, 3]`
+```
+backtrack(start=0, cur=[])     → add [] to result
+  choose 1 → backtrack(start=1, cur=[1]) → add [1]
+    choose 2 → backtrack(start=2, cur=[1,2]) → add [1,2]
+      choose 3 → backtrack(start=3, cur=[1,2,3]) → add [1,2,3]; return
+    unchoose 2 → cur=[1]
+    choose 3 → backtrack(start=3, cur=[1,3]) → add [1,3]; return
+  unchoose 1 → cur=[]
+  choose 2 → backtrack(start=2, cur=[2]) → add [2]
+    choose 3 → backtrack(start=3, cur=[2,3]) → add [2,3]; return
+  unchoose 2; choose 3 → add [3]
+Result: [], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]
+```
+
+---
+
 ## Core Template 核心模板
 
 ```java
@@ -30,17 +59,17 @@ List<List<Integer>> result = new ArrayList<>();
 private void backtrack(/* params */, int start, List<Integer> current) {
     // Base case: current is a complete valid solution
     if (/* complete */) {
-        result.add(new ArrayList<>(current));   // COPY before adding
+        result.add(new ArrayList<>(current));   // COPY — current will be mutated later
         return;
     }
 
     for (int i = start; i < n; i++) {
-        // Pruning: skip invalid choices early
-        if (/* invalid */) continue;
+        // Pruning: skip invalid choices early (avoids entire subtree)
+        if (/* invalid */) { continue; }
 
-        current.add(choice[i]);                  // Choose
-        backtrack(/* params */, i + 1, current); // Explore
-        current.remove(current.size() - 1);      // Unchoose
+        current.add(choice[i]);                  // Choose: extend the current path
+        backtrack(/* params */, i + 1, current); // Explore: all completions of this path
+        current.remove(current.size() - 1);      // Unchoose: restore state for next iteration
     }
 }
 ```
@@ -87,7 +116,7 @@ public List<List<Integer>> permute(int[] nums) {
 private void backtrack(int[] nums, boolean[] used, List<Integer> cur, List<List<Integer>> res) {
     if (cur.size() == nums.length) { res.add(new ArrayList<>(cur)); return; }
     for (int i = 0; i < nums.length; i++) {
-        if (used[i]) continue;
+        if (used[i]) { continue; }
         used[i] = true; cur.add(nums[i]);
         backtrack(nums, used, cur, res);
         used[i] = false; cur.remove(cur.size() - 1);
@@ -100,9 +129,9 @@ private void backtrack(int[] nums, boolean[] used, List<Integer> cur, List<List<
 private void backtrack(int[] candidates, int remain, int start, List<Integer> cur, List<List<Integer>> res) {
     if (remain == 0) { res.add(new ArrayList<>(cur)); return; }
     for (int i = start; i < candidates.length; i++) {
-        if (candidates[i] > remain) break;          // pruning (after sort)
+        if (candidates[i] > remain) { break; }          // pruning: array is sorted, so all further are also too big
         cur.add(candidates[i]);
-        backtrack(candidates, remain - candidates[i], i, cur, res);  // i not i+1
+        backtrack(candidates, remain - candidates[i], i, cur, res);  // i (not i+1) allows reusing same element
         cur.remove(cur.size() - 1);
     }
 }
@@ -110,11 +139,13 @@ private void backtrack(int[] candidates, int remain, int start, List<Integer> cu
 
 ### Subsets / Permutations with Duplicates — dedup pattern
 ```java
-Arrays.sort(nums);    // sort first
+Arrays.sort(nums);    // sort first so duplicates are adjacent
 
 for (int i = start; i < nums.length; i++) {
-    // Skip same value AT SAME LEVEL of recursion tree
-    if (i > start && nums[i] == nums[i - 1]) continue;
+    // Skip same value AT SAME LEVEL of recursion tree.
+    // i > start (not i > 0) ensures we only skip duplicate siblings,
+    // not duplicate values chosen at different depths of the tree.
+    if (i > start && nums[i] == nums[i - 1]) { continue; }
     // ...
 }
 ```
@@ -126,7 +157,7 @@ boolean[] cols, diag1, diag2;
 private void backtrack(int row, int n, List<String> board, List<List<String>> res) {
     if (row == n) { res.add(new ArrayList<>(board)); return; }
     for (int col = 0; col < n; col++) {
-        if (cols[col] || diag1[row-col+n] || diag2[row+col]) continue;
+        if (cols[col] || diag1[row-col+n] || diag2[row+col]) { continue; }
         cols[col] = diag1[row-col+n] = diag2[row+col] = true;
         board.add("Q".repeat(col) + "Q" + ".".repeat(n-col-1));
         backtrack(row + 1, n, board, res);

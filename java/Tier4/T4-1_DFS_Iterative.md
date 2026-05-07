@@ -8,6 +8,37 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+Recursive DFS borrows the CPU call stack to remember where to return after visiting a child. Iterative DFS replaces that implicit stack with an explicit `Deque`: instead of "call a function that will return later," you "push a node that you will pop and process later." The LIFO property of a stack naturally mirrors depth-first exploration — the most recently discovered node is always processed next, so the algorithm drives as deep as possible before backtracking. If you push right before left, the left child sits on top and is processed first, matching the natural left-to-right DFS order. Without the `visited` check on pop (not on push), the same node can be processed multiple times because it may be pushed by multiple neighbors before any of them are popped.
+
+**Key invariant:** Every node on the stack has been discovered but not yet fully processed. A node is marked visited only when it is popped, ensuring each node is processed exactly once even if it was pushed multiple times.
+
+**Common mistake:** Checking `visited` at push time instead of pop time. This works for trees but silently skips nodes in graphs when a node is reachable via multiple paths — the second push is rejected at push time, but the first push may never be processed if it is buried under other items.
+
+---
+
+## Step-by-Step Trace (Iterative Graph DFS)
+
+```
+Graph: 0→1, 0→2, 1→3   Start: 0
+
+Stack: [0]        visited: {}
+Pop 0 → mark visited, push neighbors [2,1] (right first so 1 is on top)
+Stack: [2,1]      visited: {0}
+
+Pop 1 → mark visited, push neighbor [3]
+Stack: [2,3]      visited: {0,1}
+
+Pop 3 → mark visited, no unvisited neighbors
+Stack: [2]        visited: {0,1,3}
+
+Pop 2 → mark visited, no unvisited neighbors
+Stack: []         visited: {0,1,2,3}   ✓ DFS order: 0,1,3,2
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -28,16 +59,17 @@
 ```java
 void dfsIterative(int start, List<List<Integer>> adj, boolean[] visited) {
     Deque<Integer> stack = new ArrayDeque<>();
-    stack.push(start);
+    stack.push(start);  // seed the stack with the source node
 
     while (!stack.isEmpty()) {
         int node = stack.pop();
-        if (visited[node]) continue;
-        visited[node] = true;
+        if (visited[node]) { continue; }  // may have been pushed multiple times; skip duplicates
+        visited[node] = true;             // mark AFTER pop, not at push
 
         // Process node here
-        for (int nei : adj.get(node))
-            if (!visited[nei]) stack.push(nei);
+        for (int nei : adj.get(node)) {
+            if (!visited[nei]) { stack.push(nei); }  // push unvisited neighbors (may push duplicates; handled on pop)
+        }
     }
 }
 ```
@@ -47,15 +79,15 @@ void dfsIterative(int start, List<List<Integer>> adj, boolean[] visited) {
 ```java
 public List<Integer> preorderTraversal(TreeNode root) {
     List<Integer> result = new ArrayList<>();
-    if (root == null) return result;
+    if (root == null) { return result; }
     Deque<TreeNode> stack = new ArrayDeque<>();
     stack.push(root);
 
     while (!stack.isEmpty()) {
         TreeNode node = stack.pop();
-        result.add(node.val);           // visit before children
-        if (node.right != null) stack.push(node.right);  // right first (popped last)
-        if (node.left  != null) stack.push(node.left);
+        result.add(node.val);           // visit before children (pre = root first)
+        if (node.right != null) { stack.push(node.right); }  // right pushed first → popped last → left processed first
+        if (node.left  != null) { stack.push(node.left); }   // left pushed last → popped first → correct pre-order
     }
     return result;
 }
@@ -84,15 +116,17 @@ public List<Integer> inorderTraversal(TreeNode root) {
 ```java
 public List<Integer> postorderTraversal(TreeNode root) {
     List<Integer> result = new ArrayList<>();
-    if (root == null) return result;
+    if (root == null) { return result; }
     Deque<TreeNode> stack = new ArrayDeque<>();
     stack.push(root);
 
     while (!stack.isEmpty()) {
         TreeNode node = stack.pop();
-        result.add(0, node.val);    // prepend = reverse of pre-order variant
-        if (node.left  != null) stack.push(node.left);
-        if (node.right != null) stack.push(node.right);
+        result.add(0, node.val);    // prepend instead of append — this reverses the traversal order
+        // Push left before right so right is processed first → produces root→right→left order
+        // When we prepend each visit, that reverses to left→right→root = correct post-order
+        if (node.left  != null) { stack.push(node.left); }
+        if (node.right != null) { stack.push(node.right); }
     }
     return result;   // already in post-order (root last)
 }

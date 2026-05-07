@@ -7,6 +7,30 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+The Euclidean algorithm is based on one key insight: `gcd(a, b) = gcd(b, a mod b)`. Why? Any common divisor of `a` and `b` also divides `a - b`, and by extension `a mod b = a - (a/b)*b`. Conversely, any common divisor of `b` and `a mod b` also divides `a`. So the two pairs share exactly the same set of common divisors. Replacing `(a, b)` with `(b, a mod b)` strictly reduces the larger number (since `a mod b < b`), guaranteeing convergence. The number of steps is bounded by O(log(min(a,b))) because the pair decreases at least as fast as the Fibonacci sequence in the worst case. LCM follows from the fundamental theorem: `a × b = gcd(a,b) × lcm(a,b)`, rearranged as `lcm = a/gcd(a,b) × b` — divide first to avoid overflow.
+
+**Key invariant:** At every recursive step, `gcd(a, b) = gcd(b, a % b)`. The algorithm maintains this invariant by substitution until b reaches 0, at which point a is the GCD.
+
+**Common mistake:** Computing `a * b / gcd(a, b)` for LCM. If `a` and `b` are both around `10^9`, their product overflows a 32-bit int (and even a 64-bit long in extreme cases). Always divide first: `(a / gcd(a, b)) * b`.
+
+---
+
+## Step-by-Step Trace (Euclidean GCD)
+
+```
+gcd(48, 18):
+  gcd(48, 18) → gcd(18, 48%18=12)
+  gcd(18, 12) → gcd(12, 18%12=6)
+  gcd(12, 6)  → gcd(6, 12%6=0)
+  gcd(6, 0)   → return 6  ✓
+
+lcm(48, 18) = 48 / 6 * 18 = 8 * 18 = 144  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -27,13 +51,13 @@
 
 ```java
 int gcd(int a, int b) {
-    return b == 0 ? a : gcd(b, a % b);
+    return b == 0 ? a : gcd(b, a % b);  // base: gcd(a,0)=a; step: gcd(a,b)=gcd(b, a%b)
 }
 
 // Iterative version (avoids stack):
 int gcd(int a, int b) {
-    while (b != 0) { int tmp = b; b = a % b; a = tmp; }
-    return a;
+    while (b != 0) { int tmp = b; b = a % b; a = tmp; }  // keep replacing (a,b) with (b, a%b) until b=0
+    return a;  // when b=0, a holds the GCD
 }
 ```
 
@@ -41,7 +65,7 @@ int gcd(int a, int b) {
 
 ```java
 long lcm(long a, long b) {
-    return a / gcd(a, b) * b;   // divide FIRST to prevent overflow
+    return a / gcd(a, b) * b;   // divide FIRST: a/gcd gives a smaller number before multiplying by b, preventing overflow
 }
 ```
 
@@ -50,8 +74,9 @@ long lcm(long a, long b) {
 ```java
 int gcdArray(int[] nums) {
     int result = nums[0];
-    for (int i = 1; i < nums.length; i++)
+    for (int i = 1; i < nums.length; i++) {
         result = gcd(result, nums[i]);
+    }
     return result;
 }
 ```
@@ -84,7 +109,7 @@ int g = BigInteger.valueOf(a).gcd(BigInteger.valueOf(b)).intValue();
 ### Greatest Common Divisor of Strings (LC 1071)
 ```java
 public String gcdOfStrings(String str1, String str2) {
-    if (!(str1 + str2).equals(str2 + str1)) return "";  // no common pattern
+    if (!(str1 + str2).equals(str2 + str1)) { return ""; }  // no common pattern
     int g = gcd(str1.length(), str2.length());
     return str1.substring(0, g);
 }

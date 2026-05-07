@@ -53,8 +53,9 @@ class Trie {
         TrieNode cur = root;
         for (char c : word.toCharArray()) {
             int idx = c - 'a';
-            if (cur.children[idx] == null)
+            if (cur.children[idx] == null) {
                 cur.children[idx] = new TrieNode();
+            }
             cur = cur.children[idx];
         }
         cur.isEnd = true;
@@ -73,7 +74,7 @@ class Trie {
         TrieNode cur = root;
         for (char c : s.toCharArray()) {
             cur = cur.children[c - 'a'];
-            if (cur == null) return null;
+            if (cur == null) { return null; }
         }
         return cur;
     }
@@ -126,17 +127,17 @@ Implement `insert`, `search`, `startsWith`. See Core Implementation above.
 ```java
 public String replaceWords(List<String> dictionary, String sentence) {
     Trie trie = new Trie();
-    for (String root : dictionary) trie.insert(root);
+    for (String root : dictionary) { trie.insert(root); }
 
     StringBuilder sb = new StringBuilder();
     for (String word : sentence.split(" ")) {
-        if (sb.length() > 0) sb.append(" ");
+        if (sb.length() > 0) { sb.append(" "); }
         // Find shortest prefix root
         TrieNode cur = trie.root;
         StringBuilder prefix = new StringBuilder();
         boolean found = false;
         for (char c : word.toCharArray()) {
-            if (cur.children[c - 'a'] == null) break;
+            if (cur.children[c - 'a'] == null) { break; }
             cur = cur.children[c - 'a'];
             prefix.append(c);
             if (cur.isEnd) { found = true; break; }
@@ -167,22 +168,24 @@ This avoids re-searching for each word individually — all words share prefixes
 ```java
 public List<String> findWords(char[][] board, String[] words) {
     Trie trie = new Trie();
-    for (String w : words) trie.insert(w);
+    for (String w : words) { trie.insert(w); }
 
     List<String> result = new ArrayList<>();
     int m = board.length, n = board[0].length;
 
-    for (int r = 0; r < m; r++)
-        for (int c = 0; c < n; c++)
+    for (int r = 0; r < m; r++) {
+        for (int c = 0; c < n; c++) {
             dfs(board, r, c, trie.root, result);
+        }
+    }
 
     return result;
 }
 
 private void dfs(char[][] board, int r, int c, TrieNode node, List<String> result) {
-    if (r < 0 || r >= board.length || c < 0 || c >= board[0].length) return;
+    if (r < 0 || r >= board.length || c < 0 || c >= board[0].length) { return; }
     char ch = board[r][c];
-    if (ch == '#' || node.children[ch - 'a'] == null) return;
+    if (ch == '#' || node.children[ch - 'a'] == null) { return; }
 
     TrieNode next = node.children[ch - 'a'];
     if (next.word != null) {
@@ -192,7 +195,7 @@ private void dfs(char[][] board, int r, int c, TrieNode node, List<String> resul
 
     board[r][c] = '#';           // mark visited
     int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
-    for (int[] d : dirs) dfs(board, r + d[0], c + d[1], next, result);
+    for (int[] d : dirs) { dfs(board, r + d[0], c + d[1], next, result); }
     board[r][c] = ch;            // restore
 }
 ```
@@ -220,7 +223,7 @@ void insert(String word) {
     TrieNode cur = root;
     for (char c : word.toCharArray()) {
         int idx = c - 'a';
-        if (cur.children[idx] == null) cur.children[idx] = new TrieNode();
+        if (cur.children[idx] == null) { cur.children[idx] = new TrieNode(); }
         cur = cur.children[idx];
         cur.prefixCount++;
     }
@@ -254,7 +257,7 @@ class BinaryTrie {
         int cur = 0;
         for (int i = 31; i >= 0; i--) {
             int bit = (num >> i) & 1;
-            if (children[cur][bit] == 0) children[cur][bit] = size++;
+            if (children[cur][bit] == 0) { children[cur][bit] = size++; }
             cur = children[cur][bit];
         }
     }

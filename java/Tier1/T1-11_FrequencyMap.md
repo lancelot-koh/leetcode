@@ -21,33 +21,54 @@
 
 ---
 
+## How it Works — Mental Model 原理与直觉
+
+A frequency map trades space for time: instead of scanning one string to check if each character appears in another string (O(n·m)), you count occurrences of every element into a table in one pass (O(n)), then look up any element in O(1). The core idea is that two collections are "equivalent by frequency" (anagram, permutation, etc.) if and only if their frequency maps are identical.
+
+The choice of data structure matters: `int[26]` is a perfect hash for lowercase ASCII — the character index is the hash, with zero collisions. `HashMap<Character, Integer>` handles any alphabet but carries boxing overhead and hash computation cost. Use `int[26]` when you can; use `HashMap` when the key space is large or non-character.
+
+**Invariant (anagram check):** After incrementing all counts for `s1` and decrementing all counts for `s2`, the frequency array is all-zero if and only if the two strings are anagrams. Any non-zero entry reveals an imbalance.
+
+---
+
+## Step-by-Step Trace — Valid Anagram (LC 242) 执行追踪
+
+```
+s="anagram", t="nagaram"
+After counting s: a=3, n=1, g=1, r=1, m=1
+Decrement with t: a-=3→0, n-=1→0, g-=1→0, a already 0, r-=1→0, a already 0, m-=1→0
+All counts zero → true  ✓
+```
+
+---
+
 ## Core Templates 核心模板
 
 ### int[26] for lowercase letters (fastest) 小写字母用数组
 
 ```java
-int[] freq = new int[26];
+int[] freq = new int[26];   // index 0='a', index 25='z'; no hashing needed
 
 // Count characters
-for (char c : s.toCharArray()) freq[c - 'a']++;
+for (char c : s.toCharArray()) { freq[c - 'a']++; }   // c-'a' maps char to [0,25]
 
-// Check all zero
+// Check all zero — used after decrement pass to verify anagram
 boolean allZero = true;
-for (int f : freq) if (f != 0) { allZero = false; break; }
+for (int f : freq) { if (f != 0) { allZero = false; break; } }
 
-// Compare two strings
+// Compare two strings — O(26) = O(1)
 int[] a = new int[26], b = new int[26];
-for (char c : s1.toCharArray()) a[c - 'a']++;
-for (char c : s2.toCharArray()) b[c - 'a']++;
-boolean anagram = Arrays.equals(a, b);
+for (char c : s1.toCharArray()) { a[c - 'a']++; }
+for (char c : s2.toCharArray()) { b[c - 'a']++; }
+boolean anagram = Arrays.equals(a, b);   // faster than looping manually
 ```
 
 ### HashMap for general elements
 
 ```java
 Map<Integer, Integer> freq = new HashMap<>();
-for (int num : nums) freq.merge(num, 1, Integer::sum);  // or getOrDefault
-int count = freq.getOrDefault(target, 0);
+for (int num : nums) { freq.merge(num, 1, Integer::sum); }  // merge: put if absent, else add
+int count = freq.getOrDefault(target, 0);   // never throws NPE; returns 0 if key absent
 ```
 
 ### Frequency of frequencies (nested counting)
@@ -57,8 +78,8 @@ Map<String, List<String>> groups = new HashMap<>();
 for (String word : words) {
     char[] arr = word.toCharArray();
     Arrays.sort(arr);
-    String key = new String(arr);              // canonical form = sorted chars
-    groups.computeIfAbsent(key, k -> new ArrayList<>()).add(word);
+    String key = new String(arr);              // canonical form: all anagrams share the same sorted key
+    groups.computeIfAbsent(key, k -> new ArrayList<>()).add(word);   // create list on first encounter
 }
 ```
 
@@ -84,11 +105,11 @@ for (String word : words) {
 ### Valid Anagram (LC 242)
 ```java
 public boolean isAnagram(String s, String t) {
-    if (s.length() != t.length()) return false;
+    if (s.length() != t.length()) { return false; }
     int[] count = new int[26];
-    for (char c : s.toCharArray()) count[c - 'a']++;
-    for (char c : t.toCharArray()) count[c - 'a']--;
-    for (int f : count) if (f != 0) return false;
+    for (char c : s.toCharArray()) { count[c - 'a']++; }
+    for (char c : t.toCharArray()) { count[c - 'a']--; }
+    for (int f : count) { if (f != 0) { return false; } }
     return true;
 }
 ```
@@ -112,7 +133,7 @@ public int[] twoSum(int[] nums, int target) {
     Map<Integer, Integer> map = new HashMap<>();  // value → index
     for (int i = 0; i < nums.length; i++) {
         int complement = target - nums[i];
-        if (map.containsKey(complement)) return new int[]{map.get(complement), i};
+        if (map.containsKey(complement)) { return new int[]{map.get(complement), i}; }
         map.put(nums[i], i);
     }
     return new int[]{};
@@ -123,12 +144,12 @@ public int[] twoSum(int[] nums, int target) {
 ```java
 public int[] topKFrequent(int[] nums, int k) {
     Map<Integer, Integer> freq = new HashMap<>();
-    for (int n : nums) freq.merge(n, 1, Integer::sum);
+    for (int n : nums) { freq.merge(n, 1, Integer::sum); }
 
     PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b) -> a[1] - b[1]);
     for (Map.Entry<Integer, Integer> e : freq.entrySet()) {
         minHeap.offer(new int[]{e.getKey(), e.getValue()});
-        if (minHeap.size() > k) minHeap.poll();
+        if (minHeap.size() > k) { minHeap.poll(); }
     }
     return minHeap.stream().mapToInt(a -> a[0]).toArray();
 }
@@ -143,7 +164,7 @@ public int lengthOfLongestSubstringKDistinct(String s, int k) {
         freq.merge(s.charAt(right), 1, Integer::sum);
         while (freq.size() > k) {
             char lc = s.charAt(left++);
-            if (freq.merge(lc, -1, Integer::sum) == 0) freq.remove(lc);
+            if (freq.merge(lc, -1, Integer::sum) == 0) { freq.remove(lc); }
         }
         max = Math.max(max, right - left + 1);
     }
@@ -171,6 +192,14 @@ Collections.frequency(list, elem) // count in list
 
 ---
 
+## Common Mistake / Gotcha 常见错误
+
+**Two Sum: insert before lookup:** If you insert `nums[i]` into the map before checking for its complement, you risk using the same element twice (e.g., `nums=[3,3], target=6`: inserting 3 at i=0 then finding complement=3 at i=0 gives `{0,0}` — wrong). Always check for the complement first, then insert.
+
+**Not removing zero-count entries in sliding window:** When using `freq.size()` to count distinct elements in a window, leaving zero-count entries in the map inflates `freq.size()`. After decrementing, always check: `if (freq.merge(c, -1, Integer::sum) == 0) freq.remove(c)`.
+
+---
+
 ## Skills & Pitfalls 技巧与陷阱
 
 | Skill | Detail |
@@ -179,7 +208,7 @@ Collections.frequency(list, elem) // count in list
 | `map.merge(k, 1, Integer::sum)` | Clean one-liner for frequency counting |
 | Remove key when count = 0 | In sliding window: `if (freq.merge(c, -1, Integer::sum) == 0) freq.remove(c)` to track distinct count via `freq.size()` |
 | Sorted chars as anagram key | `Arrays.sort(arr); new String(arr)` gives canonical group key |
-| Lookup before insert (Two Sum) | Check complement EXISTS before inserting current element |
+| Lookup before insert (Two Sum) | Check complement EXISTS before inserting current element — not after |
 
 ---
 

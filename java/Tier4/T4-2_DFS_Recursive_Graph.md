@@ -8,6 +8,35 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+Graph DFS works exactly like tree DFS, with one critical addition: graphs can have cycles, so a node you reach from neighbor A might already have been fully explored via neighbor B. A `visited` array (or color array) acts as a memory that says "we have already been here — stop." Without it, DFS on a cyclic graph loops forever. For backtracking path enumeration you need a different discipline: mark on enter, unmark on exit. This lets the same node appear in two independent paths (A→B→C and A→D→B→C) because after finishing one branch you reset its "in-use" flag. The 3-color scheme for directed cycle detection is necessary because in directed graphs an edge to an already-visited node is only a cycle if that node is still on the current recursion path (gray); an edge to a fully-finished node (black) is harmless.
+
+**Key invariant:** In simple DFS, `visited[node] = true` is permanent — once black, always black. In backtracking DFS, visited is a "currently-on-path" flag that is true only during the recursive call that owns the node.
+
+**Common mistake:** Using a permanent `visited` array for all-paths enumeration. If you never unmark, DFS finds only the first path to each node and misses all alternatives that pass through the same intermediate node via a different route.
+
+---
+
+## Step-by-Step Trace (Backtracking DFS — All Paths)
+
+```
+Graph (DAG): 0→1, 0→2, 1→3, 2→3   Find all paths 0→3
+
+Call dfs(0): path=[0], visited={0}
+  Try neighbor 1: dfs(1), path=[0,1], visited={0,1}
+    Try neighbor 3: dfs(3) → target! Record [0,1,3]
+    Unmark: path=[0,1], visited={0,1}
+  Unmark 1: path=[0], visited={0}
+  Try neighbor 2: dfs(2), path=[0,2], visited={0,2}
+    Try neighbor 3: dfs(3) → target! Record [0,2,3]
+    Unmark: path=[0,2], visited={0,2}
+  Unmark 2: path=[0], visited={0}
+Result: [[0,1,3], [0,2,3]]  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -30,10 +59,11 @@
 boolean[] visited = new boolean[n];
 
 void dfs(int node, List<List<Integer>> adj) {
-    visited[node] = true;
-    for (int nei : adj.get(node))
-        if (!visited[nei]) dfs(nei, adj);
-    // post-order processing here if needed
+    visited[node] = true;               // mark before recursing to block cycles
+    for (int nei : adj.get(node)) {
+        if (!visited[nei]) { dfs(nei, adj); }  // only visit truly unseen nodes
+    }
+    // post-order processing here if needed (e.g., topological sort: add to stack here)
 }
 ```
 
@@ -44,14 +74,14 @@ List<List<Integer>> result = new ArrayList<>();
 
 void dfs(int node, int target, boolean[] visited,
          List<Integer> path, List<List<Integer>> adj) {
-    if (node == target) { result.add(new ArrayList<>(path)); return; }
+    if (node == target) { result.add(new ArrayList<>(path)); return; }  // snapshot path before returning
     for (int nei : adj.get(node)) {
         if (!visited[nei]) {
-            visited[nei] = true;
+            visited[nei] = true;             // mark: this node is on the current path
             path.add(nei);
             dfs(nei, target, visited, path, adj);
-            path.remove(path.size() - 1);   // unmark path
-            visited[nei] = false;            // unmark visited
+            path.remove(path.size() - 1);   // unmark path: undo the choice
+            visited[nei] = false;            // unmark visited: allow this node in other paths
         }
     }
 }
@@ -60,15 +90,15 @@ void dfs(int node, int target, boolean[] visited,
 ### Cycle detection — directed graph (3-color)
 
 ```java
-int[] color = new int[n];  // 0=unvisited, 1=in-stack, 2=done
+int[] color = new int[n];  // 0=unvisited (white), 1=in-stack (gray), 2=done (black)
 
 boolean hasCycle(int node, List<List<Integer>> adj) {
-    color[node] = 1;                    // entering: mark gray
+    color[node] = 1;                    // entering: mark gray (currently on recursion stack)
     for (int nei : adj.get(node)) {
-        if (color[nei] == 1) return true;         // back edge = cycle
-        if (color[nei] == 0 && hasCycle(nei, adj)) return true;
+        if (color[nei] == 1) { return true; }         // gray neighbor = back edge = cycle
+        if (color[nei] == 0 && hasCycle(nei, adj)) { return true; }  // recurse only into white nodes
     }
-    color[node] = 2;                    // done: mark black
+    color[node] = 2;                    // done: mark black (all descendants processed; safe)
     return false;
 }
 ```
@@ -81,8 +111,8 @@ int[] color = new int[n];  // 0=uncolored, 1 or -1 = two colors
 boolean bipartite(int node, int c, List<List<Integer>> adj) {
     color[node] = c;
     for (int nei : adj.get(node)) {
-        if (color[nei] == c) return false;          // same color = not bipartite
-        if (color[nei] == 0 && !bipartite(nei, -c, adj)) return false;
+        if (color[nei] == c) { return false; }          // same color = not bipartite
+        if (color[nei] == 0 && !bipartite(nei, -c, adj)) { return false; }
     }
     return true;
 }
@@ -130,16 +160,17 @@ void dfs(int[][] graph, int node, List<Integer> path, List<List<Integer>> result
 public boolean isBipartite(int[][] graph) {
     int n = graph.length;
     int[] color = new int[n];
-    for (int i = 0; i < n; i++)
-        if (color[i] == 0 && !dfs(graph, i, 1, color)) return false;
+    for (int i = 0; i < n; i++) {
+        if (color[i] == 0 && !dfs(graph, i, 1, color)) { return false; }
+    }
     return true;
 }
 
 boolean dfs(int[][] graph, int node, int c, int[] color) {
     color[node] = c;
     for (int nei : graph[node]) {
-        if (color[nei] == c) return false;
-        if (color[nei] == 0 && !dfs(graph, nei, -c, color)) return false;
+        if (color[nei] == c) { return false; }
+        if (color[nei] == 0 && !dfs(graph, nei, -c, color)) { return false; }
     }
     return true;
 }

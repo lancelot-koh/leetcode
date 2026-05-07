@@ -7,6 +7,33 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+The sieve works by elimination: assume every number ≥ 2 is prime, then systematically remove composites. For each number `i` that survives (still unmarked = prime), cross out all its multiples. The inner loop starts at `i*i` — not `2*i` — because every smaller multiple `k*i` where `k < i` was already crossed out when we processed the prime `k` earlier. This is why the outer loop only needs to go up to √n: any composite number ≤ n must have a prime factor ≤ √n, so all composites will have been marked by the time we reach √n. The time complexity is O(n log log n) because the total work is proportional to Σ(n/p) over all primes p ≤ n, which by Mertens' theorem converges to n log log n.
+
+**Key invariant:** When the outer loop reaches `i`, all composite numbers smaller than `i` have already been marked. Therefore, if `notPrime[i]` is still false, `i` must be prime — it has no prime factor less than itself.
+
+**Common mistake:** Writing `j = i * i` as an int without casting. When `i > 46340`, `i * i` overflows a 32-bit int (46341² > 2,147,483,647 = Integer.MAX_VALUE). Always compute `(long) i * i` and cast to int only after the bounds check.
+
+---
+
+## Step-by-Step Trace
+
+```
+Sieve up to n=20:
+
+Start: all unmarked [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+
+i=2 (prime): mark 4,8,12,16,20 (start at 2²=4, step 2)
+i=3 (prime): mark 9,15 (start at 3²=9, step 3; 6,12,18 already marked)
+i=4 (marked, skip)
+i=5 (prime): mark 25... (25>20, nothing to mark)
+
+Remaining unmarked: 2,3,5,7,11,13,17,19  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -36,11 +63,13 @@ public int countPrimes(int n) {
     int count = 0;
 
     for (int i = 2; i < n; i++) {
-        if (!notPrime[i]) {
+        if (!notPrime[i]) {          // i is prime (no smaller prime divided it)
             count++;
-            // Mark multiples of i as composite (start from i*i)
-            for (long j = (long) i * i; j < n; j += i)
-                notPrime[(int) j] = true;
+            // Start at i*i: smaller multiples k*i (k<i) were already marked when prime k was processed
+            // Cast to long: i*i can exceed Integer.MAX_VALUE when i > 46340
+            for (long j = (long) i * i; j < n; j += i) {
+                notPrime[(int) j] = true;  // mark composite; multiple of prime i cannot be prime
+            }
         }
     }
     return count;
@@ -51,12 +80,15 @@ public int countPrimes(int n) {
 
 ```java
 int[] spf = new int[n + 1];   // smallest prime factor
-for (int i = 0; i <= n; i++) spf[i] = i;
+for (int i = 0; i <= n; i++) { spf[i] = i; }
 
-for (int i = 2; (long) i * i <= n; i++)
-    if (spf[i] == i)              // i is prime
-        for (int j = i * i; j <= n; j += i)
-            if (spf[j] == j) spf[j] = i;  // first time marked: i is smallest factor
+for (int i = 2; (long) i * i <= n; i++) {
+    if (spf[i] == i) {              // i is prime
+        for (int j = i * i; j <= n; j += i) {
+            if (spf[j] == j) { spf[j] = i; }  // first time marked: i is smallest factor
+        }
+    }
+}
 
 // Factorize any number m in O(log m):
 List<Integer> factorize(int m) {
@@ -74,9 +106,10 @@ int[] spf = new int[n + 1];
 int cnt = 0;
 
 for (int i = 2; i <= n; i++) {
-    if (spf[i] == 0) primes[cnt++] = spf[i] = i;
-    for (int j = 0; j < cnt && primes[j] <= spf[i] && (long) i * primes[j] <= n; j++)
+    if (spf[i] == 0) { primes[cnt++] = spf[i] = i; }
+    for (int j = 0; j < cnt && primes[j] <= spf[i] && (long) i * primes[j] <= n; j++) {
         spf[(int)(i * primes[j])] = primes[j];
+    }
 }
 ```
 
@@ -92,8 +125,9 @@ public int countPrimes(int n) {
     for (int i = 2; i < n; i++) {
         if (!notPrime[i]) {
             count++;
-            for (long j = (long) i * i; j < n; j += i)
+            for (long j = (long) i * i; j < n; j += i) {
                 notPrime[(int) j] = true;
+            }
         }
     }
     return count;

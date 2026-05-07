@@ -8,6 +8,35 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+Two strings are anagrams if and only if they are identical permutations of the same multiset of characters. An `int[26]` array captures that multiset: increment for each character in the first string, decrement for each character in the second, and any non-zero entry means the two strings differ in that character's frequency. For sliding-window anagram search, you avoid recomputing the full window from scratch by treating it as a running sum: add the incoming character, remove the outgoing character. This makes each window comparison O(1) after an O(26) check or — with the `formed` counter optimization — O(1) altogether. The canonical sorted-key trick for grouping works because sorting produces a canonical form that all anagrams of the same word share, turning a grouping problem into a hash map lookup.
+
+**Key invariant:** For the sliding window, `wCount` always reflects exactly the character frequencies of the current window of size `k`. Adding one character on the right and removing one on the left keeps the window valid without scanning the interior.
+
+**Common mistake:** Using `Arrays.equals` on every step of a variable-size window (LC 76). For a fixed-size window it costs O(26) = O(1), which is fine. For a variable-size window where you need to shrink from the left, use the `formed` counter instead — it turns each character event into an O(1) update while still knowing instantly whether the window is a valid anagram.
+
+---
+
+## Step-by-Step Trace (Sliding Window — Find All Anagrams)
+
+```
+s = "cbaebabacd", p = "abc"   pCount = {a:1, b:1, c:1}
+
+i=0 (c): wCount={c:1}         → not equal to pCount
+i=1 (b): wCount={c:1,b:1}     → not equal
+i=2 (a): wCount={c:1,b:1,a:1} → Arrays.equals(pCount,wCount) ✓ → add index 0
+i=3 (e): add e; remove s[0]=c → wCount={b:1,a:1,e:1} → no match
+i=4 (b): add b; remove s[1]=b → wCount={a:1,b:1,e:1} → no match
+i=5 (a): add a; remove s[2]=a → wCount={a:1,b:1,e:1} → no match
+i=6 (b): add b; remove s[3]=e → wCount={a:1,b:2}     → no match
+i=7 (a): add a; remove s[4]=b → wCount={a:2,b:1}     → no match
+i=8 (c): add c; remove s[5]=a → wCount={a:1,b:1,c:1} ✓ → add index 6
+Result: [0, 6]  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -28,11 +57,11 @@
 
 ```java
 public boolean isAnagram(String s, String t) {
-    if (s.length() != t.length()) return false;
+    if (s.length() != t.length()) { return false; }  // different lengths → cannot be anagrams
     int[] count = new int[26];
-    for (char c : s.toCharArray()) count[c - 'a']++;
-    for (char c : t.toCharArray()) count[c - 'a']--;
-    for (int f : count) if (f != 0) return false;
+    for (char c : s.toCharArray()) { count[c - 'a']++; }  // tally up characters in s
+    for (char c : t.toCharArray()) { count[c - 'a']--; }  // tally down characters in t
+    for (int f : count) { if (f != 0) { return false; } }  // any non-zero → frequency mismatch
     return true;
 }
 ```
@@ -56,16 +85,16 @@ public List<List<String>> groupAnagrams(String[] strs) {
 ```java
 public List<Integer> findAnagrams(String s, String p) {
     List<Integer> result = new ArrayList<>();
-    if (s.length() < p.length()) return result;
+    if (s.length() < p.length()) { return result; }
 
     int[] pCount = new int[26], wCount = new int[26];
-    for (char c : p.toCharArray()) pCount[c - 'a']++;
+    for (char c : p.toCharArray()) { pCount[c - 'a']++; }
 
     int k = p.length();
     for (int i = 0; i < s.length(); i++) {
-        wCount[s.charAt(i) - 'a']++;
-        if (i >= k) wCount[s.charAt(i - k) - 'a']--;
-        if (Arrays.equals(pCount, wCount)) result.add(i - k + 1);
+        wCount[s.charAt(i) - 'a']++;          // slide window right: add new character
+        if (i >= k) { wCount[s.charAt(i - k) - 'a']--; }  // slide window left: remove character that fell off
+        if (Arrays.equals(pCount, wCount)) { result.add(i - k + 1); }  // window start index = i - k + 1
     }
     return result;
 }
@@ -75,19 +104,19 @@ public List<Integer> findAnagrams(String s, String p) {
 
 ```java
 public boolean checkInclusion(String s1, String s2) {
-    if (s1.length() > s2.length()) return false;
+    if (s1.length() > s2.length()) { return false; }
     int[] count = new int[26];
-    for (char c : s1.toCharArray()) count[c - 'a']++;
+    for (char c : s1.toCharArray()) { count[c - 'a']++; }
     for (int i = 0; i < s2.length(); i++) {
         count[s2.charAt(i) - 'a']--;
-        if (i >= s1.length()) count[s2.charAt(i - s1.length()) - 'a']++;
-        if (allZero(count)) return true;
+        if (i >= s1.length()) { count[s2.charAt(i - s1.length()) - 'a']++; }
+        if (allZero(count)) { return true; }
     }
     return false;
 }
 
 boolean allZero(int[] count) {
-    for (int f : count) if (f != 0) return false;
+    for (int f : count) { if (f != 0) { return false; } }
     return true;
 }
 ```

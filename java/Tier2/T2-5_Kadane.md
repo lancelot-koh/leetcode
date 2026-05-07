@@ -8,6 +8,34 @@
 
 ---
 
+## How it Works — Mental Model 算法原理
+
+Kadane's algorithm answers the question: "Is it worth dragging the previous subarray along, or should I start fresh here?" At each index `i`, `curMax` represents the maximum sum of any subarray that **ends at i**. If `curMax` was negative before adding `nums[i]`, the baggage of that previous subarray hurts more than it helps, so we drop it and start a new subarray from `i` alone. If `curMax` was positive, extending it adds value. The global maximum is tracked separately as we scan. This greedy local decision is globally optimal because the best subarray must end somewhere — and at that ending index, it must have been the best subarray ending there.
+
+**Key invariant:** `curMax` is always the maximum sum of any subarray ending at the current index. `globalMax` is the maximum over all `curMax` values seen so far.
+
+**Common mistake / gotcha:** Initializing `curMax` and `globalMax` to `0` instead of `nums[0]`. If all numbers are negative, the correct answer is the largest (least negative) single element — initializing to 0 would incorrectly return 0.
+
+---
+
+## Step-by-Step Trace 执行步骤示意
+
+Example: `maxSubArray([-2, 1, -3, 4, -1, 2, 1, -5, 4])`
+```
+i=0: curMax=max(-2, 0+(-2))=-2,   globalMax=-2
+i=1: curMax=max(1, -2+1)=1,       globalMax=1    ← restart (dropped the -2)
+i=2: curMax=max(-3, 1+(-3))=-2,   globalMax=1
+i=3: curMax=max(4, -2+4)=4,       globalMax=4    ← restart again
+i=4: curMax=max(-1, 4+(-1))=3,    globalMax=4
+i=5: curMax=max(2, 3+2)=5,        globalMax=5
+i=6: curMax=max(1, 5+1)=6,        globalMax=6
+i=7: curMax=max(-5, 6+(-5))=1,    globalMax=6
+i=8: curMax=max(4, 1+4)=5,        globalMax=6
+Result: 6  (subarray [4,-1,2,1])
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -28,10 +56,11 @@
 
 ```java
 public int maxSubArray(int[] nums) {
-    int curMax = nums[0], globalMax = nums[0];
+    int curMax = nums[0], globalMax = nums[0];  // init to nums[0], NOT 0 (handles all-negative input)
     for (int i = 1; i < nums.length; i++) {
+        // If curMax < 0, dragging it forward hurts; restart from nums[i] alone
         curMax = Math.max(nums[i], curMax + nums[i]);  // extend or restart
-        globalMax = Math.max(globalMax, curMax);
+        globalMax = Math.max(globalMax, curMax);        // track best ending seen so far
     }
     return globalMax;
 }
@@ -66,8 +95,9 @@ public int maxProduct(int[] nums) {
     int curMax = nums[0], curMin = nums[0], globalMax = nums[0];
     for (int i = 1; i < nums.length; i++) {
         int a = curMax * nums[i], b = curMin * nums[i];
+        // A large negative curMin × negative nums[i] can flip to a large positive
         curMax = Math.max(nums[i], Math.max(a, b));   // negative × negative = positive
-        curMin = Math.min(nums[i], Math.min(a, b));
+        curMin = Math.min(nums[i], Math.min(a, b));   // track min for future negative multiplications
         globalMax = Math.max(globalMax, curMax);
     }
     return globalMax;
@@ -126,12 +156,13 @@ public int maxSubarraySumCircular(int[] nums) {
 
     for (int num : nums) {
         curMax = Math.max(curMax + num, num);
-        globalMax = Math.max(globalMax, curMax);
+        globalMax = Math.max(globalMax, curMax);  // standard Kadane for non-wrapping case
         curMin = Math.min(curMin + num, num);
-        globalMin = Math.min(globalMin, curMin);
+        globalMin = Math.min(globalMin, curMin);  // Kadane for min subarray (the "excluded middle")
         totalSum += num;
     }
-    // If all negative: circular case = totalSum - globalMin would leave nothing
+    // Circular subarray wraps around = total − (minimum middle subarray)
+    // If all negative: globalMax is the answer (globalMin==totalSum would leave empty array)
     return globalMax > 0 ? Math.max(globalMax, totalSum - globalMin) : globalMax;
 }
 ```
@@ -139,7 +170,7 @@ public int maxSubarraySumCircular(int[] nums) {
 ### House Robber (LC 198) — non-adjacent
 ```java
 public int rob(int[] nums) {
-    if (nums.length == 1) return nums[0];
+    if (nums.length == 1) { return nums[0]; }
     int prev2 = nums[0], prev1 = Math.max(nums[0], nums[1]);
     for (int i = 2; i < nums.length; i++) {
         int cur = Math.max(prev1, prev2 + nums[i]);

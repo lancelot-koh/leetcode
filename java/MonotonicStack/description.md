@@ -103,8 +103,9 @@ public int[] dailyTemperatures(int[] temperatures) {
     Deque<Integer> stack = new ArrayDeque<>();
 
     for (int i = 0; i < n; i++) {
-        while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()])
+        while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()]) {
             answer[stack.peek()] = i - stack.pop();
+        }
         stack.push(i);
     }
     return answer;
@@ -177,7 +178,7 @@ public int[] nextGreaterElements(int[] nums) {
     for (int i = 0; i < 2 * n; i++) {
         while (!stack.isEmpty() && nums[i % n] > nums[stack.peek()])
             res[stack.pop()] = nums[i % n];
-        if (i < n) stack.push(i);
+        if (i < n) { stack.push(i); }
     }
     return res;
 }
@@ -209,7 +210,7 @@ public int largestRectangleArea(int[] heights) {
 
     // Previous smaller (left boundary)
     for (int i = 0; i < n; i++) {
-        while (!stack.isEmpty() && heights[stack.peek()] >= heights[i]) stack.pop();
+        while (!stack.isEmpty() && heights[stack.peek()] >= heights[i]) { stack.pop(); }
         left[i] = stack.isEmpty() ? -1 : stack.peek();
         stack.push(i);
     }
@@ -217,14 +218,15 @@ public int largestRectangleArea(int[] heights) {
 
     // Next smaller (right boundary)
     for (int i = n - 1; i >= 0; i--) {
-        while (!stack.isEmpty() && heights[stack.peek()] >= heights[i]) stack.pop();
+        while (!stack.isEmpty() && heights[stack.peek()] >= heights[i]) { stack.pop(); }
         right[i] = stack.isEmpty() ? n : stack.peek();
         stack.push(i);
     }
 
     int max = 0;
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++) {
         max = Math.max(max, heights[i] * (right[i] - left[i] - 1));
+    }
     return max;
 }
 ```
@@ -270,20 +272,21 @@ public int sumSubarrayMins(int[] arr) {
     Deque<Integer> stack = new ArrayDeque<>();
 
     for (int i = 0; i < n; i++) {
-        while (!stack.isEmpty() && arr[stack.peek()] >= arr[i]) stack.pop();
+        while (!stack.isEmpty() && arr[stack.peek()] >= arr[i]) { stack.pop(); }
         left[i] = stack.isEmpty() ? i + 1 : i - stack.peek();
         stack.push(i);
     }
     stack.clear();
     for (int i = n - 1; i >= 0; i--) {
-        while (!stack.isEmpty() && arr[stack.peek()] > arr[i]) stack.pop();
+        while (!stack.isEmpty() && arr[stack.peek()] > arr[i]) { stack.pop(); }
         right[i] = stack.isEmpty() ? n - i : stack.peek() - i;
         stack.push(i);
     }
 
     long ans = 0;
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++) {
         ans = (ans + (long) arr[i] * left[i] * right[i]) % MOD;
+    }
     return (int) ans;
 }
 ```
@@ -309,7 +312,7 @@ for (int num : nums) {
     stack.push(num);
 }
 // Remove from tail if removals still > 0
-while (removals-- > 0) stack.pop();
+while (removals-- > 0) { stack.pop(); }
 ```
 
 **Key insight 核心原理**
@@ -342,10 +345,10 @@ One incoming element can batch-resolve multiple stack elements. Using `if` would
 
 ```java
 // WRONG — misses chained resolutions
-if (!stack.isEmpty() && nums[i] > nums[stack.peek()]) stack.pop();
+if (!stack.isEmpty() && nums[i] > nums[stack.peek()]) { stack.pop(); }
 
 // CORRECT
-while (!stack.isEmpty() && nums[i] > nums[stack.peek()]) stack.pop();
+while (!stack.isEmpty() && nums[i] > nums[stack.peek()]) { stack.pop(); }
 ```
 
 ### Skill 2 — Strict vs Non-strict 严格 vs 非严格

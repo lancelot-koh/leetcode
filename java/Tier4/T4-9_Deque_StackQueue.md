@@ -7,6 +7,30 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+`ArrayDeque` is a resizable circular array backed by a single `Object[]`. Operations on both ends (push/pop front, offer/poll back) take O(1) amortized because they just move a head or tail index pointer — no shifting of elements. `Stack` is a subclass of `Vector`, which synchronizes every method; in single-threaded code this overhead is pure waste. `LinkedList` works correctly as both stack and queue, but each node carries two extra pointers (about 16–24 bytes of heap overhead per element), slowing cache performance. The LIFO vs FIFO choice is purely about which end you add and remove: for a stack, always the same end (front); for a queue, add to back and remove from front. Knowing this, the method aliases (push=offerFirst, offer=offerLast, pop=pollFirst, poll=pollFirst) become self-explanatory.
+
+**Key invariant:** For `ArrayDeque` used as a stack, the "top" is always the front (`peekFirst`). For a queue, the "front" to dequeue is also `peekFirst`, but new elements are added to the back with `offerLast`. Only one end changes for each role.
+
+**Common mistake:** Using `a - b` as a `PriorityQueue` comparator. This is concise but overflows when `a` is a large positive number and `b` is a large negative number (or vice versa), producing a wrong ordering. Always use `Integer.compare(a, b)`.
+
+---
+
+## Step-by-Step Trace (Stack vs Queue with same sequence)
+
+```
+Operations: push/offer 1, 2, 3; then pop/poll until empty
+
+As Stack (LIFO):  push(1)→[1], push(2)→[2,1], push(3)→[3,2,1]
+  pop→3, pop→2, pop→1   output: 3,2,1
+
+As Queue (FIFO): offer(1)→[1], offer(2)→[1,2], offer(3)→[1,2,3]
+  poll→1, poll→2, poll→3   output: 1,2,3
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Use case | Deque API | When |
@@ -25,9 +49,9 @@
 ```java
 Deque<Integer> stack = new ArrayDeque<>();
 
-stack.push(val);        // = offerFirst (add to front)
-int top = stack.pop();  // = pollFirst  (remove from front)
-int peek = stack.peek(); // = peekFirst
+stack.push(val);         // = offerFirst: new element becomes the new front (top of stack)
+int top = stack.pop();   // = pollFirst: removes and returns the front element (top of stack)
+int peek = stack.peek(); // = peekFirst: view top without removing
 
 // Never use java.util.Stack — it's synchronized and slow
 ```
@@ -38,9 +62,9 @@ int peek = stack.peek(); // = peekFirst
 Deque<Integer> queue = new ArrayDeque<>();
 // Or: Queue<Integer> queue = new LinkedList<>(); (acceptable but slower)
 
-queue.offer(val);       // = offerLast  (add to back)
-int front = queue.poll();// = pollFirst (remove from front)
-int peek = queue.peek(); // = peekFirst
+queue.offer(val);          // = offerLast: new element joins the back of the queue
+int front = queue.poll();  // = pollFirst: removes and returns the element that has waited longest (front)
+int peek = queue.peek();   // = peekFirst: view front without removing
 ```
 
 ### Priority Queue (min-heap and max-heap)

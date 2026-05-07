@@ -8,6 +8,32 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+The algorithm partitions the array into four regions that together always cover the entire array. `lo` is the boundary where 0s end; `mid` is the boundary of the unknown region; `hi` is the boundary where 2s begin. At any point `mid` points into the unknown zone — the only region that changes. When `mid` sees a 0, it swaps it to the front (extending the 0-region), and since the element that came from `lo` was already processed (it was a 1 sitting right behind `lo`), both pointers advance. When `mid` sees a 2, it swaps it to the back (extending the 2-region), but the element that arrives from `hi` is unknown, so `mid` must NOT advance — it needs to examine that new element next. When `mid` sees a 1, it is already in the right place so just advance `mid`. The loop ends when `mid` crosses `hi`, meaning the unknown region is empty.
+
+**Key invariant:** At every iteration: `nums[0..lo-1]` are all 0, `nums[lo..mid-1]` are all 1, `nums[hi+1..n-1]` are all 2, and `nums[mid..hi]` is the unknown zone.
+
+**Common mistake:** Advancing `mid` after a swap with `hi`. The element that arrived from position `hi` is unknown — you haven't inspected it yet. Advancing `mid` would skip its inspection and potentially place a 0 or 2 inside the "equals" region.
+
+---
+
+## Step-by-Step Trace
+
+```
+Input: [2, 0, 2, 1, 1, 0]   lo=0, mid=0, hi=5
+
+mid=0: nums[0]=2 → swap(mid=0,hi=5): [0,0,2,1,1,2], hi=4
+mid=0: nums[0]=0 → swap(lo=0,mid=0): [0,0,2,1,1,2], lo=1, mid=1
+mid=1: nums[1]=0 → swap(lo=1,mid=1): [0,0,2,1,1,2], lo=2, mid=2
+mid=2: nums[2]=2 → swap(mid=2,hi=4): [0,0,1,1,2,2], hi=3
+mid=2: nums[2]=1 → mid=3
+mid=3: nums[3]=1 → mid=4
+mid=4 > hi=3 → done: [0,0,1,1,2,2]  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -31,11 +57,11 @@ public void sortColors(int[] nums) {
 
     while (mid <= hi) {
         if (nums[mid] == 0) {
-            swap(nums, lo++, mid++);   // 0: goes to lo region; both advance
+            swap(nums, lo++, mid++);   // 0 → swap to front; the element from lo was a 1 (already processed), so advance mid too
         } else if (nums[mid] == 1) {
-            mid++;                     // 1: already in correct region
+            mid++;                     // 1 is already in the correct middle region; just expand it
         } else {
-            swap(nums, mid, hi--);     // 2: goes to hi region; mid stays (new element to check)
+            swap(nums, mid, hi--);     // 2 → swap to back; the element arriving from hi is unknown, do NOT advance mid
         }
     }
 }
@@ -52,9 +78,9 @@ void swap(int[] nums, int a, int b) {
 void threeWayPartition(int[] nums, int p) {
     int lo = 0, mid = 0, hi = nums.length - 1;
     while (mid <= hi) {
-        if      (nums[mid] < p) swap(nums, lo++, mid++);
-        else if (nums[mid] == p) mid++;
-        else                     swap(nums, mid, hi--);
+        if      (nums[mid] < p) { swap(nums, lo++, mid++); }
+        else if (nums[mid] == p) { mid++; }
+        else                     { swap(nums, mid, hi--); }
     }
     // After: nums[0..lo-1] < p, nums[lo..mid-1] == p, nums[mid..n-1] > p
 }
@@ -65,9 +91,10 @@ void threeWayPartition(int[] nums, int p) {
 ```java
 public void moveZeroes(int[] nums) {
     int insertPos = 0;
-    for (int num : nums)
-        if (num != 0) nums[insertPos++] = num;
-    while (insertPos < nums.length) nums[insertPos++] = 0;
+    for (int num : nums) {
+        if (num != 0) { nums[insertPos++] = num; }
+    }
+    while (insertPos < nums.length) { nums[insertPos++] = 0; }
 }
 ```
 
@@ -106,9 +133,9 @@ When `mid` encounters a 2 and swaps with `hi`, the new `nums[mid]` is unknown �
 public void sortColors(int[] nums) {
     int lo = 0, mid = 0, hi = nums.length - 1;
     while (mid <= hi) {
-        if      (nums[mid] == 0) swap(nums, lo++, mid++);
-        else if (nums[mid] == 1) mid++;
-        else                     swap(nums, mid, hi--);
+        if      (nums[mid] == 0) { swap(nums, lo++, mid++); }
+        else if (nums[mid] == 1) { mid++; }
+        else                     { swap(nums, mid, hi--); }
     }
 }
 void swap(int[] a, int i, int j) { int t = a[i]; a[i] = a[j]; a[j] = t; }

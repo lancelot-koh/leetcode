@@ -7,6 +7,32 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+Bitwise operations work on individual binary digits in parallel. XOR is the most powerful interview tool because it satisfies `a ^ a = 0` (self-cancellation) and `a ^ 0 = a` (identity), making it ideal for finding the unique element among duplicates: all paired elements cancel to zero, leaving only the singleton. The `n & (n-1)` trick works because subtracting 1 flips the lowest set bit and all bits below it; ANDing with the original clears exactly the lowest set bit. This is why `isPow2` checks `n & (n-1) == 0` — a power of two has exactly one set bit, so clearing it yields zero. Shifting right by 1 (`i >> 1`) is equivalent to integer division by 2, which makes counting bits via `dp[i] = dp[i>>1] + (i&1)` an elegant O(n) DP: every number's bit count is its right-shifted version's count plus its last bit.
+
+**Key invariant:** XOR is commutative and associative, so `a^b^a = b` regardless of order — you can XOR elements in any sequence and paired elements will cancel.
+
+**Common mistake:** Using `1 << k` when k ≥ 31 in Java. `1` is a 32-bit int, so `1 << 31` becomes a negative number. Use `1L << k` to work with long arithmetic when k can be large.
+
+---
+
+## Step-by-Step Trace (Single Number — XOR cancellation)
+
+```
+Input: [4, 1, 2, 1, 2]  Find the unique element.
+
+result = 0
+XOR 4: result = 0^4 = 4      (binary: 100)
+XOR 1: result = 4^1 = 5      (binary: 101)
+XOR 2: result = 5^2 = 7      (binary: 111)
+XOR 1: result = 7^1 = 6      (binary: 110)  ← pair (1,1) cancels
+XOR 2: result = 6^2 = 4      (binary: 100)  ← pair (2,2) cancels
+Answer: 4  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -25,32 +51,32 @@
 ## Core Operations 核心操作
 
 ```java
-// Get bit k (0-indexed from right)
+// Get bit k (0-indexed from right): shift bit k to position 0, then mask with 1
 int getBit(int n, int k)   { return (n >> k) & 1; }
 
-// Set bit k
+// Set bit k: OR with a mask that has only bit k set
 int setBit(int n, int k)   { return n | (1 << k); }
 
-// Clear bit k
+// Clear bit k: AND with a mask that has all bits set except bit k
 int clearBit(int n, int k) { return n & ~(1 << k); }
 
-// Toggle bit k
+// Toggle bit k: XOR flips only the bit that matches the 1 in the mask
 int toggleBit(int n, int k){ return n ^ (1 << k); }
 
-// Clear lowest set bit
+// Clear lowest set bit: n-1 flips the lowest set bit and all bits below it; AND clears them
 int clearLSB(int n)        { return n & (n - 1); }
 
-// Extract lowest set bit
+// Extract lowest set bit: -n in two's complement = ~n+1; the lowest set bit is the only one that survives AND
 int lsb(int n)             { return n & (-n); }
 
-// Check power of 2
+// Check power of 2: a power of 2 has exactly one bit set, so clearing the lowest set bit yields 0
 boolean isPow2(int n)      { return n > 0 && (n & (n - 1)) == 0; }
 
 // XOR trick: a ^ a = 0, a ^ 0 = a
-// Count set bits (Brian Kernighan)
+// Count set bits (Brian Kernighan): each iteration removes exactly one set bit → O(number of set bits)
 int countBits(int n) {
     int count = 0;
-    while (n != 0) { n &= (n - 1); count++; }
+    while (n != 0) { n &= (n - 1); count++; }  // strip lowest set bit; count how many strips needed
     return count;
 }
 ```
@@ -79,7 +105,7 @@ int countBits(int n) {
 ```java
 public int singleNumber(int[] nums) {
     int result = 0;
-    for (int n : nums) result ^= n;   // all pairs cancel; unique remains
+    for (int n : nums) { result ^= n; }   // XOR with itself cancels → only the unique element survives
     return result;
 }
 ```
@@ -89,13 +115,14 @@ public int singleNumber(int[] nums) {
 ```java
 public int[] singleNumber(int[] nums) {
     int xor = 0;
-    for (int n : nums) xor ^= n;      // xor = a ^ b
+    for (int n : nums) { xor ^= n; }      // xor = a ^ b (all duplicates cancelled)
 
-    int diff = xor & (-xor);           // lowest bit where a and b differ
+    int diff = xor & (-xor);              // isolate the lowest bit where a and b differ
     int a = 0;
-    for (int n : nums)
-        if ((n & diff) != 0) a ^= n;  // isolate group with that bit set
-    return new int[]{a, xor ^ a};
+    for (int n : nums) {
+        if ((n & diff) != 0) { a ^= n; }  // XOR only numbers with that bit set; a and b land in different groups, so one unique survives
+    }
+    return new int[]{a, xor ^ a};         // xor ^ a = (a^b) ^ a = b
 }
 ```
 
@@ -104,8 +131,9 @@ public int[] singleNumber(int[] nums) {
 ```java
 public int[] countBits(int n) {
     int[] dp = new int[n + 1];
-    for (int i = 1; i <= n; i++)
-        dp[i] = dp[i >> 1] + (i & 1);  // dp[i] = dp[i/2] + last bit
+    for (int i = 1; i <= n; i++) {
+        dp[i] = dp[i >> 1] + (i & 1);  // i>>1 drops the last bit (already counted); (i&1) adds it back if it was 1
+    }
     return dp;
 }
 ```
@@ -133,7 +161,7 @@ public int[] countBits(int n) {
 ```java
 public int singleNumber(int[] nums) {
     int res = 0;
-    for (int n : nums) res ^= n;
+    for (int n : nums) { res ^= n; }
     return res;
 }
 ```
@@ -151,8 +179,9 @@ public int hammingWeight(int n) {
 ```java
 public int[] countBits(int n) {
     int[] dp = new int[n + 1];
-    for (int i = 1; i <= n; i++)
+    for (int i = 1; i <= n; i++) {
         dp[i] = dp[i >> 1] + (i & 1);
+    }
     return dp;
 }
 ```
@@ -161,8 +190,9 @@ public int[] countBits(int n) {
 ```java
 public int missingNumber(int[] nums) {
     int result = nums.length;
-    for (int i = 0; i < nums.length; i++)
+    for (int i = 0; i < nums.length; i++) {
         result ^= i ^ nums[i];
+    }
     return result;
 }
 ```

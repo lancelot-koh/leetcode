@@ -108,8 +108,9 @@ public int maxSubarrayLen(int[] nums, int k) {
     int runningSum = 0, maxLen = 0;
     for (int i = 0; i < nums.length; i++) {
         runningSum += nums[i];
-        if (firstSeen.containsKey(runningSum - k))
+        if (firstSeen.containsKey(runningSum - k)) {
             maxLen = Math.max(maxLen, i - firstSeen.get(runningSum - k));
+        }
         firstSeen.putIfAbsent(runningSum, i);   // only store FIRST occurrence
     }
     return maxLen;
@@ -191,10 +192,11 @@ public int findMaxLength(int[] nums) {
     int runningSum = 0, maxLen = 0;
     for (int i = 0; i < nums.length; i++) {
         runningSum += nums[i] == 1 ? 1 : -1;   // remap 0 → -1
-        if (firstSeen.containsKey(runningSum))
+        if (firstSeen.containsKey(runningSum)) {
             maxLen = Math.max(maxLen, i - firstSeen.get(runningSum));
-        else
+        } else {
             firstSeen.put(runningSum, i);
+        }
     }
     return maxLen;
 }

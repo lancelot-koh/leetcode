@@ -22,6 +22,34 @@
 
 ---
 
+## How it Works — Mental Model 原理与直觉
+
+The right pointer greedily expands the window to include as much as possible. The left pointer shrinks only when forced to — when the window violates its constraint. Because both pointers only ever move right, each element is added once and removed at most once, giving O(n) total work regardless of how many shrink steps occur.
+
+The choice of **where to record the answer** is the main thing to get right:
+- For the **longest** window: the window is valid after shrinking, so record outside (after) the `while`.
+- For the **shortest** window: you want to record the *current* valid window *before* shrinking it further, so record *inside* the `while`.
+
+**Invariant:** At all times, `[left, right]` either satisfies the constraint (longest variant) or is being shrunk toward satisfaction (shortest variant). `left` never overtakes `right`.
+
+---
+
+## Step-by-Step Trace — Longest Without Repeating (LC 3) 执行追踪
+
+```
+Input: s = "abcba"
+right=0 (a): window={a:1}         valid → max=1
+right=1 (b): window={a:1,b:1}     valid → max=2
+right=2 (c): window={a:1,b:1,c:1} valid → max=3
+right=3 (b): window has b twice → shrink: remove a(left=0→1), b still 2
+             still invalid → remove b(left=1→2), b count=1 → valid
+             max stays 3,  window=[2..3]="cb"
+right=4 (a): window={c:1,b:1,a:1} valid → max=3
+Answer: 3 ("abc" or "cba")
+```
+
+---
+
 ## Core Templates 核心模板
 
 ### Longest (shrink when invalid) 最长问题
@@ -31,14 +59,14 @@ int left = 0, max = 0;
 Map<Character, Integer> freq = new HashMap<>();
 
 for (int right = 0; right < s.length(); right++) {
-    freq.merge(s.charAt(right), 1, Integer::sum);  // expand
+    freq.merge(s.charAt(right), 1, Integer::sum);  // expand: always include right element
 
-    while (!isValid(freq))  {                       // shrink when invalid
+    while (!isValid(freq))  {                       // window broke the constraint → must shrink
         char lc = s.charAt(left++);
-        if (freq.merge(lc, -1, Integer::sum) == 0) freq.remove(lc);
+        if (freq.merge(lc, -1, Integer::sum) == 0) { freq.remove(lc); } // keep map clean
     }
 
-    max = Math.max(max, right - left + 1);          // update OUTSIDE loop
+    max = Math.max(max, right - left + 1);          // update OUTSIDE: window is now valid
 }
 ```
 
@@ -51,8 +79,8 @@ int left = 0, min = Integer.MAX_VALUE;
 for (int right = 0; right < n; right++) {
     addToWindow(nums[right]);
 
-    while (isValid()) {                             // shrink while valid
-        min = Math.min(min, right - left + 1);     // update INSIDE loop
+    while (isValid()) {                             // window satisfies constraint → record & try to shrink
+        min = Math.min(min, right - left + 1);     // update INSIDE: capture before shrinking away
         removeFromWindow(nums[left++]);
     }
 }
@@ -67,7 +95,7 @@ private int atMost(int[] nums, int k) {
     for (int right = 0; right < nums.length; right++) {
         freq.merge(nums[right], 1, Integer::sum);
         while (freq.size() > k) {
-            if (freq.merge(nums[left++], -1, Integer::sum) == 0) freq.remove(nums[left-1]);
+            if (freq.merge(nums[left++], -1, Integer::sum) == 0) { freq.remove(nums[left-1]); }
         }
         count += right - left + 1;   // all subarrays ending at right
     }
@@ -114,8 +142,9 @@ public int characterReplacement(String s, int k) {
     int left = 0, maxFreq = 0, max = 0;
     for (int right = 0; right < s.length(); right++) {
         maxFreq = Math.max(maxFreq, ++freq[s.charAt(right) - 'A']);
-        while ((right - left + 1) - maxFreq > k)  // replacements needed > k
+        while ((right - left + 1) - maxFreq > k) { // replacements needed > k
             freq[s.charAt(left++) - 'A']--;
+        }
         max = Math.max(max, right - left + 1);
     }
     return max;
@@ -126,19 +155,19 @@ public int characterReplacement(String s, int k) {
 ```java
 public String minWindow(String s, String t) {
     Map<Character, Integer> need = new HashMap<>(), win = new HashMap<>();
-    for (char c : t.toCharArray()) need.merge(c, 1, Integer::sum);
+    for (char c : t.toCharArray()) { need.merge(c, 1, Integer::sum); }
     int left = 0, formed = 0, required = need.size();
     int minLen = Integer.MAX_VALUE, start = 0;
 
     for (int right = 0; right < s.length(); right++) {
         char rc = s.charAt(right);
         win.merge(rc, 1, Integer::sum);
-        if (need.containsKey(rc) && win.get(rc).equals(need.get(rc))) formed++;
+        if (need.containsKey(rc) && win.get(rc).equals(need.get(rc))) { formed++; }
 
         while (formed == required) {
             if (right - left + 1 < minLen) { minLen = right - left + 1; start = left; }
             char lc = s.charAt(left++);
-            if (need.containsKey(lc) && win.merge(lc, -1, Integer::sum) < need.get(lc)) formed--;
+            if (need.containsKey(lc) && win.merge(lc, -1, Integer::sum) < need.get(lc)) { formed--; }
         }
     }
     return minLen == Integer.MAX_VALUE ? "" : s.substring(start, start + minLen);
@@ -154,6 +183,14 @@ public int subarraysWithKDistinct(int[] nums, int k) {
 
 ---
 
+## Common Mistake / Gotcha 常见错误
+
+**LC 424 `maxFreq` stale value:** In `characterReplacement`, `maxFreq` is never decremented when the window shrinks. This is intentional — a stale (overestimated) `maxFreq` only allows the window to grow, never to produce a wrong answer. But many readers try to "fix" this by decrementing `maxFreq`, which makes the solution incorrect because a smaller `maxFreq` would cause unnecessary shrinking.
+
+**Negative numbers break the window:** If the array contains negatives, adding more elements can decrease the sum, so expanding `right` no longer monotonically increases the window value. The constraint is no longer monotone → you cannot shrink `left` safely. Use prefix sums + HashMap instead.
+
+---
+
 ## Skills & Pitfalls 技巧与陷阱
 
 | Skill | Detail |
@@ -161,7 +198,7 @@ public int subarraysWithKDistinct(int[] nums, int k) {
 | `left` never goes back | Both pointers only move right → O(n) total |
 | `formed` counter trick | Track satisfied conditions as a count, not by re-checking the whole map |
 | Negative numbers | If array has negatives, sliding window breaks → use prefix sum + HashMap |
-| `count += right - left + 1` | Every subarray ending at `right` starting from `[left..right]` is valid |
+| `count += right - left + 1` | All subarrays ending at `right` with left in `[left..right]` are valid; there are exactly `right - left + 1` of them |
 | Exact-K = atMost(K) - atMost(K-1) | Can't maintain "exactly" directly; decompose into two at-most problems |
 
 ---

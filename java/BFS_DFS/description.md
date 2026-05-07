@@ -85,7 +85,7 @@ public int shortestPath(int[][] graph, int src, int dst) {
         int size = queue.size();
         for (int i = 0; i < size; i++) {           // process one level at a time
             int node = queue.poll();
-            if (node == dst) return steps;
+            if (node == dst) { return steps; }
             for (int neighbor : graph[node]) {
                 if (!visited[neighbor]) {
                     visited[neighbor] = true;
@@ -123,8 +123,8 @@ while (!queue.isEmpty()) {
     for (int i = 0; i < size; i++) {
         TreeNode node = queue.poll();
         // process node; i == size-1 means it's the rightmost at this level
-        if (node.left  != null) queue.offer(node.left);
-        if (node.right != null) queue.offer(node.right);
+        if (node.left  != null) { queue.offer(node.left); }
+        if (node.right != null) { queue.offer(node.right); }
     }
     depth++;
 }
@@ -152,12 +152,14 @@ while (!queue.isEmpty()) {
 Queue<int[]> queue = new LinkedList<>();
 
 // Enqueue ALL sources upfront
-for (int r = 0; r < m; r++)
-    for (int c = 0; c < n; c++)
+for (int r = 0; r < m; r++) {
+    for (int c = 0; c < n; c++) {
         if (grid[r][c] == SOURCE) {
             queue.offer(new int[]{r, c});
             visited[r][c] = true;
         }
+    }
+}
 
 int steps = 0;
 int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
@@ -214,7 +216,7 @@ while (!queue.isEmpty()) {
                 chars[j] = c;
                 String next = new String(chars);
                 if (wordSet.contains(next)) {
-                    if (next.equals(endWord)) return steps + 1;
+                    if (next.equals(endWord)) { return steps + 1; }
                     wordSet.remove(next);   // remove = visited
                     queue.offer(next);
                 }
@@ -245,7 +247,7 @@ boolean[] visited;
 public void dfs(int[][] graph, int node) {
     visited[node] = true;
     for (int neighbor : graph[node]) {
-        if (!visited[neighbor]) dfs(graph, neighbor);
+        if (!visited[neighbor]) { dfs(graph, neighbor); }
     }
 }
 
@@ -253,10 +255,10 @@ public void dfs(int[][] graph, int node) {
 int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
 
 public void dfsGrid(char[][] grid, int r, int c) {
-    if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length) return;
-    if (grid[r][c] != '1') return;
+    if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length) { return; }
+    if (grid[r][c] != '1') { return; }
     grid[r][c] = '0';                   // mark visited by mutating
-    for (int[] d : dirs) dfsGrid(grid, r + d[0], c + d[1]);
+    for (int[] d : dirs) { dfsGrid(grid, r + d[0], c + d[1]); }
 }
 ```
 
@@ -284,8 +286,8 @@ int[] color;  // 0=white, 1=gray(in stack), 2=black(done)
 public boolean hasCycle(int node) {
     color[node] = 1;
     for (int neighbor : graph[node]) {
-        if (color[neighbor] == 1) return true;   // back edge = cycle
-        if (color[neighbor] == 0 && hasCycle(neighbor)) return true;
+        if (color[neighbor] == 1) { return true; }   // back edge = cycle
+        if (color[neighbor] == 0 && hasCycle(neighbor)) { return true; }
     }
     color[node] = 2;
     return false;
@@ -302,7 +304,7 @@ public boolean hasCycle(int node) {
 
 ```java
 public void traverse(TreeNode node) {
-    if (node == null) return;
+    if (node == null) { return; }
     // preorder:  process(node) here
     traverse(node.left);
     // inorder:   process(node) here
@@ -334,8 +336,8 @@ stack.push(root);
 while (!stack.isEmpty()) {
     TreeNode n = stack.pop();
     result.push(n);
-    if (n.left  != null) stack.push(n.left);
-    if (n.right != null) stack.push(n.right);
+    if (n.left  != null) { stack.push(n.left); }
+    if (n.right != null) { stack.push(n.right); }
 }
 // result deque now yields postorder
 ```

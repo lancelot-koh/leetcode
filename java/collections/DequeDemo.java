@@ -9,6 +9,9 @@ public class DequeDemo {
         deque.add("Apple");
         deque.add("Banana");
         deque.add("Cherry");
+        deque.offerLast("test1");
+        deque.offerFirst("test2");  
+        deque.offerLast("test33");
 
         // Display the deque
         System.out.println("Deque: " + deque);

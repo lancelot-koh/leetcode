@@ -76,8 +76,8 @@ public int minMeetingRooms(int[][] intervals) {
 
     int rooms = 0, maxRooms = 0, j = 0;
     for (int i = 0; i < n; i++) {
-        if (starts[i] < ends[j]) rooms++;     // new meeting starts before earliest end
-        else                     { rooms--; j++; }  // recycle a room
+        if (starts[i] < ends[j]) { rooms++; }     // new meeting starts before earliest end
+        else { rooms--; j++; }  // recycle a room
         maxRooms = Math.max(maxRooms, rooms);
     }
     return maxRooms;
@@ -130,7 +130,7 @@ The sort tie-break (`a[1] - b[1]`: -1 before +1) handles end-before-start.
 ```java
 // Flatten all intervals, sort by start, then find gaps
 List<int[]> all = new ArrayList<>();
-for (List<Interval> person : schedule) all.addAll(person);
+for (List<Interval> person : schedule) { all.addAll(person); }
 all.sort((a, b) -> a[0] - b[0]);
 
 List<int[]> result = new ArrayList<>();
@@ -138,8 +138,9 @@ int end = all.get(0)[1];
 
 for (int i = 1; i < all.size(); i++) {
     int[] cur = all.get(i);
-    if (cur[0] > end)
+    if (cur[0] > end) {
         result.add(new int[]{end, cur[0]});   // gap found
+    }
     end = Math.max(end, cur[1]);
 }
 return result;
@@ -183,7 +184,7 @@ public List<List<Integer>> getSkyline(int[][] buildings) {
             heightCount.merge(-e[1], 1, Integer::sum);
         } else {         // building ends: remove height
             int h = e[1];
-            if (heightCount.merge(h, -1, Integer::sum) == 0) heightCount.remove(h);
+            if (heightCount.merge(h, -1, Integer::sum) == 0) { heightCount.remove(h); }
         }
         int curMax = heightCount.lastKey();
         if (curMax != prevMax) {
@@ -215,9 +216,9 @@ events.sort((a, b) -> a[0] - b[0]);
 int active = 0;
 int[] answers = new int[queries.length];
 for (int[] e : events) {
-    if      (e[1] == 1)  active++;            // interval start
-    else if (e[1] == -1) active--;            // interval end
-    else                 answers[e[2]] = active;  // query
+    if      (e[1] == 1) { active++; }            // interval start
+    else if (e[1] == -1) { active--; }            // interval end
+    else { answers[e[2]] = active; }  // query
 }
 ```
 
@@ -253,7 +254,7 @@ When you need to: add heights, remove heights, always query current max:
 ```java
 TreeMap<Integer, Integer> tm = new TreeMap<>();
 tm.merge(height, 1, Integer::sum);    // add
-if (tm.merge(height, -1, Integer::sum) == 0) tm.remove(height);  // remove
+if (tm.merge(height, -1, Integer::sum) == 0) { tm.remove(height); }  // remove
 int curMax = tm.lastKey();            // O(log n)
 ```
 

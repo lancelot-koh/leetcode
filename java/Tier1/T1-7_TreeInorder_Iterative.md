@@ -20,6 +20,34 @@
 
 ---
 
+## How it Works — Mental Model 原理与直觉
+
+Recursive inorder uses the call stack to remember "I still need to visit the parent after finishing the left subtree." The iterative version makes this explicit: we push nodes onto a stack as we walk left, and when we can't go further left, the stack top is the node whose left subtree is fully done — exactly the right moment to visit it.
+
+After visiting a node, we move to its right child and repeat: walk all the way left, visiting each node as it becomes the new "leftmost unvisited." This mirrors the exact sequence the recursive version follows, but now you control the stack.
+
+**Invariant:** Everything on the stack has been reached but not yet visited. The top of the stack is always the smallest unvisited node seen so far.
+
+---
+
+## Step-by-Step Trace — Iterative Inorder 执行追踪
+
+```
+Tree:    2
+        / \
+       1   3
+cur=2: push 2, go left → cur=1
+cur=1: push 1, go left → cur=null
+Pop 1, visit 1, go right → cur=null
+Pop 2, visit 2, go right → cur=3
+cur=3: push 3, go left → cur=null
+Pop 3, visit 3, go right → cur=null
+Stack empty, cur=null → done
+Result: [1, 2, 3]  ✓ (BST sorted order)
+```
+
+---
+
 ## Core Templates 核心模板
 
 ### Iterative Inorder (Standard) 标准迭代中序
@@ -31,15 +59,15 @@ public List<Integer> inorderTraversal(TreeNode root) {
     TreeNode cur = root;
 
     while (cur != null || !stack.isEmpty()) {
-        // Go as far left as possible
+        // Phase 1: walk left — push every node we pass over (we'll visit them after their left subtrees)
         while (cur != null) {
             stack.push(cur);
             cur = cur.left;
         }
-        // Visit
+        // Phase 2: left subtree exhausted — pop the top and visit it (inorder position)
         cur = stack.pop();
         result.add(cur.val);
-        // Go right
+        // Phase 3: now explore its right subtree; the outer while will push its left spine
         cur = cur.right;
     }
     return result;
@@ -59,8 +87,8 @@ stack.push(root);
 while (!stack.isEmpty()) {
     TreeNode node = stack.pop();
     process(node);                      // PREORDER: visit before pushing children
-    if (node.right != null) stack.push(node.right);
-    if (node.left  != null) stack.push(node.left);   // left on top → visited first
+    if (node.right != null) { stack.push(node.right); }
+    if (node.left  != null) { stack.push(node.left); }   // left on top → visited first
 }
 ```
 
@@ -73,8 +101,8 @@ stack.push(root);
 while (!stack.isEmpty()) {
     TreeNode node = stack.pop();
     output.push(node);                  // collect in reverse order
-    if (node.left  != null) stack.push(node.left);
-    if (node.right != null) stack.push(node.right);
+    if (node.left  != null) { stack.push(node.left); }
+    if (node.right != null) { stack.push(node.right); }
 }
 // output deque gives postorder when popped
 ```
@@ -122,7 +150,7 @@ public int kthSmallest(TreeNode root, int k) {
     while (cur != null || !stack.isEmpty()) {
         while (cur != null) { stack.push(cur); cur = cur.left; }
         cur = stack.pop();
-        if (--k == 0) return cur.val;
+        if (--k == 0) { return cur.val; }
         cur = cur.right;
     }
     return -1;
@@ -138,7 +166,7 @@ public TreeNode inorderSuccessor(TreeNode root, TreeNode p) {
     TreeNode successor = null;
     while (root != null) {
         if (p.val < root.val) { successor = root; root = root.left; }
-        else                   root = root.right;
+        else                   { root = root.right; }
     }
     return successor;
 }
@@ -146,12 +174,20 @@ public TreeNode inorderSuccessor(TreeNode root, TreeNode p) {
 
 ---
 
+## Common Mistake / Gotcha 常见错误
+
+**Using only `!stack.isEmpty()` as the loop condition:** When `cur` points to a right child (e.g., after popping and going right), the stack may be temporarily empty but `cur` is not null — there are still nodes to process. The condition must be `cur != null || !stack.isEmpty()`. Dropping the `cur != null` clause causes premature termination on right-heavy trees.
+
+**Using `Stack<>` instead of `Deque<>`:** `java.util.Stack` is a legacy class synchronized on every push/pop, making it 3-5x slower than `ArrayDeque`. Always declare the type as `Deque<TreeNode> stack = new ArrayDeque<>()`.
+
+---
+
 ## Skills & Pitfalls 技巧与陷阱
 
 | Skill | Detail |
 |---|---|
-| `cur != null OR !stack.isEmpty()` | Both conditions needed: cur covers descent, stack covers return |
-| Use `Deque<TreeNode>` not `Stack<>` | `ArrayDeque` is faster; `Stack` is legacy |
+| `cur != null OR !stack.isEmpty()` | Both conditions needed: `cur` covers descent, stack covers pending visits |
+| Use `Deque<TreeNode>` not `Stack<>` | `ArrayDeque` is faster; `Stack` is legacy and synchronized |
 | Preorder: push right THEN left | So left is on top of stack and visited first |
 | Postorder: use output deque | Push to output then pop at end — no need for complex two-pass |
 | Lazy evaluation | BST iterator: only push left spine; push right lazily on `next()` |

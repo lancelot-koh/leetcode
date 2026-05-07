@@ -8,6 +8,32 @@
 
 ---
 
+## How it Works — Mental Model 算法原理
+
+Instead of adding `val` to every element in `[l, r]` (which is O(n) per update), the difference array records only the **boundaries** of the change: `diff[l] += val` marks where the increment starts, and `diff[r+1] -= val` marks where it stops. A single prefix-sum pass over `diff` at the end propagates each boundary change forward, effectively applying all updates at once. This works because prefix-summing a difference array reconstructs the original (or updated) values: each position's value is the sum of all increments that started at or before it and haven't been cancelled yet. The technique trades "many cheap boundary marks + one expensive reconstruction" for "many expensive per-element updates."
+
+**Key invariant:** At any point, `diff[i]` stores the **net change** that begins at position `i`. The actual value at position `i` is `diff[0] + diff[1] + ... + diff[i]` — only computed at the end via prefix sum.
+
+**Common mistake / gotcha:** Forgetting to allocate one extra slot (`n+1` instead of `n`). When updating the last element (`r = n-1`), you write to `diff[r+1] = diff[n]`, which is out of bounds for an array of size `n`. Always allocate `n+1`.
+
+---
+
+## Step-by-Step Trace 执行步骤示意
+
+Example: `getModifiedArray(length=5, updates=[[1,3,2],[0,2,6],[0,4,-2]])`
+```
+Start: diff=[0,0,0,0,0,0]  (size 6)
+
+Update [1,3,2]: diff[1]+=2, diff[4]-=2 → diff=[0,2,0,0,-2,0]
+Update [0,2,6]: diff[0]+=6, diff[3]-=6 → diff=[6,2,0,-6,-2,0]
+Update [0,4,-2]:diff[0]-=2, diff[5]-=2 → diff=[4,2,0,-6,-2,-2]  (diff[5] out of result range)
+
+Prefix sum: result[0]=4, result[1]=4+2=6, result[2]=6+0=6, result[3]=6-6=0, result[4]=0-2=-2
+Result: [4,6,6,0,-2]
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -29,24 +55,26 @@
 ### Basic difference array
 
 ```java
-int[] diff = new int[n + 1];   // extra slot avoids bounds check
+int[] diff = new int[n + 1];   // size n+1: diff[r+1] may reach index n when r=n-1
 
-// Range update: add val to [l, r] inclusive
-diff[l]     += val;
-diff[r + 1] -= val;
+// Range update: add val to every position in [l, r] inclusive
+diff[l]     += val;     // the increment starts at l
+diff[r + 1] -= val;     // the increment ends after r (cancelled at r+1)
 
-// Reconstruct the result array (prefix sum of diff)
+// Reconstruct the result array: prefix sum of diff restores actual values
 int[] result = new int[n];
 result[0] = diff[0];
-for (int i = 1; i < n; i++)
-    result[i] = result[i-1] + diff[i];
+for (int i = 1; i < n; i++) {
+    result[i] = result[i-1] + diff[i];   // carry forward + apply any new boundary change
+}
 ```
 
 ### Reconstruct in-place (when diff IS the result)
 
 ```java
-for (int i = 1; i < diff.length; i++)
+for (int i = 1; i < diff.length; i++) {
     diff[i] += diff[i-1];
+}
 // diff[i] now holds the actual value at position i
 ```
 
@@ -92,12 +120,13 @@ public int[] corpFlightBookings(int[][] bookings, int n) {
     int[] diff = new int[n + 1];
     for (int[] b : bookings) {
         diff[b[0] - 1] += b[2];             // 1-indexed → 0-indexed
-        if (b[1] < n) diff[b[1]] -= b[2];   // r+1 might be out of range
+        if (b[1] < n) { diff[b[1]] -= b[2]; }   // r+1 might be out of range
     }
     int[] answer = new int[n];
     answer[0] = diff[0];
-    for (int i = 1; i < n; i++)
+    for (int i = 1; i < n; i++) {
         answer[i] = answer[i-1] + diff[i];
+    }
     return answer;
 }
 ```
@@ -105,15 +134,15 @@ public int[] corpFlightBookings(int[][] bookings, int n) {
 ### Car Pooling (LC 1094)
 ```java
 public boolean carPooling(int[][] trips, int capacity) {
-    int[] diff = new int[1001];   // max location = 1000
+    int[] diff = new int[1001];   // max location = 1000; no +1 needed since alight is exclusive
     for (int[] t : trips) {
-        diff[t[1]] += t[0];       // passengers board at t[1]
-        diff[t[2]] -= t[0];       // passengers alight at t[2]
+        diff[t[1]] += t[0];       // t[0] passengers board at location t[1]
+        diff[t[2]] -= t[0];       // t[0] passengers alight at location t[2] (they are NOT on car here)
     }
     int cur = 0;
     for (int d : diff) {
         cur += d;
-        if (cur > capacity) return false;
+        if (cur > capacity) { return false; }  // check at every stop; no need to reconstruct full array
     }
     return true;
 }
@@ -129,8 +158,9 @@ public int[] getModifiedArray(int length, int[][] updates) {
     }
     int[] result = new int[length];
     result[0] = diff[0];
-    for (int i = 1; i < length; i++)
+    for (int i = 1; i < length; i++) {
         result[i] = result[i-1] + diff[i];
+    }
     return result;
 }
 ```

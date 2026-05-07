@@ -8,6 +8,30 @@
 
 ---
 
+## How it Works — Mental Model 算法原理
+
+A prefix sum array turns repeated range-sum questions from O(n) each into O(1) each, at the cost of one O(n) build pass. The fundamental identity is `sum(l, r) = prefix[r+1] - prefix[l]`: the left prefix cancels out, leaving only the range. For the HashMap variant ("count subarrays summing to k"), the observation is: if the running sum at index `r` is `S` and `S - k` appeared at some earlier index `l`, then the subarray `(l, r]` sums to exactly `k`. Querying the map for `S - k` turns "find all valid left boundaries" into a single hash-table lookup. The order of operations matters: you must look up `sum - k` **before** inserting `sum` — otherwise a single-element subarray equal to k counts itself.
+
+**Key invariant:** `prefix[i]` equals the sum of all elements from index 0 to `i-1`. `prefix[0] = 0` (the empty prefix), enabling uniform calculation for subarrays starting at index 0.
+
+**Common mistake / gotcha:** In the count-subarrays template, looking up and inserting in the wrong order. If you insert `sum` into the map before checking `sum - k`, the current index will match itself when `k = 0`, inflating the count.
+
+---
+
+## Step-by-Step Trace 执行步骤示意
+
+Example: `subarraySum([1, 1, 1], k=2)`
+```
+Init: freq={0:1}, sum=0, count=0
+
+i=0: sum=1; look up (1-2)=-1 → not found; insert sum=1 → freq={0:1, 1:1}
+i=1: sum=2; look up (2-2)=0  → found once → count=1; insert sum=2 → freq={0:1, 1:1, 2:1}
+i=2: sum=3; look up (3-2)=1  → found once → count=2; insert sum=3 → freq={0:1,1:1,2:1,3:1}
+Result: 2  (subarrays [1,1] at indices 0-1 and 1-2)
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -28,10 +52,13 @@
 ### Build prefix array
 
 ```java
-int[] prefix = new int[n + 1];      // prefix[0] = 0 (sentinel)
-for (int i = 0; i < n; i++)
+int[] prefix = new int[n + 1];      // size n+1 so prefix[0]=0 is a free sentinel
+for (int i = 0; i < n; i++) {
     prefix[i + 1] = prefix[i] + nums[i];
+}
 
+// prefix[r+1] - prefix[l] = sum of nums[l..r] (both inclusive)
+// The +1 shift means prefix[l] = sum of everything BEFORE index l
 int rangeSum = prefix[r + 1] - prefix[l];   // sum of nums[l..r]
 ```
 
@@ -39,13 +66,14 @@ int rangeSum = prefix[r + 1] - prefix[l];   // sum of nums[l..r]
 
 ```java
 Map<Integer, Integer> freq = new HashMap<>();
-freq.put(0, 1);          // empty prefix has sum 0
+freq.put(0, 1);          // seed: the empty prefix (sum=0) exists once, handles subarrays starting at index 0
+
 int sum = 0, count = 0;
 
 for (int num : nums) {
     sum += num;
-    count += freq.getOrDefault(sum - k, 0);   // look for complement
-    freq.merge(sum, 1, Integer::sum);
+    count += freq.getOrDefault(sum - k, 0);   // if (sum - k) was seen, those prefixes form a valid subarray
+    freq.merge(sum, 1, Integer::sum);          // insert AFTER lookup — prevents counting single element as its own pair
 }
 return count;
 ```
@@ -59,8 +87,9 @@ int sum = 0, maxLen = 0;
 
 for (int i = 0; i < nums.length; i++) {
     sum += nums[i];
-    if (firstSeen.containsKey(sum - k))
+    if (firstSeen.containsKey(sum - k)) {
         maxLen = Math.max(maxLen, i - firstSeen.get(sum - k));
+    }
     firstSeen.putIfAbsent(sum, i);   // keep FIRST occurrence for longest
 }
 return maxLen;
@@ -70,10 +99,12 @@ return maxLen;
 
 ```java
 int[][] prefix = new int[m+1][n+1];
-for (int i = 1; i <= m; i++)
-    for (int j = 1; j <= n; j++)
+for (int i = 1; i <= m; i++) {
+    for (int j = 1; j <= n; j++) {
         prefix[i][j] = matrix[i-1][j-1]
             + prefix[i-1][j] + prefix[i][j-1] - prefix[i-1][j-1];
+    }
+}
 
 // Sum of region (r1,c1) to (r2,c2):
 int sum = prefix[r2+1][c2+1] - prefix[r1][c2+1]
@@ -121,10 +152,11 @@ public int findMaxLength(int[] nums) {
     int sum = 0, maxLen = 0;
     for (int i = 0; i < nums.length; i++) {
         sum += nums[i] == 0 ? -1 : 1;   // remap 0→-1
-        if (firstSeen.containsKey(sum))
+        if (firstSeen.containsKey(sum)) {
             maxLen = Math.max(maxLen, i - firstSeen.get(sum));
-        else
+        } else {
             firstSeen.put(sum, i);
+        }
     }
     return maxLen;
 }
@@ -154,10 +186,12 @@ class NumMatrix {
     public NumMatrix(int[][] matrix) {
         int m = matrix.length, n = matrix[0].length;
         prefix = new int[m+1][n+1];
-        for (int i = 1; i <= m; i++)
-            for (int j = 1; j <= n; j++)
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
                 prefix[i][j] = matrix[i-1][j-1]
                     + prefix[i-1][j] + prefix[i][j-1] - prefix[i-1][j-1];
+            }
+        }
     }
 
     public int sumRegion(int r1, int c1, int r2, int c2) {

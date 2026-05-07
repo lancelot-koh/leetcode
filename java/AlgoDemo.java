@@ -12,11 +12,14 @@ public class AlgoDemo {
         System.out.println(demo.numSubarrayProductLessThanK(new int[]{10, 5, 2, 6}, 100)); // 8
 
         System.out.println(java.util.Arrays.toString(demo.maxSlidingWindow(new int[]{1,3,-1,-3,5,3,6,7}, 3))); // [3,3,5,5,6,7]
+
+
+        System.out.println(demo.largestRectangleArea(new int[]{3,2,4,3,2,3})); // 10
     }
 
 
     public boolean checkInclusion(String s1, String s2) {
-        if (s1.length() > s2.length()) return false;
+        if (s1.length() > s2.length()) { return false; }
 
         int[] count = new int[26];  
 
@@ -26,7 +29,7 @@ public class AlgoDemo {
             count[s2.charAt(i) - 'a']--;
         }
 
-        if (allZero(count)) return true;
+        if (allZero(count)) { return true; }
 
         // 滑动窗口
         for (int i = s1.length(); i < s2.length(); i++) {
@@ -36,7 +39,7 @@ public class AlgoDemo {
             // 左边字符离开窗口
             count[s2.charAt(i - s1.length()) - 'a']++;
 
-            if (allZero(count)) return true;
+            if (allZero(count)) { return true; }
         }
 
         return false;
@@ -44,7 +47,7 @@ public class AlgoDemo {
 
     private boolean allZero(int[] count) {
         for (int num : count) {
-            if (num != 0) return false;
+            if (num != 0) { return false; }
         }
         return true;
     }
@@ -131,5 +134,27 @@ public class AlgoDemo {
         }
 
         return result;
+    }
+
+
+    public int largestRectangleArea(int[] heights) {
+        int n = heights.length;
+        int maxArea = 0;
+        Deque<Integer> stack = new ArrayDeque<>();
+
+        for(int i = 0; i <= n; i++) {
+            int currHeight = (i == n) ? 0 : heights[i];
+            while(!stack.isEmpty() && currHeight < heights[stack.peek()]) {
+                int height = heights[stack.pop()];
+                int leftBoundary = stack.isEmpty() ? -1 : stack.peek();
+                int width = i - leftBoundary - 1;
+
+                maxArea = Math.max(maxArea, height * width);
+            }
+
+            stack.push(i);
+        }
+
+        return maxArea;
     }
 }

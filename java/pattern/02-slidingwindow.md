@@ -1,28 +1,16 @@
+# Sliding Window 滑动窗口全模板（5大模式）
 
+---
 
-🧠 Sliding Window 全模板（5大模式）
+## 模式1：固定窗口（Fixed Window）
 
-⸻
+**特征**：窗口大小固定 = `k`
 
-🟢 模式1：固定窗口（Fixed Window）
+**关键词**：`size = k`、`average / sum / count`
 
-👉 特征
+**模板**
 
-窗口大小固定 = k
-
-
-⸻
-
-👉 题目关键词
-
-size = k
-average / sum / count
-
-
-⸻
-
-👉 模板
-
+```java
 int window = 0;
 
 // 1. 初始化前 k 个
@@ -39,136 +27,124 @@ for (int right = k; right < nums.length; right++) {
 
     result = Math.max(result, window);
 }
+```
 
+**代表题**
+- Max Average Subarray
+- Sliding Window Sum
 
-⸻
+---
 
-👉 代表题
-	•	Max Average Subarray
-	•	Sliding Window Sum
+## 模式2：可变窗口（Longest / Shortest）
 
-⸻
+**特征**：求最长 / 最短子串或子数组
 
-🔵 模式2：可变窗口（Longest / Shortest）
+**模板（Longest）**
 
-⸻
-
-👉 特征
-
-求最长 / 最短
-
-
-⸻
-
-👉 模板（Longest）
-
+```java
 int left = 0;
 
 for (int right = 0; right < n; right++) {
-    // expand
+    // expand: add nums[right] to window
 
     while (invalid) {
-        // shrink
+        // shrink: remove nums[left] from window
         left++;
     }
 
     result = Math.max(result, right - left + 1);
 }
+```
 
+**模板（Shortest）**
 
-⸻
+```java
+int left = 0;
 
-👉 模板（Minimum）
+for (int right = 0; right < n; right++) {
+    // expand: add nums[right] to window
 
-while (valid) {
-    update answer
-    shrink
+    while (valid) {
+        result = Math.min(result, right - left + 1);
+        // shrink: remove nums[left] from window
+        left++;
+    }
 }
+```
 
+**代表题**
+- Longest Substring Without Repeating Characters
+- Minimum Window Substring
 
-⸻
+---
 
-👉 代表题
-	•	Longest Substring Without Repeating
-	•	Minimum Window Substring
+## 模式3：固定窗口 + 频率（Permutation / Anagram）
 
-⸻
+**特征**
+- 窗口大小固定
+- 需要匹配字符频率
 
-🟡 模式3：固定窗口 + 频率（Permutation / Anagram）
+**模板**
 
-⸻
-
-👉 特征
-
-window size = 固定
-需要匹配频率
-
-
-⸻
-
-👉 模板
-
+```java
 int[] count = new int[26];
 int required = p.length();
 
-for (char c : p.toCharArray()) count[c]++;
+for (char c : p.toCharArray()) {
+    count[c - 'a']++;
+}
 
 int left = 0;
 
 for (int right = 0; right < s.length(); right++) {
-
-    if (count[s.charAt(right)] > 0) required--;
-    count[s.charAt(right)]--;
+    char rc = s.charAt(right);
+    if (count[rc - 'a'] > 0) {
+        required--;
+    }
+    count[rc - 'a']--;
 
     if (right - left + 1 == p.length()) {
-
         if (required == 0) {
-            // found
+            // found a match at left
         }
 
-        if (count[s.charAt(left)] >= 0) required++;
-        count[s.charAt(left)]++;
-
+        char lc = s.charAt(left);
+        if (count[lc - 'a'] >= 0) {
+            required++;
+        }
+        count[lc - 'a']++;
         left++;
     }
 }
+```
 
+**代表题**
+- Find All Anagrams in a String
+- Permutation in String
 
-⸻
+---
 
-👉 代表题
-	•	Find All Anagrams
-	•	Permutation in String
+## 模式4：AtMost Trick（Exactly K）
 
-⸻
+**特征**：`count + exactly K`
 
-🔴 模式4：AtMost Trick（COUNT + exactly K）
+**核心公式**
 
-⸻
+```
+exactly(K) = atMost(K) - atMost(K - 1)
+```
 
-👉 特征
+**模板**
 
-count + exactly K
-
-
-⸻
-
-👉 核心公式
-
-exactly(K) = atMost(K) - atMost(K-1)
-
-
-⸻
-
-👉 模板
-
+```java
 int atMost(int[] nums, int k) {
     int left = 0, count = 0;
 
     for (int right = 0; right < nums.length; right++) {
-        // expand
+        // expand: add nums[right] to window
 
         while (invalid) {
+            // shrink: remove nums[left] from window
             left++;
         }
 
@@ -177,40 +153,38 @@ int atMost(int[] nums, int k) {
 
     return count;
 }
+```
 
+**调用方式**
 
-⸻
+```java
+return atMost(nums, k) - atMost(nums, k - 1);
+```
 
-👉 代表题
-	•	Subarrays with K Distinct
-	•	Binary Subarrays With Sum
-	•	Nice Subarrays
+**代表题**
+- Subarrays with K Distinct Integers
+- Binary Subarrays With Sum
+- Count Number of Nice Subarrays
 
-⸻
+---
 
-🟣 模式5：单调队列（Sliding Window Max）
+## 模式5：单调队列（Sliding Window Max / Min）
 
-⸻
+**特征**：求滑动窗口内的最大值 / 最小值
 
-👉 特征
+**模板**
 
-求窗口最大 / 最小
-
-
-⸻
-
-👉 模板
-
+```java
 Deque<Integer> dq = new ArrayDeque<>();
+int[] result = new int[n - k + 1];
 
 for (int i = 0; i < n; i++) {
-
-    // remove out of window
+    // remove indices outside window
     if (!dq.isEmpty() && dq.peekFirst() == i - k) {
         dq.pollFirst();
     }
 
-    // maintain monotonic
+    // maintain decreasing monotonic order (for max)
     while (!dq.isEmpty() && nums[dq.peekLast()] < nums[i]) {
         dq.pollLast();
     }
@@ -221,92 +195,35 @@ for (int i = 0; i < n; i++) {
         result[i - k + 1] = nums[dq.peekFirst()];
     }
 }
+```
 
+**代表题**
+- Sliding Window Maximum
+- LC 1438（Longest Subarray with Limit — 双队列）
 
-⸻
+---
 
-👉 代表题
-	•	Sliding Window Maximum
-	•	LC 1438（双队列）
+## 一张总图
 
-⸻
+| # | 模式 | 关键词 | 核心操作 |
+|---|------|--------|----------|
+| 1 | 固定窗口 | `size = k`, sum/avg | 进一个、出一个 |
+| 2 | 可变窗口 | longest / shortest | expand + shrink |
+| 3 | 固定窗口 + 频率 | anagram, permutation | 频率计数 + required |
+| 4 | AtMost Trick | exactly K, count | `atMost(K) - atMost(K-1)` |
+| 5 | 单调队列 | max / min in window | deque 维护单调性 |
 
-🔥 一张总图（最重要）
+---
 
-Sliding Window 五大类：
+## 一眼判断法（面试必用）
 
-1️⃣ 固定窗口（k大小）
-2️⃣ 可变窗口（最长/最短）
-3️⃣ 固定窗口 + 频率（anagram）
-4️⃣ atMost trick（count + exactly K）
-5️⃣ 单调队列（max/min）
+```
+window size 固定？          → YES → 模式1 / 模式3
+longest / shortest？        → YES → 模式2
+count + exactly K？         → YES → 模式4
+max / min in window？       → YES → 模式5
+```
 
+---
 
-⸻
-
-🧠 一眼判断法（面试必用）
-
-⸻
-
-👉 Step 1
-
-是不是 window size 固定？
-→ YES → 模式1 / 模式3
-
-
-⸻
-
-👉 Step 2
-
-是不是 longest / shortest？
-→ YES → 模式2
-
-
-⸻
-
-👉 Step 3
-
-是不是 count + exactly K？
-→ YES → 模式4
-
-
-⸻
-
-👉 Step 4
-
-是不是 max/min？
-→ YES → 模式5
-
-
-⸻
-
-🔥 最重要一句话
-
-先分类，再写代码，不要边想边写
-
-⸻
-
-🚀 你现在的阶段
-
-你已经从：
-
-写题 → 理解 pattern → 抽象模板
-
-👉 进入：
-
-面试级思维
-
-
-⸻
-
-👉 如果你要更进一步（强烈推荐）
-
-我可以帮你做：
-
-🔥「10题训练（按这5类）」
-
-👉 你做到：
-
-看到题 → 3秒分类 → 直接写模板
-
-这就是 Google level 👍
+> **最重要一句话：** 先分类，再写代码，不要边想边写

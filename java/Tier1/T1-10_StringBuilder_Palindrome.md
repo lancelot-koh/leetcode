@@ -27,26 +27,50 @@
 
 ---
 
+## How it Works — Mental Model 原理与直觉
+
+**StringBuilder:** Java `String` is immutable — every `+` creates a new `String` object and copies all previous characters. In a loop of n iterations this produces O(1) + O(2) + … + O(n) = O(n²) total work. `StringBuilder` uses an internal resizable char array with amortized O(1) appends (like ArrayList), collapsing the total to O(n).
+
+**Palindrome (expand around center):** Every palindrome has a center — either a single character (odd length) or a gap between two equal characters (even length). If we expand outward from each of the n + (n-1) = 2n-1 possible centers and track the longest match, we cover all palindromic substrings in O(n²) without any additional space. This beats the naive O(n³) approach of checking every substring.
+
+**Invariant (expand):** At each step of `expand(s, l, r)`, `s[l+1..r-1]` is already confirmed to be a palindrome. The check `s[l] == s[r]` extends that palindrome by one layer on each side.
+
+---
+
+## Step-by-Step Trace — Expand Around Center (LC 5) 执行追踪
+
+```
+Input: s = "babad"
+Center i=0 ('b'): odd expand → just "b" (len=1)
+Center i=1 ('a'): odd expand → l=0,r=2: b==b → l=-1,r=3 (stop) → len=3 "bab"; start=0
+Center i=1..2 (gap 'a','b'): even → s[1]≠s[2] → len=0
+Center i=2 ('b'): odd expand → l=1,r=3: a==a → l=0,r=4: b==d? No → len=3 "aba"; start=1
+...
+maxLen=3, both "bab" and "aba" are valid; return s.substring(0,3)="bab"
+```
+
+---
+
 ## Core Templates 核心模板
 
 ### StringBuilder Pattern
 
 ```java
-// Build string efficiently
+// Build string efficiently — O(n) total vs O(n²) with String +
 StringBuilder sb = new StringBuilder();
 for (char c : chars) {
-    sb.append(c);           // O(1) amortized
+    sb.append(c);           // O(1) amortized: internal array doubles when full
 }
 String result = sb.toString();
 
 // Backtracking: add/remove last char
-sb.append(c);              // choose
-backtrack(sb);             // explore
-sb.deleteCharAt(sb.length() - 1);  // unchoose
+sb.append(c);              // choose — extend current path
+backtrack(sb);             // explore — recurse with extended path
+sb.deleteCharAt(sb.length() - 1);  // unchoose — undo in O(1) (no shifting)
 
 // Common operations
 sb.reverse();              // reverse entire builder
-sb.insert(0, c);           // insert at front
+sb.insert(0, c);           // insert at front — O(n), avoid in hot loops
 sb.length();               // current length
 sb.charAt(i);              // read at index
 sb.delete(start, end);     // delete range [start, end)
@@ -58,18 +82,18 @@ sb.delete(start, end);     // delete range [start, end)
 public boolean isPalindrome(String s) {
     int left = 0, right = s.length() - 1;
     while (left < right) {
-        if (s.charAt(left) != s.charAt(right)) return false;
-        left++; right--;
+        if (s.charAt(left) != s.charAt(right)) { return false; }   // mismatch → not palindrome
+        left++; right--;   // matched pair; move inward
     }
-    return true;
+    return true;   // all pairs matched; middle character (if any) is trivially OK
 }
 
-// With character filtering (LC 125)
+// With character filtering (LC 125) — skip non-alphanumeric before comparing
 public boolean isPalindrome(String s) {
     int left = 0, right = s.length() - 1;
     while (left < right) {
-        while (left < right && !Character.isLetterOrDigit(s.charAt(left)))  left++;
-        while (left < right && !Character.isLetterOrDigit(s.charAt(right))) right--;
+        while (left < right && !Character.isLetterOrDigit(s.charAt(left)))  { left++; }   // skip junk
+        while (left < right && !Character.isLetterOrDigit(s.charAt(right))) { right--; }  // skip junk
         if (Character.toLowerCase(s.charAt(left)) !=
             Character.toLowerCase(s.charAt(right))) return false;
         left++; right--;
@@ -84,21 +108,21 @@ public boolean isPalindrome(String s) {
 public String longestPalindrome(String s) {
     int start = 0, maxLen = 1;
     for (int i = 0; i < s.length(); i++) {
-        // Odd length (single center)
-        int len1 = expand(s, i, i);
-        // Even length (two centers)
-        int len2 = expand(s, i, i + 1);
+        // Must try BOTH odd (center at i) and even (center between i and i+1) — missing either gives wrong answer
+        int len1 = expand(s, i, i);       // odd-length palindromes centered at i
+        int len2 = expand(s, i, i + 1);   // even-length palindromes centered between i and i+1
         int len = Math.max(len1, len2);
-        if (len > maxLen) { maxLen = len; start = i - (len - 1) / 2; }
+        if (len > maxLen) { maxLen = len; start = i - (len - 1) / 2; }   // back-calculate start from center
     }
     return s.substring(start, start + maxLen);
 }
 
 private int expand(String s, int left, int right) {
     while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
-        left--; right++;
+        left--; right++;   // extend palindrome one layer outward
     }
-    return right - left - 1;   // length of palindrome found
+    // Loop exited: s[left] != s[right] (or out of bounds). The palindrome is s[left+1..right-1]
+    return right - left - 1;   // length = (right-1) - (left+1) + 1 = right - left - 1
 }
 ```
 
@@ -125,8 +149,9 @@ private int expand(String s, int left, int right) {
 public boolean validPalindrome(String s) {
     int l = 0, r = s.length() - 1;
     while (l < r) {
-        if (s.charAt(l) != s.charAt(r))
+        if (s.charAt(l) != s.charAt(r)) {
             return isPalin(s, l+1, r) || isPalin(s, l, r-1);
+        }
         l++; r--;
     }
     return true;
@@ -167,6 +192,14 @@ private void backtrack(char[] chars, int start, StringBuilder sb, List<String> r
     }
 }
 ```
+
+---
+
+## Common Mistake / Gotcha 常见错误
+
+**Forgetting the even-length center:** Most people remember to try `expand(s, i, i)` (odd palindromes) but forget `expand(s, i, i+1)` (even palindromes). The string "abba" has no single-character center — its palindrome is even-length. Checking only odd centers returns "a" (length 1) instead of "abba" (length 4).
+
+**`sb.insert(0, c)` in a hot loop:** This looks O(1) but is actually O(n) because it shifts all existing characters right. If you need a string in reverse order, append and call `sb.reverse()` once at the end — O(n) total instead of O(n²).
 
 ---
 

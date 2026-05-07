@@ -8,6 +8,38 @@
 
 ---
 
+## How It Works — Mental Model 理解模型
+
+Imagine two runners on a circular track: one runs twice as fast as the other. If there is a loop, the fast runner will eventually lap the slow runner and they will meet somewhere inside the loop — it's unavoidable. If there is no loop, the fast runner simply falls off the end. The clever part is phase 2 (finding the cycle entry): the math shows that after the meeting point, the distance from the meeting point back to the cycle entry equals the distance from the head to the cycle entry. So resetting one pointer to the head and walking both at speed 1 brings them together exactly at the cycle entry. For finding the middle node, fast reaching the end means slow has covered exactly half the list.
+
+**Key invariant:** In phase 1, the fast pointer always stays ahead of or equal to the slow pointer. If they ever share the same node, a cycle must exist (fast "lapped" slow within the cycle). If fast exits the list, no cycle exists.
+
+**Common mistake:** After phase 1 detects a meeting, resetting **both** pointers to head for phase 2 (finding the entry) is wrong — only one goes back to head. The other stays at the meeting point. Resetting both would simply make them meet at head, not the cycle entry.
+
+---
+
+## Step-by-Step Trace 逐步追踪
+
+```
+List: 0→1→2→3→4→2 (cycle: node 4 points back to node 2)
+F = 2 (head to cycle entry node 2)
+C = 3 (cycle length: 2→3→4→2)
+
+Phase 1 — detect:
+  Step 1: slow=1, fast=2
+  Step 2: slow=2, fast=4
+  Step 3: slow=3, fast=3  ← MEET at node 3 (k=1 step past entry 2)
+
+Phase 2 — find entry:
+  Reset: entry=head(0), slow stays at node 3
+  Step 1: entry=1, slow=4
+  Step 2: entry=2, slow=2  ← MEET at node 2 = cycle entry ✓
+
+Proof: F = nC - k = 1×3 - 1 = 2 steps from head = cycle entry at index 2.
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -30,27 +62,29 @@
 ```java
 ListNode slow = head, fast = head;
 
+// Both checks are required: fast==null for odd-length lists, fast.next==null for even-length
 while (fast != null && fast.next != null) {
-    slow = slow.next;
-    fast = fast.next.next;
+    slow = slow.next;       // advance 1 step
+    fast = fast.next.next;  // advance 2 steps — will "lap" slow if cycle exists
     if (slow == fast) {
-        // cycle detected — proceed to phase 2
+        // They share the same node object — cycle detected; proceed to phase 2
         break;
     }
 }
-// If fast == null or fast.next == null → no cycle
+// If loop exits without break: fast == null or fast.next == null → no cycle
 ```
 
 ### Find cycle entry (phase 2)
 
 ```java
-// After phase 1 meeting point, reset one pointer to head
+// After phase 1 meeting point: reset ONE pointer to head, leave the other at meeting point.
+// Math guarantees: distance(head → entry) == distance(meeting point → entry).
 ListNode entry = head;
 while (entry != slow) {
-    entry = entry.next;
-    slow = slow.next;
+    entry = entry.next;  // walks from head
+    slow = slow.next;    // walks from meeting point (still inside the cycle)
 }
-return entry;   // cycle entry node
+return entry;   // both pointers arrive at cycle entry simultaneously
 ```
 
 ### Find middle of linked list
@@ -105,7 +139,7 @@ public boolean hasCycle(ListNode head) {
     while (fast != null && fast.next != null) {
         slow = slow.next;
         fast = fast.next.next;
-        if (slow == fast) return true;
+        if (slow == fast) { return true; }
     }
     return false;
 }
@@ -134,19 +168,22 @@ public ListNode detectCycle(ListNode head) {
 ### Find the Duplicate Number (LC 287) — array as linked list
 ```java
 public int findDuplicate(int[] nums) {
-    // Treat nums[i] as "next pointer"; duplicate = cycle entry
+    // Key insight: nums[i] ∈ [1,n] so treating it as a "next index" creates a functional graph.
+    // The duplicate value creates two nodes pointing to the same index → guaranteed cycle.
+    // The cycle entry = the duplicate number.
     int slow = nums[0], fast = nums[0];
     do {
-        slow = nums[slow];
-        fast = nums[nums[fast]];
-    } while (slow != fast);
+        slow = nums[slow];           // follow one link
+        fast = nums[nums[fast]];     // follow two links
+    } while (slow != fast);          // do-while because initial state slow==fast before any steps
 
+    // Phase 2: reset one pointer to nums[0] (not index 0, but value at index 0 = start node)
     slow = nums[0];
     while (slow != fast) {
-        slow = nums[slow];
-        fast = nums[fast];
+        slow = nums[slow];   // walk from start
+        fast = nums[fast];   // walk from meeting point
     }
-    return slow;
+    return slow;  // cycle entry = duplicate value
 }
 ```
 
@@ -172,7 +209,7 @@ public boolean isPalindrome(ListNode head) {
     // Compare
     ListNode left = head, right = prev;
     while (right != null) {
-        if (left.val != right.val) return false;
+        if (left.val != right.val) { return false; }
         left = left.next;
         right = right.next;
     }

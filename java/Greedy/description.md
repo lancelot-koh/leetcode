@@ -96,8 +96,9 @@ return count;
 public int eraseOverlapIntervals(int[][] intervals) {
     Arrays.sort(intervals, (a, b) -> a[1] - b[1]);
     int keep = 0, end = Integer.MIN_VALUE;
-    for (int[] iv : intervals)
+    for (int[] iv : intervals) {
         if (iv[0] >= end) { keep++; end = iv[1]; }
+    }
     return intervals.length - keep;
 }
 ```
@@ -151,7 +152,7 @@ Track the **maximum reachable index** at each step. If current index > max reach
 // Can reach? (LC 55)
 int maxReach = 0;
 for (int i = 0; i < nums.length; i++) {
-    if (i > maxReach) return false;
+    if (i > maxReach) { return false; }
     maxReach = Math.max(maxReach, i + nums[i]);
 }
 return true;
@@ -182,12 +183,13 @@ The task that appears most frequently determines the minimum time. Fill idle slo
 ```java
 public int leastInterval(char[] tasks, int n) {
     int[] freq = new int[26];
-    for (char c : tasks) freq[c - 'A']++;
+    for (char c : tasks) { freq[c - 'A']++; }
     Arrays.sort(freq);
     int maxFreq = freq[25];
     int idleSlots = (maxFreq - 1) * n;
-    for (int i = 24; i >= 0 && freq[i] > 0; i--)
+    for (int i = 24; i >= 0 && freq[i] > 0; i--) {
         idleSlots -= Math.min(freq[i], maxFreq - 1);
+    }
     return tasks.length + Math.max(0, idleSlots);
 }
 ```
@@ -250,7 +252,7 @@ When the "best choice" at each step is dynamic (changes as you process elements)
 PriorityQueue<Integer> heap = new PriorityQueue<>();
 for (int item : items) {
     heap.offer(item);
-    if (heap.size() > k) heap.poll();   // greedy: keep only best k
+    if (heap.size() > k) { heap.poll(); }   // greedy: keep only best k
 }
 ```
 

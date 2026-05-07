@@ -117,9 +117,9 @@ public class CommonPattern {
         int twoSum = 6, p = 0, q = sorted.length - 1;
         while (p < q) {
             int sum = sorted[p] + sorted[q];
-            if      (sum == twoSum) { System.out.println("T1-1 pair: " + sorted[p] + "+" + sorted[q]); break; }
+            if (sum == twoSum) { System.out.println("T1-1 pair: " + sorted[p] + "+" + sorted[q]); break; }
             else if (sum <  twoSum) { p++; }
-            else                    { q--; }
+            else { q--; }
         }
 
         // ── T1-2. Sliding window — fixed size k ──
@@ -158,9 +158,9 @@ public class CommonPattern {
         int searchTarget = 7, bsLo = 0, bsHi = sortedArr.length - 1, bsResult = -1;
         while (bsLo <= bsHi) {
             int mid = bsLo + (bsHi - bsLo) / 2;
-            if      (sortedArr[mid] == searchTarget) { bsResult = mid; break; }
+            if (sortedArr[mid] == searchTarget) { bsResult = mid; break; }
             else if (sortedArr[mid] <  searchTarget) { bsLo = mid + 1; }
-            else                                     { bsHi = mid - 1; }
+            else { bsHi = mid - 1; }
         }
         System.out.println("T1-4 binary search index of " + searchTarget + ": " + bsResult);
 
@@ -177,8 +177,8 @@ public class CommonPattern {
             int node = bfsQ.poll();
             System.out.print(node + " ");
             for (int nb : graph[node]) {
-                if (!bfsVis[nb]) { 
-                    bfsVis[nb] = true; bfsQ.offer(nb); 
+                if (!bfsVis[nb]) {
+                    bfsVis[nb] = true; bfsQ.offer(nb);
                 }
             }
         }
@@ -230,15 +230,15 @@ public class CommonPattern {
         // Template for: max depth, right-side view, zigzag traversal.
         List<List<Integer>> levels = new ArrayList<>();
         Queue<TreeNode> lvlQ = new LinkedList<>();
-        if (root != null) lvlQ.offer(root);
+        if (root != null) { lvlQ.offer(root); }
         while (!lvlQ.isEmpty()) {
             int sz = lvlQ.size();
             List<Integer> level = new ArrayList<>();
             for (int x = 0; x < sz; x++) {
                 TreeNode tn = lvlQ.poll();
                 level.add(tn.val);
-                if (tn.left  != null) lvlQ.offer(tn.left);
-                if (tn.right != null) lvlQ.offer(tn.right);
+                if (tn.left  != null) { lvlQ.offer(tn.left); }
+                if (tn.right != null) { lvlQ.offer(tn.right); }
             }
             levels.add(level);
         }
@@ -255,7 +255,7 @@ public class CommonPattern {
         dp1[0] = 0;
         for (int am = 1; am <= amount; am++) {
             for (int coin : coins) {
-                if (coin <= am) dp1[am] = Math.min(dp1[am], dp1[am - coin] + 1);
+                if (coin <= am) { dp1[am] = Math.min(dp1[am], dp1[am - coin] + 1); }
             }
         }
         System.out.println("T1-9 min coins for " + amount + ": " + dp1[amount]); // 3
@@ -264,7 +264,7 @@ public class CommonPattern {
         // String += in a loop is O(n²) — every += allocates a new String object.
         // StringBuilder.append() is O(1) amortised. Always use it in loops.
         StringBuilder sb = new StringBuilder();
-        for (int x = 0; x < 5; x++) sb.append(x).append(",");
+        for (int x = 0; x < 5; x++) { sb.append(x).append(","); }
         sb.deleteCharAt(sb.length() - 1);
         System.out.println("T1-10 built: " + sb); // 0,1,2,3,4
 
@@ -343,7 +343,7 @@ public class CommonPattern {
         PriorityQueue<Integer> minHeap = new PriorityQueue<>(); // min on top
         for (int num : heapNums) {
             minHeap.offer(num);
-            if (minHeap.size() > kHeap) minHeap.poll();
+            if (minHeap.size() > kHeap) { minHeap.poll(); }
         }
         System.out.println("T2-3 top-" + kHeap + " largest: " + minHeap); // [5,6,9]
 
@@ -356,8 +356,9 @@ public class CommonPattern {
         Arrays.fill(nextGreater, -1);
         Deque<Integer> monoStk = new ArrayDeque<>();
         for (int idx = 0; idx < a.length; idx++) {
-            while (!monoStk.isEmpty() && a[monoStk.peek()] < a[idx])
+            while (!monoStk.isEmpty() && a[monoStk.peek()] < a[idx]) {
                 nextGreater[monoStk.pop()] = a[idx];
+            }
             monoStk.push(idx);
         }
         System.out.println("T2-4 next greater: " + Arrays.toString(nextGreater)); // [5,5,6,-1,3,-1]
@@ -381,8 +382,8 @@ public class CommonPattern {
         int[][] dp2d = new int[wm + 1][wn + 1];
         for (int r = 1; r <= wm; r++) {
             for (int c = 1; c <= wn; c++) {
-                if (word1.charAt(r-1) == word2.charAt(c-1)) dp2d[r][c] = dp2d[r-1][c-1] + 1;
-                else dp2d[r][c] = Math.max(dp2d[r-1][c], dp2d[r][c-1]);
+                if (word1.charAt(r-1) == word2.charAt(c-1)) { dp2d[r][c] = dp2d[r-1][c-1] + 1; }
+                else { dp2d[r][c] = Math.max(dp2d[r-1][c], dp2d[r][c-1]); }
             }
         }
         System.out.println("T2-6 LCS(\"" + word1 + "\",\"" + word2 + "\"): " + dp2d[wm][wn]); // 3
@@ -392,7 +393,7 @@ public class CommonPattern {
         // prefix[i] = sum of nums[0..i-1]  →  sum(l,r) = prefix[r+1] - prefix[l]
         int[] nums2 = {1, 2, 3, 4, 5};
         int[] prefix = new int[nums2.length + 1];
-        for (int i = 0; i < nums2.length; i++) prefix[i+1] = prefix[i] + nums2[i];
+        for (int i = 0; i < nums2.length; i++) { prefix[i+1] = prefix[i] + nums2[i]; }
         System.out.println("T2-7 range sum [1,3]: " + (prefix[4] - prefix[1])); // 9
 
         // ── T2-8. Merge intervals ──
@@ -409,7 +410,7 @@ public class CommonPattern {
             }
         }
         System.out.print("T2-8 merged intervals: ");
-        for (int[] iv : merged) System.out.print(Arrays.toString(iv) + " ");
+        for (int[] iv : merged) { System.out.print(Arrays.toString(iv) + " "); }
         System.out.println(); // [1,6] [8,10] [15,18]
 
 
@@ -422,7 +423,7 @@ public class CommonPattern {
         // Use for: connected components, cycle detection, Kruskal's MST.
         int ufN = 6;
         int[] ufP = new int[ufN], ufR = new int[ufN];
-        for (int v = 0; v < ufN; v++) ufP[v] = v;
+        for (int v = 0; v < ufN; v++) { ufP[v] = v; }
         ufUnion(ufP, ufR, 0, 1); ufUnion(ufP, ufR, 1, 2); ufUnion(ufP, ufR, 3, 4);
         System.out.println("T3-1 same component (0,2): " + (ufFind(ufP,0) == ufFind(ufP,2))); // true
         System.out.println("T3-1 same component (0,3): " + (ufFind(ufP,0) == ufFind(ufP,3))); // false
@@ -434,15 +435,15 @@ public class CommonPattern {
         int[][] topoEdges = {{5,2},{5,0},{4,0},{4,1},{2,3},{3,1}};
         List<List<Integer>> topoAdj = new ArrayList<>();
         int[] inDeg = new int[topoN];
-        for (int v = 0; v < topoN; v++) topoAdj.add(new ArrayList<>());
+        for (int v = 0; v < topoN; v++) { topoAdj.add(new ArrayList<>()); }
         for (int[] e : topoEdges) { topoAdj.get(e[0]).add(e[1]); inDeg[e[1]]++; }
         Queue<Integer> topoQ = new LinkedList<>();
-        for (int v = 0; v < topoN; v++) { if (inDeg[v] == 0) topoQ.offer(v); }
+        for (int v = 0; v < topoN; v++) { if (inDeg[v] == 0) { topoQ.offer(v); } }
         List<Integer> topoOrder = new ArrayList<>();
         while (!topoQ.isEmpty()) {
             int v = topoQ.poll();
             topoOrder.add(v);
-            for (int nb : topoAdj.get(v)) { if (--inDeg[nb] == 0) topoQ.offer(nb); }
+            for (int nb : topoAdj.get(v)) { if (--inDeg[nb] == 0) { topoQ.offer(nb); } }
         }
         System.out.println("T3-2 topo order: " + topoOrder);
 
@@ -451,7 +452,7 @@ public class CommonPattern {
         // Skip stale heap entries (d > dist[node]) instead of decreasing keys.
         int dijkN = 5;
         List<List<int[]>> dAdj = new ArrayList<>();
-        for (int v = 0; v < dijkN; v++) dAdj.add(new ArrayList<>());
+        for (int v = 0; v < dijkN; v++) { dAdj.add(new ArrayList<>()); }
         // edges: {from, to, weight}
         int[][] dEdges = {{0,1,2},{0,2,4},{1,2,1},{1,3,7},{2,4,3},{3,4,1}};
         for (int[] e : dEdges) {
@@ -466,7 +467,7 @@ public class CommonPattern {
         while (!dPQ.isEmpty()) {
             int[] dCur = dPQ.poll();
             int dNode = dCur[0], d = dCur[1];
-            if (d > dist[dNode]) continue; // stale — shorter path already found
+            if (d > dist[dNode]) { continue; } // stale — shorter path already found
             for (int[] edge : dAdj.get(dNode)) {
                 int nb = edge[0], w = edge[1];
                 if (dist[dNode] + w < dist[nb]) {
@@ -518,10 +519,10 @@ public class CommonPattern {
         int[] swMax = new int[swArr.length - swK + 1];
         Deque<Integer> mDeq = new ArrayDeque<>();
         for (int x = 0; x < swArr.length; x++) {
-            while (!mDeq.isEmpty() && mDeq.peekFirst() < x - swK + 1) mDeq.pollFirst();
-            while (!mDeq.isEmpty() && swArr[mDeq.peekLast()] < swArr[x]) mDeq.pollLast();
+            while (!mDeq.isEmpty() && mDeq.peekFirst() < x - swK + 1) { mDeq.pollFirst(); }
+            while (!mDeq.isEmpty() && swArr[mDeq.peekLast()] < swArr[x]) { mDeq.pollLast(); }
             mDeq.offerLast(x);
-            if (x >= swK - 1) swMax[x - swK + 1] = swArr[mDeq.peekFirst()];
+            if (x >= swK - 1) { swMax[x - swK + 1] = swArr[mDeq.peekFirst()]; }
         }
         System.out.println("T3-7 sliding window max k=" + swK + ": " + Arrays.toString(swMax));
         // [3,3,5,5,6,7]
@@ -564,7 +565,7 @@ public class CommonPattern {
         // Cleaner when you need backtracking (mark/unmark on enter/exit).
         int[][] edges22 = {{0,1},{0,2},{1,3},{2,4}};
         List<List<Integer>> g2 = new ArrayList<>();
-        for (int v = 0; v < 5; v++) g2.add(new ArrayList<>());
+        for (int v = 0; v < 5; v++) { g2.add(new ArrayList<>()); }
         for (int[] e : edges22) { g2.get(e[0]).add(e[1]); g2.get(e[1]).add(e[0]); }
         boolean[] vis22 = new boolean[5];
         System.out.print("T4-2 DFS recursive: ");
@@ -606,7 +607,7 @@ public class CommonPattern {
         System.out.println("T4-6 12 power of 2: " + ((bn & (bn-1)) == 0) + "  bit count: " + Integer.bitCount(bn));
         int[] xorArr = {4, 1, 2, 1, 2};
         int single = 0;
-        for (int num : xorArr) single ^= num;
+        for (int num : xorArr) { single ^= num; }
         System.out.println("T4-6 single number: " + single); // 4
 
         // ── T4-7. Cyclic sort ──
@@ -617,7 +618,7 @@ public class CommonPattern {
         while (ci < cyc.length) {
             int correct = cyc[ci] - 1;
             if (cyc[ci] != cyc[correct]) { int t=cyc[ci]; cyc[ci]=cyc[correct]; cyc[correct]=t; }
-            else ci++;
+            else { ci++; }
         }
         System.out.println("T4-7 cyclic sorted: " + Arrays.toString(cyc)); // [1,2,3,4,5]
 
@@ -626,8 +627,8 @@ public class CommonPattern {
         // Frequency array — O(n) time, O(1) space (preferred).
         String sa = "listen", sb2 = "silent";
         int[] af = new int[26];
-        for (char c : sa.toCharArray())  af[c - 'a']++;
-        for (char c : sb2.toCharArray()) af[c - 'a']--;
+        for (char c : sa.toCharArray()) { af[c - 'a']++; }
+        for (char c : sb2.toCharArray()) { af[c - 'a']--; }
         boolean isAnagram = true;
         for (int f : af) { if (f != 0) { isAnagram = false; break; } }
         System.out.println("T4-8 \"" + sa + "\" & \"" + sb2 + "\" anagram: " + isAnagram);
@@ -663,11 +664,11 @@ public class CommonPattern {
         boolean[] composite = new boolean[sieveN + 1];
         for (int x = 2; (long)x * x <= sieveN; x++) {
             if (!composite[x]) {
-                for (int mul = x*x; mul <= sieveN; mul += x) composite[mul] = true;
+                for (int mul = x*x; mul <= sieveN; mul += x) { composite[mul] = true; }
             }
         }
         List<Integer> primes = new ArrayList<>();
-        for (int x = 2; x <= sieveN; x++) { if (!composite[x]) primes.add(x); }
+        for (int x = 2; x <= sieveN; x++) { if (!composite[x]) { primes.add(x); } }
         System.out.println("T4-12 primes ≤ " + sieveN + ": " + primes);
 
         // ── T4-13. Swap / reverse (utility) ──
@@ -686,15 +687,15 @@ public class CommonPattern {
 
     // T1-6 — recursive tree traversals
     static void inorder(TreeNode n) {
-        if (n == null) return;
+        if (n == null) { return; }
         inorder(n.left); System.out.print(n.val + " "); inorder(n.right);
     }
     static void preorder(TreeNode n) {
-        if (n == null) return;
+        if (n == null) { return; }
         System.out.print(n.val + " "); preorder(n.left); preorder(n.right);
     }
     static void postorder(TreeNode n) {
-        if (n == null) return;
+        if (n == null) { return; }
         postorder(n.left); postorder(n.right); System.out.print(n.val + " ");
     }
 
@@ -703,7 +704,7 @@ public class CommonPattern {
                           int[] nums, boolean[] used) {
         if (cur.size() == nums.length) { res.add(new ArrayList<>(cur)); return; }
         for (int idx = 0; idx < nums.length; idx++) {
-            if (used[idx]) continue;
+            if (used[idx]) { continue; }
             used[idx] = true;
             cur.add(nums[idx]);
             backtrack(res, cur, nums, used);
@@ -719,16 +720,16 @@ public class CommonPattern {
     }
     static void ufUnion(int[] p, int[] r, int x, int y) {
         int px = ufFind(p, x), py = ufFind(p, y);
-        if (px == py) return;
+        if (px == py) { return; }
         if (r[px] < r[py]) { int t = px; px = py; py = t; }
         p[py] = px;
-        if (r[px] == r[py]) r[px]++;
+        if (r[px] == r[py]) { r[px]++; }
     }
 
     // T3-5 — memoized Fibonacci
     static long fibMemo(int n, Map<Integer, Long> memo) {
-        if (n <= 1) return n;
-        if (memo.containsKey(n)) return memo.get(n);
+        if (n <= 1) { return n; }
+        if (memo.containsKey(n)) { return memo.get(n); }
         long val = fibMemo(n-1, memo) + fibMemo(n-2, memo);
         memo.put(n, val);
         return val;
@@ -738,7 +739,7 @@ public class CommonPattern {
     static void dfsRec(List<List<Integer>> adj, int node, boolean[] vis) {
         vis[node] = true;
         System.out.print(node + " ");
-        for (int nb : adj.get(node)) { if (!vis[nb]) dfsRec(adj, nb, vis); }
+        for (int nb : adj.get(node)) { if (!vis[nb]) { dfsRec(adj, nb, vis); } }
     }
 
     // T4-3 — quick select (Lomuto partition)
@@ -748,14 +749,14 @@ public class CommonPattern {
             if (arr[x] <= pivot) { int t=arr[store]; arr[store]=arr[x]; arr[x]=t; store++; }
         }
         int t = arr[store]; arr[store] = arr[hi]; arr[hi] = t;
-        if (store == k) return arr[store];
+        if (store == k) { return arr[store]; }
         return store < k ? quickSelect(arr, store+1, hi, k)
                          : quickSelect(arr, lo, store-1, k);
     }
 
     // T4-4 — merge sort
     static void mergeSort(int[] arr, int lo, int hi) {
-        if (lo >= hi) return;
+        if (lo >= hi) { return; }
         int mid = lo + (hi - lo) / 2;
         mergeSort(arr, lo, mid);
         mergeSort(arr, mid+1, hi);
@@ -765,10 +766,10 @@ public class CommonPattern {
         int[] tmp = Arrays.copyOfRange(arr, lo, hi+1);
         int l = 0, r = mid - lo + 1;
         for (int x = lo; x <= hi; x++) {
-            if      (l > mid - lo)     arr[x] = tmp[r++];
-            else if (r > hi  - lo)     arr[x] = tmp[l++];
-            else if (tmp[l] <= tmp[r]) arr[x] = tmp[l++];
-            else                       arr[x] = tmp[r++];
+            if (l > mid - lo) { arr[x] = tmp[r++]; }
+            else if (r > hi  - lo) { arr[x] = tmp[l++]; }
+            else if (tmp[l] <= tmp[r]) { arr[x] = tmp[l++]; }
+            else { arr[x] = tmp[r++]; }
         }
     }
 
@@ -781,7 +782,7 @@ public class CommonPattern {
         long result = 1;
         base %= mod;
         while (exp > 0) {
-            if ((exp & 1) == 1) result = result * base % mod;
+            if ((exp & 1) == 1) { result = result * base % mod; }
             base = base * base % mod;
             exp >>= 1;
         }

@@ -66,8 +66,9 @@ Longest subarray with sum = k?                  → Pattern 2 variant (store ear
 ```java
 // Build: O(n)
 int[] prefix = new int[n + 1];  // 1-indexed: prefix[0] = 0
-for (int i = 0; i < n; i++)
+for (int i = 0; i < n; i++) {
     prefix[i + 1] = prefix[i] + nums[i];
+}
 
 // Query sum of nums[l..r] (0-indexed): O(1)
 int rangeSum = prefix[r + 1] - prefix[l];
@@ -114,7 +115,8 @@ public int subarraySum(int[] nums, int k) {
     for (int num : nums) {
         sum += num;
         count += freq.getOrDefault(sum - k, 0);  // look up history
-        freq.merge(sum, 1, Integer::sum);          // record current prefix
+        freq.put(sum, freq.getOrDefault(sum, 0) + 1);
+        //freq.merge(sum, 1, Integer::sum);          // record current prefix
     }
     return count;
 }
@@ -153,8 +155,9 @@ public int maxSubArrayLen(int[] nums, int k) {
     int sum = 0, max = 0;
     for (int i = 0; i < nums.length; i++) {
         sum += nums[i];
-        if (firstSeen.containsKey(sum - k))
+        if (firstSeen.containsKey(sum - k)) {
             max = Math.max(max, i - firstSeen.get(sum - k));
+        }
         firstSeen.putIfAbsent(sum, i);  // only store FIRST occurrence (maximizes length)
     }
     return max;
@@ -197,7 +200,8 @@ public int subarraysDivByK(int[] nums, int k) {
         sum += num;
         int rem = ((sum % k) + k) % k;  // handle negative remainder in Java
         count += remainderCount.getOrDefault(rem, 0);
-        remainderCount.merge(rem, 1, Integer::sum);
+        remainderCount.put(rem, remainderCount.getOrDefault(remainderCount, 0) + 1);
+        // remainderCount.merge(rem, 1, Integer::sum);
     }
     return count;
 }
@@ -227,12 +231,14 @@ Java 的 `%` 对负数会返回负余数，用 `((sum % k) + k) % k` 保证结�
 ```java
 int[][] prefix = new int[m + 1][n + 1];
 
-for (int i = 1; i <= m; i++)
-    for (int j = 1; j <= n; j++)
+for (int i = 1; i <= m; i++) {
+    for (int j = 1; j <= n; j++) {
         prefix[i][j] = matrix[i-1][j-1]
                      + prefix[i-1][j]
                      + prefix[i][j-1]
                      - prefix[i-1][j-1];  // subtract overlap
+    }
+}
 ```
 
 **Query region (r1,c1) to (r2,c2) 查询区域**
@@ -335,7 +341,7 @@ public boolean carPooling(int[][] trips, int capacity) {
     int passengers = 0;
     for (int d : diff) {
         passengers += d;
-        if (passengers > capacity) return false;
+        if (passengers > capacity) { return false; }
     }
     return true;
 }

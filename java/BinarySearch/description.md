@@ -65,9 +65,9 @@ int lo = 0, hi = nums.length - 1;
 
 while (lo <= hi) {                          // <= because lo==hi is still valid
     int mid = lo + (hi - lo) / 2;
-    if      (nums[mid] == target) return mid;
-    else if (nums[mid] < target)  lo = mid + 1;
-    else                          hi = mid - 1;
+    if      (nums[mid] == target) { return mid; }
+    else if (nums[mid] < target) { lo = mid + 1; }
+    else { hi = mid - 1; }
 }
 return -1;
 ```
@@ -89,8 +89,8 @@ int lo = 0, hi = nums.length;              // hi = n (one past end)
 
 while (lo < hi) {                          // < because [lo, hi) half-open
     int mid = lo + (hi - lo) / 2;
-    if (nums[mid] < target) lo = mid + 1;  // mid is too small, exclude it
-    else                    hi = mid;       // mid might be the answer, keep it
+    if (nums[mid] < target) { lo = mid + 1; }  // mid is too small, exclude it
+    else { hi = mid; }       // mid might be the answer, keep it
 }
 return lo;  // lo == hi, first index >= target (or n if all < target)
 ```
@@ -121,8 +121,8 @@ int lo = 0, hi = nums.length;
 
 while (lo < hi) {
     int mid = lo + (hi - lo) / 2;
-    if (nums[mid] <= target) lo = mid + 1;  // mid is valid, but maybe not the last
-    else                     hi = mid;
+    if (nums[mid] <= target) { lo = mid + 1; }  // mid is valid, but maybe not the last
+    else { hi = mid; }
 }
 return lo - 1;  // last position where nums[i] <= target
 ```
@@ -151,8 +151,8 @@ int lo = minPossible, hi = maxPossible;
 
 while (lo < hi) {
     int mid = lo + (hi - lo) / 2;
-    if (canAchieve(mid)) hi = mid;      // mid works, try smaller (minimize)
-    else                 lo = mid + 1;  // mid too small, go larger
+    if (canAchieve(mid)) { hi = mid; }      // mid works, try smaller (minimize)
+    else { lo = mid + 1; }  // mid too small, go larger
 }
 return lo;
 ```
@@ -177,18 +177,26 @@ You're binary searching the **result space**, not the input array. `canAchieve(m
 
 ```java
 public int minEatingSpeed(int[] piles, int h) {
-    int lo = 1, hi = Arrays.stream(piles).max().getAsInt();
+    int lo = 1, 
+    
+    //hi = Arrays.stream(piles).max().getAsInt();
+    int hi = 0;
+    for(int pile: piles) {
+        if (pile > hi) {
+            hi = pile;
+        }
+    }
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (canFinish(piles, mid, h)) hi = mid;
-        else                          lo = mid + 1;
+        if (canFinish(piles, mid, h)) { hi = mid; }
+        else { lo = mid + 1; }
     }
     return lo;
 }
 
 private boolean canFinish(int[] piles, int speed, int h) {
     int hours = 0;
-    for (int p : piles) hours += (p + speed - 1) / speed;
+    for (int p : piles) { hours += (p + speed - 1) / speed; }
     return hours <= h;
 }
 ```
@@ -206,14 +214,14 @@ private boolean canFinish(int[] piles, int speed, int h) {
 int lo = 0, hi = nums.length - 1;
 while (lo <= hi) {
     int mid = lo + (hi - lo) / 2;
-    if (nums[mid] == target) return mid;
+    if (nums[mid] == target) { return mid; }
 
     if (nums[lo] <= nums[mid]) {          // left half is sorted
-        if (nums[lo] <= target && target < nums[mid]) hi = mid - 1;
-        else                                          lo = mid + 1;
+        if (nums[lo] <= target && target < nums[mid]) { hi = mid - 1; }
+        else { lo = mid + 1; }
     } else {                              // right half is sorted
-        if (nums[mid] < target && target <= nums[hi]) lo = mid + 1;
-        else                                          hi = mid - 1;
+        if (nums[mid] < target && target <= nums[hi]) { lo = mid + 1; }
+        else { hi = mid - 1; }
     }
 }
 return -1;
@@ -245,9 +253,9 @@ In a rotated array, at least one half is always sorted. Check which half is sort
 // Start from top-right corner
 int r = 0, c = n - 1;
 while (r < m && c >= 0) {
-    if      (matrix[r][c] == target) return true;
-    else if (matrix[r][c] > target)  c--;   // current too big, go left
-    else                             r++;   // current too small, go down
+    if      (matrix[r][c] == target) { return true; }
+    else if (matrix[r][c] > target) { c--; }   // current too big, go left
+    else { r++; }   // current too small, go down
 }
 return false;
 ```
@@ -259,9 +267,9 @@ int lo = 0, hi = m * n - 1;
 while (lo <= hi) {
     int mid = lo + (hi - lo) / 2;
     int val = matrix[mid / n][mid % n];
-    if      (val == target) return true;
-    else if (val < target)  lo = mid + 1;
-    else                    hi = mid - 1;
+    if      (val == target) { return true; }
+    else if (val < target) { lo = mid + 1; }
+    else { hi = mid - 1; }
 }
 return false;
 ```

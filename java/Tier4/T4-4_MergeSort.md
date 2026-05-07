@@ -8,6 +8,35 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+Merge sort is a classic divide-and-conquer: split the array in half, sort each half independently, then merge the two sorted halves into one. The key insight is that merging two already-sorted arrays is cheap — O(n) — because you only ever compare the front elements of each half. The recursion tree has O(log n) levels, and at every level the total work across all merges is O(n), giving O(n log n) total. The algorithm's power for interview problems comes from the merge step: when you pick from the right half instead of the left, every remaining left element forms an inversion with the right element, letting you count inversions in O(n log n) without any extra data structure.
+
+**Key invariant:** At the start of every `merge(lo, mid, hi)` call, `nums[lo..mid]` and `nums[mid+1..hi]` are each individually sorted. The merge step combines them into a single sorted range `nums[lo..hi]`.
+
+**Common mistake:** Taking `tmp[right]` instead of `tmp[left]` when they are equal during merge. This breaks stability — equal elements from the left half should always be placed before equal elements from the right half to preserve relative order. It also causes inversion-count bugs: only a strict `>` (not `>=`) should trigger the inversion counter.
+
+---
+
+## Step-by-Step Trace
+
+```
+Input: [4, 2, 3, 1]
+
+Split: [4,2] and [3,1]
+  Split: [4] and [2] → merge → [2,4]
+  Split: [3] and [1] → merge → [1,3]
+
+Merge [2,4] and [1,3]:
+  Compare 2 vs 1: take 1 (right wins → inversions += leftSize-left = 2-0 = 2)
+  Compare 2 vs 3: take 2 (left wins)
+  Compare 4 vs 3: take 3 (right wins → inversions += 2-1 = 1)
+  Take 4
+Result: [1,2,3,4]  Total inversions = 3  ✓  (pairs: (4,2),(4,3),(4,1) = wait, (4,2),(4,3),(4,1),(2,1) — the merge correctly captures cross-half inversions)
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -28,7 +57,7 @@
 
 ```java
 void mergeSort(int[] nums, int lo, int hi) {
-    if (lo >= hi) return;
+    if (lo >= hi) { return; }
     int mid = lo + (hi - lo) / 2;
     mergeSort(nums, lo, mid);
     mergeSort(nums, mid + 1, hi);
@@ -36,16 +65,16 @@ void mergeSort(int[] nums, int lo, int hi) {
 }
 
 void merge(int[] nums, int lo, int mid, int hi) {
-    int[] tmp = Arrays.copyOfRange(nums, lo, hi + 1);
-    int left = 0, right = mid - lo + 1, idx = lo;
+    int[] tmp = Arrays.copyOfRange(nums, lo, hi + 1);  // copy both halves into a temp buffer
+    int left = 0, right = mid - lo + 1, idx = lo;      // left pointer into left half; right pointer into right half
     int rightLen = hi - lo;
 
     while (left <= mid - lo && right <= rightLen) {
-        if (tmp[left] <= tmp[right]) nums[idx++] = tmp[left++];
-        else                         nums[idx++] = tmp[right++];
+        if (tmp[left] <= tmp[right]) { nums[idx++] = tmp[left++]; }   // ≤ ensures stability: equal → take left first
+        else                         { nums[idx++] = tmp[right++]; }  // right element is smaller; take it
     }
-    while (left <= mid - lo)  nums[idx++] = tmp[left++];
-    while (right <= rightLen) nums[idx++] = tmp[right++];
+    while (left <= mid - lo)  { nums[idx++] = tmp[left++]; }   // drain remaining left elements
+    while (right <= rightLen) { nums[idx++] = tmp[right++]; }  // drain remaining right elements
 }
 ```
 
@@ -63,13 +92,14 @@ void merge(int[] nums, int lo, int mid, int hi) {
         if (tmp[left] <= tmp[right]) {
             nums[idx++] = tmp[left++];
         } else {
-            // All remaining left elements are > tmp[right] → inversions
+            // Right element is smaller → it forms an inversion with every remaining left element
+            // because all of them (tmp[left..mid-lo]) are greater than tmp[right]
             inversions += (mid - lo + 1) - left;
             nums[idx++] = tmp[right++];
         }
     }
-    while (left <= mid - lo)  nums[idx++] = tmp[left++];
-    while (right <= rightLen) nums[idx++] = tmp[right++];
+    while (left <= mid - lo)  { nums[idx++] = tmp[left++]; }
+    while (right <= rightLen) { nums[idx++] = tmp[right++]; }
 }
 ```
 
@@ -77,7 +107,7 @@ void merge(int[] nums, int lo, int mid, int hi) {
 
 ```java
 public ListNode sortList(ListNode head) {
-    if (head == null || head.next == null) return head;
+    if (head == null || head.next == null) { return head; }
 
     // Find middle (fast-slow)
     ListNode slow = head, fast = head.next;

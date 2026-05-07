@@ -7,6 +7,35 @@
 
 ---
 
+## How It Works — Mental Model 直觉理解
+
+When values are drawn from the range [1..n] and the array has length n, there is a bijection between values and indices: value `v` belongs at index `v-1`. Cyclic sort exploits this by turning sorting into a series of targeted swaps: look at `nums[i]`, compute where it should live (`correctIdx = nums[i] - 1`), and swap it there immediately. You repeat this at position `i` until the element sitting at `i` is the one that belongs there, then advance. Because each swap places at least one element into its final position, the total number of swaps across the entire array is at most n, making the whole sort O(n). The algorithm gets its name from the fact that each swap is a step in a cycle — a permutation decomposes into cycles, and each cycle is resolved with `cycle_length - 1` swaps.
+
+**Key invariant:** After the sort pass, every element `v` that appears exactly once in [1..n] sits at index `v-1`. Any index `i` where `nums[i] != i+1` reveals either a missing value (`i+1` is absent) or a duplicate (some value appears twice while `i+1` is missing from the second scan).
+
+**Common mistake:** Using `nums[correctIdx] != i + 1` as the swap condition instead of `nums[i] != nums[correctIdx]`. When duplicates exist, `nums[i]` and `nums[correctIdx]` are equal — a swap would loop forever. You must stop when the two positions hold the same value, not when the target position already holds the right value.
+
+---
+
+## Step-by-Step Trace
+
+```
+Input: [3, 1, 4, 3, 2]   n=5, values [1..5] (3 appears twice, 5 is missing)
+
+i=0: nums[0]=3, correctIdx=2; nums[0]≠nums[2] → swap → [4,1,3,3,2]
+i=0: nums[0]=4, correctIdx=3; nums[0]≠nums[3] → swap → [3,1,3,4,2]
+i=0: nums[0]=3, correctIdx=2; nums[0]==nums[2] (both 3) → advance i=1
+i=1: nums[1]=1, correctIdx=0; nums[1]≠nums[0] → swap → [1,3,3,4,2]
+i=1: nums[1]=3, correctIdx=2; nums[1]==nums[2] (both 3) → advance i=2
+i=2: nums[2]=3, correctIdx=2; nums[2]==nums[2] → advance i=3
+i=3: nums[3]=4, correctIdx=3; in place → advance i=4
+i=4: nums[4]=2, correctIdx=1; nums[4]≠nums[1] → swap → [1,2,3,4,3]
+
+Second scan: nums[4]=3 ≠ 4+1=5 → missing=5, duplicate=3  ✓
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -30,14 +59,15 @@
 ```java
 int i = 0;
 while (i < nums.length) {
-    int correctIdx = nums[i] - 1;   // where nums[i] SHOULD be (1-indexed)
+    int correctIdx = nums[i] - 1;   // value v belongs at index v-1 (1-indexed values)
     if (nums[i] != nums[correctIdx]) {
-        // swap nums[i] to its correct position
+        // the element at i is not home yet — swap it to its correct slot
         int tmp = nums[correctIdx];
         nums[correctIdx] = nums[i];
         nums[i] = tmp;
+        // do NOT advance i: the new element at i needs to be checked next
     } else {
-        i++;    // nums[i] is in correct position (or duplicate)
+        i++;    // nums[i] is already at its correct position (or is a duplicate that can't be placed — advance either way)
     }
 }
 ```
@@ -46,8 +76,9 @@ while (i < nums.length) {
 
 ```java
 List<Integer> missing = new ArrayList<>();
-for (int i = 0; i < nums.length; i++)
-    if (nums[i] != i + 1) missing.add(i + 1);
+for (int i = 0; i < nums.length; i++) {
+    if (nums[i] != i + 1) { missing.add(i + 1); }
+}
 return missing;
 ```
 
@@ -55,8 +86,9 @@ return missing;
 
 ```java
 List<Integer> duplicates = new ArrayList<>();
-for (int i = 0; i < nums.length; i++)
-    if (nums[i] != i + 1) duplicates.add(nums[i]);
+for (int i = 0; i < nums.length; i++) {
+    if (nums[i] != i + 1) { duplicates.add(nums[i]); }
+}
 return duplicates;
 ```
 
@@ -83,11 +115,12 @@ public List<Integer> findDisappearedNumbers(int[] nums) {
     while (i < nums.length) {
         int j = nums[i] - 1;
         if (nums[i] != nums[j]) { int tmp = nums[j]; nums[j] = nums[i]; nums[i] = tmp; }
-        else i++;
+        else { i++; }
     }
     List<Integer> result = new ArrayList<>();
-    for (int k = 0; k < nums.length; k++)
-        if (nums[k] != k + 1) result.add(k + 1);
+    for (int k = 0; k < nums.length; k++) {
+        if (nums[k] != k + 1) { result.add(k + 1); }
+    }
     return result;
 }
 ```
@@ -99,11 +132,12 @@ public List<Integer> findDuplicates(int[] nums) {
     while (i < nums.length) {
         int j = nums[i] - 1;
         if (nums[i] != nums[j]) { int tmp = nums[j]; nums[j] = nums[i]; nums[i] = tmp; }
-        else i++;
+        else { i++; }
     }
     List<Integer> result = new ArrayList<>();
-    for (int k = 0; k < nums.length; k++)
-        if (nums[k] != k + 1) result.add(nums[k]);
+    for (int k = 0; k < nums.length; k++) {
+        if (nums[k] != k + 1) { result.add(nums[k]); }
+    }
     return result;
 }
 ```
@@ -117,10 +151,11 @@ public int firstMissingPositive(int[] nums) {
         // Only place if in valid range [1..n] and not already correct
         if (j >= 0 && j < n && nums[i] != nums[j]) {
             int tmp = nums[j]; nums[j] = nums[i]; nums[i] = tmp;
-        } else i++;
+        } else { i++; }
     }
-    for (int k = 0; k < n; k++)
-        if (nums[k] != k + 1) return k + 1;
+    for (int k = 0; k < n; k++) {
+        if (nums[k] != k + 1) { return k + 1; }
+    }
     return n + 1;
 }
 ```

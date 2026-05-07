@@ -122,7 +122,7 @@ private void backtrack(int[] nums, List<Integer> current) {
         return;
     }
     for (int i = 0; i < nums.length; i++) {
-        if (used[i]) continue;
+        if (used[i]) { continue; }
         used[i] = true;                         // Choose
         current.add(nums[i]);
         backtrack(nums, current);               // Explore
@@ -184,7 +184,7 @@ private void backtrack(int n, int k, int start, List<Integer> current) {
 ```java
 private void backtrack(int[] candidates, int remain, int start, List<Integer> current) {
     if (remain == 0) { result.add(new ArrayList<>(current)); return; }
-    if (remain < 0)  return;
+    if (remain < 0) { return; }
 
     for (int i = start; i < candidates.length; i++) {
         current.add(candidates[i]);
@@ -210,7 +210,7 @@ private void backtrack(int row, int n, List<String> board) {
     if (row == n) { result.add(new ArrayList<>(board)); return; }
 
     for (int col = 0; col < n; col++) {
-        if (cols[col] || diag1[row - col + n] || diag2[row + col]) continue;
+        if (cols[col] || diag1[row - col + n] || diag2[row + col]) { continue; }
 
         cols[col] = diag1[row - col + n] = diag2[row + col] = true;  // Choose
         board.add(buildRow(col, n));
@@ -250,7 +250,7 @@ private void backtrack(String s, int start, List<String> current) {
     }
     for (int end = start + 1; end <= s.length(); end++) {
         String sub = s.substring(start, end);
-        if (!isPalindrome(sub)) continue;      // prune invalid segments
+        if (!isPalindrome(sub)) { continue; }      // prune invalid segments
         current.add(sub);                       // Choose
         backtrack(s, end, current);            // Explore (next start = end)
         current.remove(current.size() - 1);   // Unchoose
@@ -277,13 +277,13 @@ Backtracking without pruning is brute-force. Add constraints as early as possibl
 
 ```java
 // In combination sum: stop when remain < 0
-if (remain < 0) return;
+if (remain < 0) { return; }
 
 // In combinations: stop when not enough elements left
 for (int i = start; i <= n - (k - current.size()) + 1; i++)
 
 // In N-Queens: check constraints before placing
-if (cols[col] || diag1[...] || diag2[...]) continue;
+if (cols[col] || diag1[...] || diag2[...]) { continue; }
 ```
 
 ### Skill 2 — Deduplication Pattern 去重模板
@@ -295,7 +295,7 @@ Arrays.sort(nums);  // sort first
 
 for (int i = start; i < nums.length; i++) {
     // Skip same value at same level of recursion tree
-    if (i > start && nums[i] == nums[i - 1]) continue;
+    if (i > start && nums[i] == nums[i - 1]) { continue; }
     ...
 }
 ```

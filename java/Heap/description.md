@@ -75,7 +75,7 @@ PriorityQueue<Integer> minHeap = new PriorityQueue<>();   // min-heap of size k
 
 for (int num : nums) {
     minHeap.offer(num);
-    if (minHeap.size() > k) minHeap.poll();    // evict smallest → keeps k largest
+    if (minHeap.size() > k) { minHeap.poll(); }    // evict smallest → keeps k largest
 }
 return minHeap.peek();                          // Kth largest
 ```
@@ -99,13 +99,13 @@ The min-heap holds the K largest seen so far. The top is the **smallest of the K
 ```java
 public int[] topKFrequent(int[] nums, int k) {
     Map<Integer, Integer> freq = new HashMap<>();
-    for (int n : nums) freq.merge(n, 1, Integer::sum);
+    for (int n : nums) { freq.merge(n, 1, Integer::sum); }
 
     // Min-heap ordered by frequency (keep k most frequent)
     PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b) -> a[1] - b[1]);
     for (Map.Entry<Integer, Integer> e : freq.entrySet()) {
         minHeap.offer(new int[]{e.getKey(), e.getValue()});
-        if (minHeap.size() > k) minHeap.poll();
+        if (minHeap.size() > k) { minHeap.poll(); }
     }
     return minHeap.stream().mapToInt(a -> a[0]).toArray();
 }
@@ -125,15 +125,16 @@ public int[] topKFrequent(int[] nums, int k) {
 PriorityQueue<ListNode> minHeap = new PriorityQueue<>((a, b) -> a.val - b.val);
 
 // Push the head of each list
-for (ListNode list : lists)
-    if (list != null) minHeap.offer(list);
+for (ListNode list : lists) {
+    if (list != null) { minHeap.offer(list); }
+}
 
 ListNode dummy = new ListNode(0), cur = dummy;
 while (!minHeap.isEmpty()) {
     ListNode node = minHeap.poll();
     cur.next = node;
     cur = cur.next;
-    if (node.next != null) minHeap.offer(node.next);   // push next from same list
+    if (node.next != null) { minHeap.offer(node.next); }   // push next from same list
 }
 return dummy.next;
 ```
@@ -169,12 +170,13 @@ public void addNum(int num) {
     lower.offer(num);
     upper.offer(lower.poll());              // balance: push max of lower to upper
 
-    if (lower.size() < upper.size())
+    if (lower.size() < upper.size()) {
         lower.offer(upper.poll());          // keep lower.size() >= upper.size()
+    }
 }
 
 public double findMedian() {
-    if (lower.size() > upper.size()) return lower.peek();
+    if (lower.size() > upper.size()) { return lower.peek(); }
     return (lower.peek() + upper.peek()) / 2.0;
 }
 ```
@@ -207,22 +209,23 @@ Always place the most frequent remaining character:
 ```java
 public String reorganizeString(String s) {
     int[] freq = new int[26];
-    for (char c : s.toCharArray()) freq[c - 'a']++;
+    for (char c : s.toCharArray()) { freq[c - 'a']++; }
 
     PriorityQueue<int[]> maxHeap = new PriorityQueue<>((a, b) -> b[1] - a[1]);
-    for (int i = 0; i < 26; i++)
-        if (freq[i] > 0) maxHeap.offer(new int[]{i, freq[i]});
+    for (int i = 0; i < 26; i++) {
+        if (freq[i] > 0) { maxHeap.offer(new int[]{i, freq[i]}); }
+    }
 
     StringBuilder sb = new StringBuilder();
     while (maxHeap.size() >= 2) {
         int[] first = maxHeap.poll(), second = maxHeap.poll();
         sb.append((char)('a' + first[0]));
         sb.append((char)('a' + second[0]));
-        if (--first[1]  > 0) maxHeap.offer(first);
-        if (--second[1] > 0) maxHeap.offer(second);
+        if (--first[1]  > 0) { maxHeap.offer(first); }
+        if (--second[1] > 0) { maxHeap.offer(second); }
     }
     if (!maxHeap.isEmpty()) {
-        if (maxHeap.peek()[1] > 1) return "";
+        if (maxHeap.peek()[1] > 1) { return ""; }
         sb.append((char)('a' + maxHeap.poll()[0]));
     }
     return sb.toString();
@@ -250,7 +253,7 @@ while (!minHeap.isEmpty()) {
     int[] cur = minHeap.poll();
     int d = cur[0], u = cur[1];
 
-    if (d > dist[u]) continue;     // stale entry — skip
+    if (d > dist[u]) { continue; }     // stale entry — skip
 
     for (int[] edge : graph[u]) {
         int v = edge[0], w = edge[1];
@@ -334,8 +337,9 @@ Arrays.sort(intervals, (a, b) -> a[0] - b[0]);  // sort by start
 PriorityQueue<Integer> heap = new PriorityQueue<>(); // track end times
 
 for (int[] interval : intervals) {
-    if (!heap.isEmpty() && heap.peek() <= interval[0])
+    if (!heap.isEmpty() && heap.peek() <= interval[0]) {
         heap.poll();    // recycle a finished interval
+    }
     heap.offer(interval[1]);
 }
 return heap.size();  // number of concurrent intervals

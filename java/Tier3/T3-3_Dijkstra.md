@@ -8,6 +8,39 @@
 
 ---
 
+## How It Works — Mental Model 理解模型
+
+Dijkstra is a greedy algorithm built on one key insight: among all currently-known distances, the node with the smallest distance cannot be improved further — because all edge weights are non-negative, no future path can sneak in and make it shorter. So we "finalize" that node and use it to relax its neighbors. This is implemented efficiently with a min-heap: the cheapest candidate is always at the top. Because we don't support decrease-key in Java's `PriorityQueue`, we instead allow multiple entries for the same node (lazy deletion) and simply skip any entry whose stored distance is already outdated (the `d > dist[u]` check).
+
+**Key invariant:** When a node is popped from the heap with distance `d`, `d` is the true shortest distance from the source to that node. All later pops of the same node (with higher `d`) are stale and are discarded.
+
+**Common mistake:** Using `a[0] - b[0]` as the min-heap comparator can overflow when distances are large `int` values. Prefer `Integer.compare(a[0], b[0])`. A second classic mistake is applying Dijkstra to graphs with negative weights — the greedy finalization step breaks when a later negative edge could reduce an already-popped node's distance.
+
+---
+
+## Step-by-Step Trace 逐步追踪
+
+```
+Graph: 0→1(4), 0→2(1), 2→1(2)
+Init:  dist=[0, ∞, ∞]   heap=[(0,0)]
+
+Pop (0,0): not stale. Relax: 1→0+4=4, 2→0+1=1
+  dist=[0,4,1]   heap=[(1,2),(4,1)]
+
+Pop (1,2): not stale (1==dist[2]). Relax: 1→1+2=3 < 4, update dist[1]=3
+  dist=[0,3,1]   heap=[(3,1),(4,1)]
+
+Pop (3,1): not stale (3==dist[1]). No neighbors to relax.
+  heap=[(4,1)]
+
+Pop (4,1): STALE — 4 > dist[1]=3. Skip.
+  heap empty. Done.
+
+Result: dist=[0, 3, 1]
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -37,24 +70,28 @@
 ```java
 public int[] dijkstra(int n, List<List<int[]>> adj, int src) {
     int[] dist = new int[n];
-    Arrays.fill(dist, Integer.MAX_VALUE);
-    dist[src] = 0;
+    Arrays.fill(dist, Integer.MAX_VALUE);  // all distances unknown initially
+    dist[src] = 0;                         // source costs 0 to reach itself
 
-    // min-heap: {distance, node}
-    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+    // min-heap ordered by distance so we always process the closest node first
+    // Use Integer.compare to avoid overflow (a[0]-b[0] can overflow for large ints)
+    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> Integer.compare(a[0], b[0]));
     pq.offer(new int[]{0, src});
 
     while (!pq.isEmpty()) {
         int[] cur = pq.poll();
         int d = cur[0], u = cur[1];
 
-        if (d > dist[u]) continue;    // stale entry (lazy deletion)
+        // Lazy deletion: we may have inserted a stale (larger) distance earlier.
+        // The first time a node is popped it has the optimal distance; skip later pops.
+        if (d > dist[u]) { continue; }
 
         for (int[] edge : adj.get(u)) {
             int v = edge[0], w = edge[1];
+            // Relaxation: if going through u gives a shorter path to v, update
             if (dist[u] + w < dist[v]) {
                 dist[v] = dist[u] + w;
-                pq.offer(new int[]{dist[v], v});
+                pq.offer(new int[]{dist[v], v});  // old entry for v stays; will be skipped
             }
         }
     }
@@ -77,7 +114,7 @@ if (dist[u] + w < dist[v]) {
 
 // Reconstruct path to target:
 List<Integer> path = new ArrayList<>();
-for (int at = target; at != -1; at = prev[at]) path.add(at);
+for (int at = target; at != -1; at = prev[at]) { path.add(at); }
 Collections.reverse(path);
 ```
 
@@ -102,8 +139,8 @@ Collections.reverse(path);
 ```java
 public int networkDelayTime(int[][] times, int n, int k) {
     List<List<int[]>> adj = new ArrayList<>();
-    for (int i = 0; i <= n; i++) adj.add(new ArrayList<>());
-    for (int[] t : times) adj.get(t[0]).add(new int[]{t[1], t[2]});
+    for (int i = 0; i <= n; i++) { adj.add(new ArrayList<>()); }
+    for (int[] t : times) { adj.get(t[0]).add(new int[]{t[1], t[2]}); }
 
     int[] dist = new int[n + 1];
     Arrays.fill(dist, Integer.MAX_VALUE);
@@ -115,7 +152,7 @@ public int networkDelayTime(int[][] times, int n, int k) {
     while (!pq.isEmpty()) {
         int[] cur = pq.poll();
         int d = cur[0], u = cur[1];
-        if (d > dist[u]) continue;
+        if (d > dist[u]) { continue; }
         for (int[] edge : adj.get(u)) {
             int v = edge[0], w = edge[1];
             if (dist[u] + w < dist[v]) {
@@ -127,7 +164,7 @@ public int networkDelayTime(int[][] times, int n, int k) {
 
     int maxDist = 0;
     for (int i = 1; i <= n; i++) {
-        if (dist[i] == Integer.MAX_VALUE) return -1;
+        if (dist[i] == Integer.MAX_VALUE) { return -1; }
         maxDist = Math.max(maxDist, dist[i]);
     }
     return maxDist;
@@ -139,7 +176,7 @@ public int networkDelayTime(int[][] times, int n, int k) {
 public int minimumEffortPath(int[][] heights) {
     int m = heights.length, n = heights[0].length;
     int[][] effort = new int[m][n];
-    for (int[] row : effort) Arrays.fill(row, Integer.MAX_VALUE);
+    for (int[] row : effort) { Arrays.fill(row, Integer.MAX_VALUE); }
     effort[0][0] = 0;
 
     int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
@@ -149,8 +186,8 @@ public int minimumEffortPath(int[][] heights) {
     while (!pq.isEmpty()) {
         int[] cur = pq.poll();
         int e = cur[0], r = cur[1], c = cur[2];
-        if (r == m-1 && c == n-1) return e;
-        if (e > effort[r][c]) continue;
+        if (r == m-1 && c == n-1) { return e; }
+        if (e > effort[r][c]) { continue; }
         for (int[] d : dirs) {
             int nr = r+d[0], nc = c+d[1];
             if (nr >= 0 && nr < m && nc >= 0 && nc < n) {

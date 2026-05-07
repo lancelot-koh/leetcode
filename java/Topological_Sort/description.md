@@ -62,15 +62,16 @@ public int[] topoSort(int n, int[][] edges) {
     List<List<Integer>> graph = new ArrayList<>();
     int[] inDegree = new int[n];
 
-    for (int i = 0; i < n; i++) graph.add(new ArrayList<>());
+    for (int i = 0; i < n; i++) { graph.add(new ArrayList<>()); }
     for (int[] e : edges) {
         graph.get(e[0]).add(e[1]);
         inDegree[e[1]]++;
     }
 
     Queue<Integer> queue = new LinkedList<>();
-    for (int i = 0; i < n; i++)
-        if (inDegree[i] == 0) queue.offer(i);   // start with no-dependency nodes
+    for (int i = 0; i < n; i++) {
+        if (inDegree[i] == 0) { queue.offer(i); }   // start with no-dependency nodes
+    }
 
     int[] order = new int[n];
     int idx = 0;
@@ -79,8 +80,9 @@ public int[] topoSort(int n, int[][] edges) {
         int node = queue.poll();
         order[idx++] = node;
         for (int neighbor : graph.get(node)) {
-            if (--inDegree[neighbor] == 0)       // all prerequisites done
+            if (--inDegree[neighbor] == 0) {       // all prerequisites done
                 queue.offer(neighbor);
+            }
         }
     }
 
@@ -114,8 +116,8 @@ Deque<Integer> result = new ArrayDeque<>();
 public boolean dfs(int node) {
     state[node] = 1;            // mark as in current DFS path
     for (int neighbor : graph.get(node)) {
-        if (state[neighbor] == 1) return false;   // back edge = cycle
-        if (state[neighbor] == 0 && !dfs(neighbor)) return false;
+        if (state[neighbor] == 1) { return false; }   // back edge = cycle
+        if (state[neighbor] == 0 && !dfs(neighbor)) { return false; }
     }
     state[node] = 2;
     result.push(node);          // add to front → topological order
@@ -123,8 +125,9 @@ public boolean dfs(int node) {
 }
 
 // Call for all unvisited nodes
-for (int i = 0; i < n; i++)
-    if (state[i] == 0 && !dfs(i)) return false; // cycle detected
+for (int i = 0; i < n; i++) {
+    if (state[i] == 0 && !dfs(i)) { return false; } // cycle detected
+}
 ```
 
 ---
@@ -137,22 +140,24 @@ for (int i = 0; i < n; i++)
 public boolean canFinish(int numCourses, int[][] prerequisites) {
     List<List<Integer>> graph = new ArrayList<>();
     int[] inDegree = new int[numCourses];
-    for (int i = 0; i < numCourses; i++) graph.add(new ArrayList<>());
+    for (int i = 0; i < numCourses; i++) { graph.add(new ArrayList<>()); }
     for (int[] p : prerequisites) {
         graph.get(p[1]).add(p[0]);
         inDegree[p[0]]++;
     }
 
     Queue<Integer> queue = new LinkedList<>();
-    for (int i = 0; i < numCourses; i++)
-        if (inDegree[i] == 0) queue.offer(i);
+    for (int i = 0; i < numCourses; i++) {
+        if (inDegree[i] == 0) { queue.offer(i); }
+    }
 
     int processed = 0;
     while (!queue.isEmpty()) {
         int cur = queue.poll();
         processed++;
-        for (int next : graph.get(cur))
-            if (--inDegree[next] == 0) queue.offer(next);
+        for (int next : graph.get(cur)) {
+            if (--inDegree[next] == 0) { queue.offer(next); }
+        }
     }
     return processed == numCourses;
 }
@@ -188,7 +193,7 @@ for (int i = 0; i < words.length - 1; i++) {
             break;
         }
     }
-    if (!found && w1.length() > w2.length()) return "";  // invalid ordering
+    if (!found && w1.length() > w2.length()) { return ""; }  // invalid ordering
 }
 ```
 

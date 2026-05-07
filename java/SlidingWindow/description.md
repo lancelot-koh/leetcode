@@ -67,7 +67,7 @@ Max/min value inside sliding window?         → Pattern 7: Monotonic Deque Wind
 ```java
 // Initialize first window
 int windowSum = 0;
-for (int i = 0; i < k; i++) windowSum += nums[i];
+for (int i = 0; i < k; i++) { windowSum += nums[i]; }
 int max = windowSum;
 
 // Slide: add right, remove left
@@ -105,7 +105,7 @@ public boolean checkInclusion(String s1, String s2) {
         if (i >= s1.length()) {
             window[s2.charAt(i - s1.length()) - 'a']--;
         }
-        if (Arrays.equals(window, need)) return true;
+        if (Arrays.equals(window, need)) { return true; }
     }
     return false;
 }
@@ -132,7 +132,7 @@ for (int right = 0; right < s.length(); right++) {
     while (!isValid(freq)) {
         char lc = s.charAt(left++);
         freq.merge(lc, -1, Integer::sum);
-        if (freq.get(lc) == 0) freq.remove(lc);
+        if (freq.get(lc) == 0) { freq.remove(lc); }
     }
 
     // 3. Update answer (window is always valid here)
@@ -233,7 +233,7 @@ For **longest**: update answer **outside** the shrink loop — window is always 
 ```java
 public String minWindow(String s, String t) {
     Map<Character, Integer> need = new HashMap<>(), window = new HashMap<>();
-    for (char c : t.toCharArray()) need.merge(c, 1, Integer::sum);
+    for (char c : t.toCharArray()) { need.merge(c, 1, Integer::sum); }
 
     int left = 0, formed = 0, required = need.size();
     int minLen = Integer.MAX_VALUE, minStart = 0;
@@ -241,12 +241,12 @@ public String minWindow(String s, String t) {
     for (int right = 0; right < s.length(); right++) {
         char rc = s.charAt(right);
         window.merge(rc, 1, Integer::sum);
-        if (need.containsKey(rc) && window.get(rc).equals(need.get(rc))) formed++;
+        if (need.containsKey(rc) && window.get(rc).equals(need.get(rc))) { formed++; }
 
         while (formed == required) {
             if (right - left + 1 < minLen) { minLen = right - left + 1; minStart = left; }
             char lc = s.charAt(left++);
-            if (need.containsKey(lc) && window.merge(lc, -1, Integer::sum) < need.get(lc)) formed--;
+            if (need.containsKey(lc) && window.merge(lc, -1, Integer::sum) < need.get(lc)) { formed--; }
         }
     }
     return minLen == Integer.MAX_VALUE ? "" : s.substring(minStart, minStart + minLen);
@@ -274,8 +274,9 @@ private int atMost(int[] nums, int k) {
     for (int right = 0; right < nums.length; right++) {
         freq.merge(nums[right], 1, Integer::sum);
         while (freq.size() > k) {                        // resource exceeded
-            if (freq.merge(nums[left++], -1, Integer::sum) == 0)
+            if (freq.merge(nums[left++], -1, Integer::sum) == 0) {
                 freq.remove(nums[left - 1]);
+            }
         }
         count += right - left + 1;  // all subarrays ending at right are valid
     }
@@ -368,7 +369,7 @@ for (int i = 0; i < nums.length; i++) {
 
     deque.addLast(i);
 
-    if (i >= k - 1) result[i - k + 1] = nums[deque.peekFirst()];
+    if (i >= k - 1) { result[i - k + 1] = nums[deque.peekFirst()]; }
 }
 ```
 

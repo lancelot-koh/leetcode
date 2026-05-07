@@ -23,29 +23,53 @@
 
 ---
 
+## How it Works — Mental Model 原理与直觉
+
+Binary search works by maintaining a search interval that is guaranteed to contain the answer. At each step, we check the midpoint. Because the search space is monotone, the result of the midpoint check tells us which *half* to discard entirely — we never need to look at discarded elements again. With n elements, we need at most log₂(n) halvings before the interval collapses to a single element.
+
+The hardest part is not the algorithm — it's boundary conditions. The choice of `[lo, hi]` (closed) vs `[lo, hi)` (half-open) determines whether the loop uses `lo <= hi` or `lo < hi`, and whether `hi` is set to `mid` or `mid - 1`. Pick one convention and never mix them within a template.
+
+**Invariant (exact match, closed interval):** The target, if it exists, always lies within `[lo, hi]`. When `lo > hi`, the interval is empty and the target is absent.
+
+**Invariant (left boundary, half-open):** `lo` is the smallest index not yet ruled out. When the loop ends, `lo == hi` is the first index where `nums[lo] >= target`.
+
+---
+
+## Step-by-Step Trace — Left Boundary 执行追踪
+
+```
+Input: nums=[1,3,5,5,7], target=5   (find first occurrence)
+lo=0, hi=5 (half-open)
+Step 1: mid=2, nums[2]=5 >= 5 → hi=2  (mid might be the answer)
+Step 2: mid=1, nums[1]=3 <  5 → lo=2  (mid too small)
+Step 3: lo==hi==2 → exit, return 2  ✓ (first 5 is at index 2)
+```
+
+---
+
 ## Core Templates 核心模板
 
 ### Exact match (find target) 精确查找
 
 ```java
-int lo = 0, hi = nums.length - 1;           // closed [lo, hi]
-while (lo <= hi) {
-    int mid = lo + (hi - lo) / 2;
-    if      (nums[mid] == target) return mid;
-    else if (nums[mid] < target)  lo = mid + 1;
-    else                          hi = mid - 1;
+int lo = 0, hi = nums.length - 1;           // closed [lo, hi]: both endpoints are valid candidates
+while (lo <= hi) {                           // lo==hi is a valid 1-element interval; must check it
+    int mid = lo + (hi - lo) / 2;           // avoids (lo+hi) integer overflow
+    if      (nums[mid] == target) { return mid; }
+    else if (nums[mid] < target)  { lo = mid + 1; }   // target is to the right of mid
+    else                          { hi = mid - 1; }   // target is to the left of mid
 }
-return -1;
+return -1;   // interval is empty; target not found
 ```
 
 ### Left boundary (first position ≥ target) 左边界
 
 ```java
-int lo = 0, hi = nums.length;               // half-open [lo, hi)
-while (lo < hi) {
+int lo = 0, hi = nums.length;               // half-open [lo, hi): hi=n means "past the end"
+while (lo < hi) {                           // lo==hi means interval is empty → done
     int mid = lo + (hi - lo) / 2;
-    if (nums[mid] < target) lo = mid + 1;   // mid too small
-    else                    hi = mid;        // mid might be answer
+    if (nums[mid] < target) { lo = mid + 1; }   // mid is definitely not the answer; cut left half
+    else                    { hi = mid; }        // mid could be the answer; keep it in the interval
 }
 return lo;   // first index where nums[lo] >= target  (lo == n if all < target)
 ```
@@ -56,22 +80,22 @@ return lo;   // first index where nums[lo] >= target  (lo == n if all < target)
 int lo = 0, hi = nums.length;
 while (lo < hi) {
     int mid = lo + (hi - lo) / 2;
-    if (nums[mid] <= target) lo = mid + 1;
-    else                     hi = mid;
+    if (nums[mid] <= target) { lo = mid + 1; }   // mid is ≤ target, so answer is mid or further right
+    else                     { hi = mid; }        // mid is > target, shrink right
 }
-return lo - 1;   // last index where nums[i] <= target
+return lo - 1;   // last index where nums[i] <= target; lo-1 because lo overshot by one
 ```
 
 ### Search on answer (minimize) 答案二分（最小化）
 
 ```java
-int lo = minPossible, hi = maxPossible;
+int lo = minPossible, hi = maxPossible;     // set bounds to the full range of possible answers
 while (lo < hi) {
     int mid = lo + (hi - lo) / 2;
-    if (canAchieve(mid)) hi = mid;      // works, try smaller
-    else                 lo = mid + 1;  // too small
+    if (canAchieve(mid)) { hi = mid; }      // mid works → it's a candidate; try something smaller
+    else                 { lo = mid + 1; }  // mid too small → answer must be strictly larger
 }
-return lo;
+return lo;   // smallest value for which canAchieve returns true
 ```
 
 ---
@@ -104,8 +128,8 @@ private int leftBound(int[] nums, int target) {
     int lo = 0, hi = nums.length;
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (nums[mid] < target) lo = mid + 1;
-        else                    hi = mid;
+        if (nums[mid] < target) { lo = mid + 1; }
+        else                    { hi = mid; }
     }
     return lo;
 }
@@ -114,13 +138,19 @@ private int leftBound(int[] nums, int target) {
 ### Koko Eating Bananas (LC 875) — Search on Answer
 ```java
 public int minEatingSpeed(int[] piles, int h) {
-    int lo = 1, hi = Arrays.stream(piles).max().getAsInt();
+    // int lo = 1, hi = Arrays.stream(piles).max().getAsInt();
+    int lo = 1, hi = 0;
+    for(int pile: piles) {
+        if (pile > hi) {
+            hi = pile;
+        }
+    }
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
         int hours = 0;
-        for (int p : piles) hours += (p + mid - 1) / mid;
-        if (hours <= h) hi = mid;
-        else            lo = mid + 1;
+        for (int p : piles) { hours += (p + mid - 1) / mid; }
+        if (hours <= h) { hi = mid; }
+        else            { lo = mid + 1; }
     }
     return lo;
 }
@@ -132,13 +162,13 @@ public int search(int[] nums, int target) {
     int lo = 0, hi = nums.length - 1;
     while (lo <= hi) {
         int mid = lo + (hi - lo) / 2;
-        if (nums[mid] == target) return mid;
+        if (nums[mid] == target) { return mid; }
         if (nums[lo] <= nums[mid]) {                       // left half sorted
-            if (nums[lo] <= target && target < nums[mid]) hi = mid - 1;
-            else                                          lo = mid + 1;
+            if (nums[lo] <= target && target < nums[mid]) { hi = mid - 1; }
+            else                                          { lo = mid + 1; }
         } else {                                            // right half sorted
-            if (nums[mid] < target && target <= nums[hi]) lo = mid + 1;
-            else                                          hi = mid - 1;
+            if (nums[mid] < target && target <= nums[hi]) { lo = mid + 1; }
+            else                                          { hi = mid - 1; }
         }
     }
     return -1;
@@ -147,12 +177,20 @@ public int search(int[] nums, int target) {
 
 ---
 
+## Common Mistake / Gotcha 常见错误
+
+**Infinite loop with `hi = mid` in a closed interval:** If you use `lo <= hi` but set `hi = mid` (instead of `mid - 1`), and `lo == mid`, the loop never shrinks and runs forever. The half-open template sets `hi = mid` precisely because the loop condition `lo < hi` guarantees `lo != hi`, so the interval always shrinks.
+
+**Wrong `canAchieve` search bounds:** For "search on answer" problems, the lower bound is often 1 (not 0) and the upper bound is the maximum individual element (not the array size). Using `hi = n` when the answer is actually `max(piles)` means the search never reaches the true answer.
+
+---
+
 ## Skills & Pitfalls 技巧与陷阱
 
 | Skill | Detail |
 |---|---|
 | Overflow prevention | `mid = lo + (hi - lo) / 2` always |
-| `lo <= hi` vs `lo < hi` | Closed `[lo,hi]` uses `<=`; half-open `[lo,hi)` uses `<` |
+| `lo <= hi` vs `lo < hi` | Closed `[lo,hi]` uses `<=`; half-open `[lo,hi)` uses `<` — never mix them |
 | Predicate direction | Decide if you minimize "first true" or maximize "last true" before coding |
 | Ceiling division | `(a + b - 1) / b` = `ceil(a / b)` without floats |
 | Left vs right boundary | Left: `hi = mid`; Right: `lo = mid + 1`, return `lo - 1` |

@@ -92,9 +92,9 @@ public int[] twoSumSorted(int[] nums, int target) {
     int left = 0, right = nums.length - 1;
     while (left < right) {
         int sum = nums[left] + nums[right];
-        if (sum == target)  return new int[]{left + 1, right + 1};
-        else if (sum < target) left++;
-        else                   right--;
+        if (sum == target) { return new int[]{left + 1, right + 1}; }
+        else if (sum < target) { left++; }
+        else { right--; }
     }
     return new int[]{-1, -1};
 }
@@ -275,11 +275,11 @@ public void sortColors(int[] nums) {
 int i = 0, j = 0, k = 0;
 
 while (i < a.length && j < b.length) {
-    if (a[i] <= b[j]) result[k++] = a[i++];
-    else              result[k++] = b[j++];
+    if (a[i] <= b[j]) { result[k++] = a[i++]; }
+    else { result[k++] = b[j++]; }
 }
-while (i < a.length) result[k++] = a[i++];
-while (j < b.length) result[k++] = b[j++];
+while (i < a.length) { result[k++] = a[i++]; }
+while (j < b.length) { result[k++] = b[j++]; }
 ```
 
 **Variants 变形**
@@ -298,7 +298,7 @@ int i = m - 1, j = n - 1, k = m + n - 1;
 while (i >= 0 && j >= 0) {
     nums1[k--] = (nums1[i] > nums2[j]) ? nums1[i--] : nums2[j--];
 }
-while (j >= 0) nums1[k--] = nums2[j--];
+while (j >= 0) { nums1[k--] = nums2[j--]; }
 ```
 
 ---
@@ -316,7 +316,7 @@ ListNode slow = head, fast = head;
 while (fast != null && fast.next != null) {
     slow = slow.next;
     fast = fast.next.next;
-    if (slow == fast) break;  // cycle detected
+    if (slow == fast) { break; }  // cycle detected
 }
 
 // Phase 2: find entry 找环入口
@@ -367,7 +367,7 @@ return slow;  // middle node
 Arrays.sort(nums);
 
 for (int i = 0; i < nums.length - 2; i++) {
-    if (i > 0 && nums[i] == nums[i - 1]) continue;  // skip duplicates
+    if (i > 0 && nums[i] == nums[i - 1]) { continue; }  // skip duplicates
 
     int left = i + 1, right = nums.length - 1;
     while (left < right) {
@@ -388,8 +388,8 @@ Sort first → fix the outermost pointer → reduce to (K-1)-Sum → repeat unti
 
 ```java
 // After finding a valid triplet, skip same values
-while (left < right && nums[left] == nums[left + 1])  left++;
-while (left < right && nums[right] == nums[right - 1]) right--;
+while (left < right && nums[left] == nums[left + 1]) { left++; }
+while (left < right && nums[right] == nums[right - 1]) { right--; }
 ```
 
 **Variants 变形**
@@ -428,8 +428,8 @@ public int maxArea(int[] h) {
     int left = 0, right = h.length - 1, max = 0;
     while (left < right) {
         max = Math.max(max, Math.min(h[left], h[right]) * (right - left));
-        if (h[left] < h[right]) left++;
-        else                    right--;
+        if (h[left] < h[right]) { left++; }
+        else { right--; }
     }
     return max;
 }

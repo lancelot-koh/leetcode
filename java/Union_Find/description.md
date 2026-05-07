@@ -46,23 +46,24 @@ class UnionFind {
         parent = new int[n];
         rank   = new int[n];
         components = n;
-        for (int i = 0; i < n; i++) parent[i] = i;   // each node is its own root
+        for (int i = 0; i < n; i++) { parent[i] = i; }   // each node is its own root
     }
 
     // Find root with path compression
     int find(int x) {
-        if (parent[x] != x)
+        if (parent[x] != x) {
             parent[x] = find(parent[x]);   // path compression: flatten tree
+        }
         return parent[x];
     }
 
     // Union by rank
     boolean union(int x, int y) {
         int px = find(x), py = find(y);
-        if (px == py) return false;         // already connected — edge is redundant
+        if (px == py) { return false; }         // already connected — edge is redundant
 
-        if      (rank[px] < rank[py]) parent[px] = py;
-        else if (rank[px] > rank[py]) parent[py] = px;
+        if      (rank[px] < rank[py]) { parent[px] = py; }
+        else if (rank[px] > rank[py]) { parent[py] = px; }
         else { parent[py] = px; rank[px]++; }
 
         components--;
@@ -130,9 +131,11 @@ return uf.components;
 public int findCircleNum(int[][] isConnected) {
     int n = isConnected.length;
     UnionFind uf = new UnionFind(n);
-    for (int i = 0; i < n; i++)
-        for (int j = i + 1; j < n; j++)
-            if (isConnected[i][j] == 1) uf.union(i, j);
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (isConnected[i][j] == 1) { uf.union(i, j); }
+        }
+    }
     return uf.components;
 }
 ```
@@ -153,8 +156,9 @@ If `union(u, v)` returns `false` (they were already connected), adding edge (u, 
 
 ```java
 for (int[] edge : edges) {
-    if (!uf.union(edge[0], edge[1]))
+    if (!uf.union(edge[0], edge[1])) {
         return edge;   // this edge is redundant (creates a cycle)
+    }
 }
 ```
 
@@ -181,19 +185,24 @@ for (int[] edge : edges) {
 public List<List<String>> accountsMerge(List<List<String>> accounts) {
     Map<String, Integer> emailToId = new HashMap<>();
     int id = 0;
-    for (List<String> account : accounts)
-        for (int i = 1; i < account.size(); i++)
+    for (List<String> account : accounts) {
+        for (int i = 1; i < account.size(); i++) {
             emailToId.putIfAbsent(account.get(i), id++);
+        }
+    }
 
     UnionFind uf = new UnionFind(id);
-    for (List<String> account : accounts)
-        for (int i = 2; i < account.size(); i++)
+    for (List<String> account : accounts) {
+        for (int i = 2; i < account.size(); i++) {
             uf.union(emailToId.get(account.get(1)), emailToId.get(account.get(i)));
+        }
+    }
 
     // Group emails by root
     Map<Integer, TreeSet<String>> groups = new HashMap<>();
-    for (Map.Entry<String, Integer> e : emailToId.entrySet())
+    for (Map.Entry<String, Integer> e : emailToId.entrySet()) {
         groups.computeIfAbsent(uf.find(e.getValue()), k -> new TreeSet<>()).add(e.getKey());
+    }
 
     // Build result (attach owner name)
     // ...
@@ -219,7 +228,7 @@ for (int[] edge : edges) {
     if (uf.union(edge[0], edge[1])) {          // only add if not creating a cycle
         totalCost += edge[2];
         edgesUsed++;
-        if (edgesUsed == n - 1) break;          // MST has exactly n-1 edges
+        if (edgesUsed == n - 1) { break; }          // MST has exactly n-1 edges
     }
 }
 return edgesUsed == n - 1 ? totalCost : -1;   // -1 if graph is disconnected
@@ -246,14 +255,15 @@ class MapUnionFind {
 
     String find(String x) {
         parent.putIfAbsent(x, x);
-        if (!parent.get(x).equals(x))
+        if (!parent.get(x).equals(x)) {
             parent.put(x, find(parent.get(x)));   // path compression
+        }
         return parent.get(x);
     }
 
     void union(String x, String y) {
         String px = find(x), py = find(y);
-        if (!px.equals(py)) parent.put(px, py);
+        if (!px.equals(py)) { parent.put(px, py); }
     }
 
     boolean connected(String x, String y) { return find(x).equals(find(y)); }
@@ -276,7 +286,7 @@ For problems where you need to track the relationship/ratio between nodes (e.g.,
 double[] weight;   // weight[i] = ratio from i to parent[i]
 
 double find(int x) {
-    if (parent[x] == x) return 1.0;
+    if (parent[x] == x) { return 1.0; }
     double parentWeight = find(parent[x]);
     weight[x] *= parentWeight;   // accumulate weight during compression
     parent[x] = parent[parent[x]];
@@ -299,7 +309,7 @@ Add a virtual "super-source" or "super-sink" node to connect all sources/sinks:
 
 ```java
 int virtualNode = n;   // node index n is virtual
-for (int source : sources) uf.union(source, virtualNode);
+for (int source : sources) { uf.union(source, virtualNode); }
 // Now check: uf.connected(a, b) ↔ a and b both connect to virtual node
 ```
 

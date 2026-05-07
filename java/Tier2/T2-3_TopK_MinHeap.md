@@ -8,6 +8,31 @@
 
 ---
 
+## How it Works — Mental Model 算法原理
+
+A min-heap of size k acts as a **filter**: it always keeps exactly the k largest elements it has seen so far. The key insight is that the heap top (the minimum of the heap) is the "weakest survivor" — the smallest element among the k largest. When a new element arrives, if it is larger than this weakest survivor, it deserves to be in the top-k and the weakest survivor must leave. If the new element is smaller, it cannot be in the top-k and is simply discarded. After scanning all n elements, the heap holds exactly the k largest, and its top is the Kth largest. The counter-intuitive trick is that you use a **min**-heap to find the **max**-k.
+
+**Key invariant:** At all times, the min-heap contains exactly the k largest elements seen so far (or fewer than k if not enough elements have been processed yet). The heap top equals the Kth largest element seen so far.
+
+**Common mistake / gotcha:** Using a max-heap for "top k largest" — a max-heap of all n elements would work but costs O(n log n) total. Also, avoid `a - b` as a comparator when values can overflow int; use `Integer.compare(a, b)` instead.
+
+---
+
+## Step-by-Step Trace 执行步骤示意
+
+Example: `findKthLargest([3, 1, 5, 12, 2, 11], k=3)`
+```
+Process 3:  heap=[3]           (size 1 ≤ k, no eviction)
+Process 1:  heap=[1,3]         (size 2 ≤ k)
+Process 5:  heap=[1,3,5]       (size 3 = k, heap full)
+Process 12: offer→heap=[1,3,5,12], size>k → poll min(1) → heap=[3,5,12]
+Process 2:  offer→heap=[2,3,5,12], size>k → poll min(2) → heap=[3,5,12]
+Process 11: offer→heap=[3,5,11,12], size>k → poll min(3) → heap=[5,11,12]
+Result: heap.peek() = 5  (3rd largest)
+```
+
+---
+
 ## When to Use 什么时候用
 
 | Trigger | Example |
@@ -32,27 +57,28 @@
 ### K Largest (min-heap size k)
 
 ```java
-PriorityQueue<Integer> minHeap = new PriorityQueue<>();   // default = min-heap
+PriorityQueue<Integer> minHeap = new PriorityQueue<>();   // default = min-heap (natural order)
 
 for (int num : nums) {
     minHeap.offer(num);
-    if (minHeap.size() > k) minHeap.poll();   // evict smallest → keep k largest
+    if (minHeap.size() > k) { minHeap.poll(); }   // evict the smallest → the k largest survive
 }
 
-int kthLargest = minHeap.peek();   // top of min-heap = Kth largest
+int kthLargest = minHeap.peek();   // min of the k largest = the Kth largest overall
 ```
 
 ### K Smallest (max-heap size k)
 
 ```java
+// Flip: max-heap evicts the largest, keeping the k smallest
 PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
 
 for (int num : nums) {
     maxHeap.offer(num);
-    if (maxHeap.size() > k) maxHeap.poll();   // evict largest → keep k smallest
+    if (maxHeap.size() > k) { maxHeap.poll(); }   // evict largest → keep k smallest
 }
 
-int kthSmallest = maxHeap.peek();
+int kthSmallest = maxHeap.peek();  // max of the k smallest = the Kth smallest overall
 ```
 
 ### K-way Merge
@@ -62,9 +88,11 @@ PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b) -> a[0] - b[0]);
 // {value, listIndex, elementIndex}
 
 // Initialize: push first element of each list
-for (int i = 0; i < lists.length; i++)
-    if (lists[i] != null)
+for (int i = 0; i < lists.length; i++) {
+    if (lists[i] != null) {
         minHeap.offer(new int[]{lists[i].val, i, 0});
+    }
+}
 
 while (!minHeap.isEmpty()) {
     int[] cur = minHeap.poll();
@@ -83,7 +111,7 @@ public int findKthLargest(int[] nums, int k) {
     PriorityQueue<Integer> minHeap = new PriorityQueue<>();
     for (int num : nums) {
         minHeap.offer(num);
-        if (minHeap.size() > k) minHeap.poll();
+        if (minHeap.size() > k) { minHeap.poll(); }
     }
     return minHeap.peek();
 }
@@ -93,12 +121,12 @@ public int findKthLargest(int[] nums, int k) {
 ```java
 public int[] topKFrequent(int[] nums, int k) {
     Map<Integer, Integer> freq = new HashMap<>();
-    for (int n : nums) freq.merge(n, 1, Integer::sum);
+    for (int n : nums) { freq.merge(n, 1, Integer::sum); }
 
     PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b) -> a[1] - b[1]);
     for (Map.Entry<Integer, Integer> e : freq.entrySet()) {
         minHeap.offer(new int[]{e.getKey(), e.getValue()});
-        if (minHeap.size() > k) minHeap.poll();
+        if (minHeap.size() > k) { minHeap.poll(); }
     }
     return minHeap.stream().mapToInt(a -> a[0]).toArray();
 }
@@ -112,7 +140,7 @@ public int[][] kClosest(int[][] points, int k) {
         (a, b) -> (b[0]*b[0]+b[1]*b[1]) - (a[0]*a[0]+a[1]*a[1]));
     for (int[] p : points) {
         maxHeap.offer(p);
-        if (maxHeap.size() > k) maxHeap.poll();
+        if (maxHeap.size() > k) { maxHeap.poll(); }
     }
     return maxHeap.toArray(new int[k][]);
 }
@@ -121,14 +149,14 @@ public int[][] kClosest(int[][] points, int k) {
 ### Merge K Sorted Lists (LC 23)
 ```java
 public ListNode mergeKLists(ListNode[] lists) {
-    PriorityQueue<ListNode> minHeap = new PriorityQueue<>((a, b) -> a.val - b.val);
-    for (ListNode l : lists) if (l != null) minHeap.offer(l);
+    PriorityQueue<ListNode> minHeap = new PriorityQueue<>((a, b) -> a.val - b.val);  // min by node value
+    for (ListNode l : lists) { if (l != null) { minHeap.offer(l); } }  // seed with heads of all lists
 
-    ListNode dummy = new ListNode(0), cur = dummy;
+    ListNode dummy = new ListNode(0), cur = dummy;  // dummy avoids null-check for first node
     while (!minHeap.isEmpty()) {
-        ListNode node = minHeap.poll();
+        ListNode node = minHeap.poll();             // globally smallest remaining node
         cur.next = node; cur = cur.next;
-        if (node.next != null) minHeap.offer(node.next);
+        if (node.next != null) { minHeap.offer(node.next); }  // advance that list by one
     }
     return dummy.next;
 }

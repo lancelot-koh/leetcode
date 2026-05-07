@@ -144,14 +144,16 @@ Iterating left-to-right would allow using the same item multiple times (the upda
 ```java
 public boolean canPartition(int[] nums) {
     int total = Arrays.stream(nums).sum();
-    if (total % 2 != 0) return false;
+    if (total % 2 != 0) { return false; }
     int target = total / 2;
 
     boolean[] dp = new boolean[target + 1];
     dp[0] = true;
-    for (int num : nums)
-        for (int w = target; w >= num; w--)
+    for (int num : nums) {
+        for (int w = target; w >= num; w--) {
             dp[w] |= dp[w - num];
+        }
+    }
     return dp[target];
 }
 ```
@@ -172,8 +174,9 @@ dp[0] = 0;
 
 for (int coin : coins) {
     for (int w = coin; w <= amount; w++) {    // LEFT to RIGHT — allows reuse
-        if (dp[w - coin] != Integer.MAX_VALUE)
+        if (dp[w - coin] != Integer.MAX_VALUE) {
             dp[w] = Math.min(dp[w], dp[w - coin] + 1);
+        }
     }
 }
 return dp[amount] == Integer.MAX_VALUE ? -1 : dp[amount];
@@ -205,10 +208,11 @@ int[][] dp = new int[m + 1][n + 1];
 
 for (int i = 1; i <= m; i++) {
     for (int j = 1; j <= n; j++) {
-        if (s1.charAt(i-1) == s2.charAt(j-1))
+        if (s1.charAt(i-1) == s2.charAt(j-1)) {
             dp[i][j] = dp[i-1][j-1] + 1;       // characters match
-        else
+        } else {
             dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);  // take best without one char
+        }
     }
 }
 return dp[m][n];
@@ -226,17 +230,20 @@ return dp[m][n];
 **Edit distance (LC 72)**
 
 ```java
-for (int i = 0; i <= m; i++) dp[i][0] = i;
-for (int j = 0; j <= n; j++) dp[0][j] = j;
+for (int i = 0; i <= m; i++) { dp[i][0] = i; }
+for (int j = 0; j <= n; j++) { dp[0][j] = j; }
 
-for (int i = 1; i <= m; i++)
-    for (int j = 1; j <= n; j++)
-        if (word1.charAt(i-1) == word2.charAt(j-1))
+for (int i = 1; i <= m; i++) {
+    for (int j = 1; j <= n; j++) {
+        if (word1.charAt(i-1) == word2.charAt(j-1)) {
             dp[i][j] = dp[i-1][j-1];
-        else
+        } else {
             dp[i][j] = 1 + Math.min(dp[i-1][j-1],      // replace
                             Math.min(dp[i-1][j],          // delete
                                      dp[i][j-1]));        // insert
+        }
+    }
+}
 ```
 
 ---
@@ -286,8 +293,8 @@ return dp[0][n-1];
 Map<String, Integer> memo = new HashMap<>();
 
 public int solve(String state) {
-    if (isBaseCase(state)) return baseValue(state);
-    if (memo.containsKey(state)) return memo.get(state);
+    if (isBaseCase(state)) { return baseValue(state); }
+    if (memo.containsKey(state)) { return memo.get(state); }
 
     int result = /* recursive calls */;
     memo.put(state, result);
