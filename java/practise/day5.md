@@ -204,6 +204,75 @@ Given the `root` of a binary tree, return the preorder traversal of its nodes' v
 
 > Follow up: Recursive solution is trivial, could you do it iteratively?
 
+**Binary Tree Array Representation (0-indexed)**
+
+```
+Array:  [ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15]
+Index:    0   1   2   3   4   5   6   7   8   9  10  11  12  13  14
+
+Level 0:                        1                          (index 0)
+Level 1:              2                   3                (index 1–2)
+Level 2:         4         5         6         7           (index 3–6)
+Level 3:       8   9    10  11    12  13    14  15         (index 7–14)
+```
+
+**Index relationships for node at index `i`:**
+
+| Relation    | Formula       |
+|-------------|---------------|
+| Left child  | `2*i + 1`     |
+| Right child | `2*i + 2`     |
+| Parent      | `(i - 1) / 2` |
+
+**Level relationships:**
+
+| Level `L` | First index | Last index    | Node count |
+|-----------|-------------|---------------|------------|
+| 0         | `0`         | `0`           | `1`        |
+| 1         | `1`         | `2`           | `2`        |
+| 2         | `3`         | `6`           | `4`        |
+| 3         | `7`         | `14`          | `8`        |
+| L         | `2^L - 1`   | `2^(L+1) - 2` | `2^L`      |
+
+
+public List<Integer> preorderTraversal(TreeNode root) {
+    List<Integer> res = new ArrayList<>();
+    if (root == null) return res;
+
+    TreeNode curr = root; // this is unncessary for recursive dfs, but require for iterative dfs
+    rdfs(curr, res);
+    idfs(curr, res);
+    return res;
+}
+
+private void rdfs(TreeNode node, List<Integer> res) {
+    if (node == null) return;
+
+    res.add(node.val);
+
+    dfs(node.left, res);
+    dfs(node.right, res);
+}
+
+private void idfs(TreeNode node, List<Integer> res){
+    if (node == null) return;
+
+    Stack<TreeNode> stack = new LinkedList<>();
+    stack.push(node);
+
+
+    while(!stack.isEmpty()) {
+        TreeNode curr = stack.pop();
+        res.add(curr.val);
+        
+        if (curr.right != null) {
+            stack.push(curr.right);
+        }
+        if (curr.left != null) {
+            stack.push(curr.left);
+        } 
+    }
+}
 ---
 
 ### 94. Binary Tree Inorder Traversal `Easy`
@@ -227,7 +296,43 @@ Given the `root` of a binary tree, return the inorder traversal of its nodes' va
 - `-100 <= Node.val <= 100`
 
 > Follow up: Recursive solution is trivial, could you do it iteratively?
+```java
+public List<Integer> inorderTraversal(TreeNode root) {
+    List<Integer> res = new ArrayList<>();
+    if (root == null) return res;
 
+    dfs(root, res);
+    return res;
+
+}
+
+private void dfs(TreeNode node, List<Integer> res) {
+    if (node == null) return;
+    while(node.left != null) {
+        dfs(node.left, res);
+    }
+
+    res.add(node.val);
+    dfs(node.right, res);
+}
+
+private void rdfs(TreeNode node, List<Integer> res) {
+    LinkedList<TreeNode> stack = LinkedList<>();
+    TreeNode curr = node;
+
+    while(curr != null || !stack.isEmpty()) {
+        while(curr != null) {
+            stack.push(curr);
+            curr = curr.left;
+        }
+        curr = stack.pop();
+        res.add(curr.val);
+        curr = curr.right;
+    }
+}
+
+
+```
 ---
 
 ### 145. Binary Tree Postorder Traversal `Easy`

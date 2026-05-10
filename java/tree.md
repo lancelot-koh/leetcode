@@ -514,3 +514,29 @@ Most tree problems are:
 > **recursive decomposition + subtree information flow**
 
 Not memorizing unrelated solutions. Once recursive subtree intuition feels natural, most tree problems become variations of the same pattern.
+
+
+
+Day 7
+
+Backtracking + Heap + Greedy
+
+Day 8
+
+Tree DFS fundamentals: Max Depth, Same Tree, Invert Tree, Balanced Tree
+
+Day 9
+
+Tree advanced DFS: Diameter, Path Sum, LCA, Max Path Sum
+
+Day 10
+
+Tree BFS + BST: Level Order, Right Side View, Validate BST, Kth Smallest
+
+Day 11
+
+Tree construction + serialization: LC105, LC297
+
+Day 12
+
+Mixed review: Tree + Graph + Binary Search + Prefix Sum
