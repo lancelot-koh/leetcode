@@ -19,8 +19,10 @@ Connectivity联通性                    Union Find
 answer range                          Binary search
 
 
+
 DSA world map
 Array
+LinkedList?
 HashMap
 Stack
 Queue
