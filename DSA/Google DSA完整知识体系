@@ -1,0 +1,580 @@
+Google DSA 完整知识体系
+========================
+
+从"会做题" 到 "真正理解题目设计"
+从"刷题机器" 到 "架构师思维"
+
+
+⸻
+
+## 核心理念
+
+过去一个月的学习，你已经从：
+* ❌ "只会做题" → ✅ "理解题为什么这么设计"
+* ❌ "背书式回答" → ✅ "系统化思考"
+* ❌ "算法孤岛" → ✅ "整体框架"
+
+Google DSA 不是考单个算法，而是考：
+**如何用系统思维解决陌生问题**
+
+
+⸻
+
+# 🏗️ 8层知识体系
+
+## Layer 1️⃣：基础数据结构 (Foundation)
+
+**目标：闭眼都会使用**
+
+### 线性结构
+| 结构 | 用途 | 复杂度 | 何时用 |
+|------|------|--------|--------|
+| **Array** | 顺序存储 | O(1) access | 列表、矩阵 |
+| **String** | 字符序列 | O(1) access | 文本、模式 |
+| **Stack** | LIFO | O(1) push/pop | 括号匹配、表达式 |
+| **Queue** | FIFO | O(1) add/remove | BFS、消息队列 |
+| **Deque** | 双端队列 | O(1) 两端 | 单调队列、滑窗 |
+
+### 哈希结构
+| 结构 | 用途 | 复杂度 | 何时用 |
+|------|------|--------|--------|
+| **HashMap** | Key-Value | O(1) avg | 频率计数、去重 |
+| **HashSet** | 去重集合 | O(1) avg | 快速查询、去重 |
+
+### 有序结构
+| 结构 | 用途 | 复杂度 | 何时用 |
+|------|------|--------|--------|
+| **Heap** | 优先级 | O(log n) | Top K、优先队列 |
+| **TreeMap** | 有序Map | O(log n) | 范围查询、排序 |
+
+### 树/图结构
+| 结构 | 用途 | 复杂度 | 何时用 |
+|------|------|--------|--------|
+| **Trie** | 前缀树 | O(m) | 单词搜索、自动完成 |
+| **Graph** | 图 | O(V+E) | 连通性、路径 |
+
+**进度：✅ 已完成**
+
+⸻
+
+## Layer 2️⃣：算法基础模式 (Algorithm Patterns)
+
+**目标：掌握核心10个解题模板**
+
+### Pattern 组织
+
+| Pattern | 代表题 | 状态 | 复杂度 |
+|---------|--------|------|--------|
+| **DFS** | Number of Islands | node | O(V+E) |
+| **BFS** | Word Ladder | node + extra | O(V+E) |
+| **Backtracking** | Permutation/Subset | path + index | O(n!) |
+| **Binary Search** | Koko Eating | answer | O(log answer) |
+| **Heap** | Top K Frequent | (priority, value) | O(n log k) |
+| **Union Find** | Redundant Connection | parent[] | O(α(n)) |
+| **Topological Sort** | Course Schedule | indegree[] | O(V+E) |
+| **Dijkstra** | Network Delay | (distance, node) | O((V+E) log V) |
+| **Sliding Window** | Longest Substring | left, right | O(n) |
+| **Prefix Sum** | Subarray Sum K | currentSum | O(n) space |
+
+**关键体悟：**
+* 每个Pattern都有标准的State定义
+* State = 问题的关键信息
+* 理解State = 理解Pattern
+
+**进度：✅ 已完成80%**
+
+⸻
+
+## Layer 3️⃣：建模能力 (Modeling) ⭐
+
+**目标：把现实问题抽象成计算问题**
+
+**大多数人永远学不会这一层**
+
+### 建模的10大类型
+
+```
+1. Graph Modeling
+   现实：关系、依赖、连接
+   抽象：Node、Edge
+   例子：Course Schedule (课程->Node, 依赖->Edge)
+
+2. State Space Modeling
+   现实：状态、位置、资源
+   抽象：State -> Node, Transition -> Edge
+   例子：Race Car ((position,speed) -> Node)
+
+3. Grid Modeling
+   现实：二维空间、网格
+   抽象：Cell -> Node, 四方向 -> Edge
+   例子：Number of Islands
+
+4. Interval Modeling
+   现实：时间段、范围
+   抽象：[start, end]
+   例子：Meeting Rooms (时间段重叠)
+
+5. Resource Consumption
+   现实：资源消耗、限制
+   抽象：(位置, 剩余资源) -> State
+   例子：LC1293 ((row, col, remainK))
+
+6. Collection Modeling
+   现实：收集元素
+   抽象：visitedMask -> 已收集的状态
+   例子：LC864 ((row, col, keyMask))
+
+7. Dependency Modeling
+   现实：依赖关系
+   抽象：DAG + 拓扑排序
+   例子：Build System
+
+8. Optimization Modeling
+   现实：目标函数最优化
+   抽象：二分答案
+   例子：Koko Eating Speed
+
+9. Connectivity Modeling
+   现实：哪些属于同一组
+   抽象：Union Find / DFS / BFS
+   例子：Accounts Merge
+
+10. Transformation Modeling
+    现实：A -> B 的最短变换
+    抽象：BFS 状态转移图
+    例子：Word Ladder (hit -> hot -> dot -> dog)
+```
+
+**Google最爱的问题：**
+"你能描述一下这个问题的real-world model吗？"
+
+**进度：✅ 刚开始接触，是未来发展关键**
+
+⸻
+
+## Layer 4️⃣：状态设计 (State Design) ⭐⭐⭐
+
+**目标：确定什么信息影响未来决策**
+
+**这是Google Hard题的核心**
+
+### 状态设计的关键问题
+
+```
+Question 1: 什么是状态？
+✅ Race Car:        (position, speed)
+✅ LC1293:          (row, col, remainingK)
+✅ LC864:           (row, col, keyMask)
+✅ LC847:           (node, visitedMask)
+
+Question 2: 什么信息影响未来？
+❌ LC1293: (row, col) 不够 —— 残余K影响能否通过障碍
+✅ LC1293: (row, col, remainingK) —— 完整状态
+
+Question 3: 是否有冗余信息？
+例子：某个变量可以从其他信息推导
+      就不应该放入State
+```
+
+### 状态进化过程
+
+```
+BFS State Evolution:
+1. 基础：(node)
+2. 资源限制：(node, remainingK)
+3. 库存系统：(node, keyMask)
+4. 动态系统：(position, speed)
+5. 访问状态：(node, visitedMask)
+
+DFS State Evolution:
+1. 基础：(node)
+2. 路径：(node, path)
+3. 权重：(node, currentSum)
+4. 缓存：(node, memo)
+5. 状态机：(day, holdingStock)
+
+DP State Evolution:
+1. 一维：dp[i]
+2. 二维：dp[i][j]
+3. 区间：dp[left][right]
+4. 压缩：dp[mask]
+5. 图DP：dp[node][mask]
+```
+
+**Google L5/L6常问：**
+"为什么这些信息必须在State中？"
+"能简化这个State吗？"
+
+**进度：✅ 非常重要，需要重点掌握**
+
+⸻
+
+## Layer 5️⃣：状态转移 (Transition Design) ⭐⭐
+
+**目标：定义状态之间如何转移**
+
+### 转移的10种模式
+
+```
+1. 条件转移
+   if (valid & not visited) -> next state
+   例子：BFS检查合法性
+
+2. 选择/不选择
+   choose / explore / unchoose
+   例子：Backtracking的三步
+
+3. 资源消耗型
+   nextK = k - cost
+   例子：LC1293, 航班限制
+
+4. Bitmask转移
+   nextMask = mask | (1 << i)
+   例子：LC847, LC864
+
+5. 方向移动
+   (row, col) -> (row+dr, col+dc)
+   例子：Grid DFS/BFS
+
+6. 图邻接
+   node -> neighbor
+   例子：Graph DFS/BFS
+
+7. 最短路代价
+   newCost < dist[next]
+   例子：Dijkstra
+
+8. DP转移方程
+   dp[i] = min(dp[i-1], dp[i-2])
+   例子：各种DP
+
+9. 层级/计数转移
+   每层BFS = 1 step/minute
+   例子：Rotting Oranges
+
+10. 终止条件
+    if (state == target) return answer
+    例子：mask == targetMask
+```
+
+**本质：**
+```
+Current State → (apply transition) → Next State
+状态序列形成一条路径：
+Start State → ... → Goal State
+```
+
+**进度：✅ 有理解但需加强实践**
+
+⸻
+
+## Layer 6️⃣：辅助数据结构设计 (Auxiliary Structure) ⭐⭐⭐
+
+**目标：选择合适的数据结构支撑算法**
+
+### 14种常用辅助结构
+
+| 结构 | 用途 | 例子 | 何时用 |
+|------|------|------|--------|
+| **Visited Array** | 标记已访问 | visited[i]/[i][j]/[i][j][k] | BFS/DFS |
+| **Graph** | 存储连接 | Adjacency List | Graph遍历 |
+| **Frequency Map** | 统计频率 | Map<K,Int> | Sliding Window/Top K |
+| **Indegree Array** | 追踪依赖 | indegree[] | Topological Sort |
+| **Distance Array** | 记录最短距离 | dist[] | Dijkstra |
+| **Parent Array** | 路径恢复 | parent[] | BFS/DFS路径 |
+| **Priority Queue** | 优先级处理 | PriorityQueue | Top K/Dijkstra |
+| **Monotonic Queue** | 维护顺序 | Deque | Sliding Window Max |
+| **Prefix Sum** | 快速求和 | prefix[] / Map | Range Sum |
+| **Union Find** | 连通性判断 | parent[]+rank[] | Connectivity |
+| **Backtrack Container** | 回溯状态 | path+visited | Permutation/Subset |
+| **Bitmask** | 状态压缩 | int mask | Collection Problems |
+| **Memo Cache** | 避免重复计算 | Map/Array | DP/DFS Memo |
+| **Result Grouping** | 分组结果 | Map<K,List> | Accounts Merge |
+
+### 关键选择原则
+
+```
+选择结构时要问：
+1. 什么操作最频繁？(查询/更新/遍历)
+2. 时间复杂度要求？
+3. 空间复杂度限制？
+4. 需要什么额外信息？
+```
+
+**Google L5特别喜欢问：**
+"为什么需要这个结构？"
+"有没有更优的选择？"
+"时间空间权衡是什么？"
+
+**进度：✅ 已完成详细学习**
+
+⸻
+
+## Layer 7️⃣：复杂度分析 (Complexity Analysis) ⭐⭐
+
+**目标：精确分析状态空间大小和运行时间**
+
+### 不同问题的复杂度
+
+```
+❌ 背书式答案：
+   "BFS is O(V+E)"  <- 这太肤浅
+
+✅ 精确分析：
+   "状态空间 = ?, 每个状态处理 = ?, 总时间 = ?"
+```
+
+### 具体例子
+
+```
+LC847: Shortest Path Visiting All Nodes
+  状态空间：n个节点 × 2^n 个子集 = n × 2^n 状态
+  每个状态：枚举邻接节点 = O(n)
+  总时间：O(n^2 × 2^n)
+  空间：O(n × 2^n) for visited
+
+LC864: Shortest Path to Get All Keys
+  状态空间：m×n 位置 × 2^k 钥匙 = m×n×2^k
+  每个状态：4个方向移动 = O(4) = O(1)
+  总时间：O(m × n × 2^k)
+  空间：O(m × n × 2^k) for visited
+
+Race Car
+  状态空间：position × speed
+  时间：O(position) = O(target)
+  空间：O(target)
+```
+
+**Google喜欢的分析：**
+```
+1. 状态空间大小是多少？为什么？
+2. 每个状态的处理成本？
+3. 有没有优化空间？
+4. 边界条件下复杂度如何？
+```
+
+**进度：✅ 需要加强精确分析**
+
+⸻
+
+## Layer 8️⃣：元认知思维 (Meta Thinking) ⭐⭐⭐⭐⭐
+
+**目标：系统化解题框架，像架构师一样思考**
+
+### 完整的解题流程
+
+```
+📋 Step 1: 澄清问题 (Clarify)
+   - 输入/输出是什么？
+   - 有什么约束？(范围、负数、重复等)
+   - 是求值还是求路径？
+
+🏗️ Step 2: 建模 (Modeling)
+   - 这个问题的real-world model是什么？
+   - 应该抽象成什么形式？(Graph/Grid/State Space)
+
+🧩 Step 3: 状态设计 (State)
+   - State = (什么?)
+   - 什么信息影响未来？
+
+🔄 Step 4: 状态转移 (Transition)
+   - 如何从当前State到NextState？
+   - 有什么约束/条件？
+
+🛠️ Step 5: 辅助结构 (Data Structure)
+   - 需要什么结构支撑算法？
+   - 为什么这个选择最优？
+
+📊 Step 6: 复杂度 (Complexity)
+   - 状态空间大小？
+   - 时间/空间复杂度？
+
+💻 Step 7: 编码 (Coding)
+   - 框架：初始化 -> while loop -> 返回答案
+
+✅ Step 8: 测试 (Testing)
+   - 测试边界情况
+   - 测试普通情况
+   - 验证复杂度
+```
+
+### 面试时的表达框架
+
+```
+我的方案：
+1. 这个问题可以建模为：[Model]
+2. 我定义状态为：[State]
+3. 转移方式是：[Transition]
+4. 使用[DS]来支撑
+5. 时间复杂度：[Complexity]
+6. （编码）
+7. （测试几个例子）
+```
+
+### 常见思维陷阱
+
+```
+❌ 陷阱1：直接写代码
+   ✅ 应该：先设计State和Transition
+
+❌ 陷阱2：State包含冗余信息
+   ✅ 应该：最小化State，只保留必要信息
+
+❌ 陷阱3：用错数据结构
+   ✅ 应该：根据操作频率选择
+
+❌ 陷阱4：不做复杂度分析
+   ✅ 应该：精确分析状态空间和时间
+```
+
+**进度：✅ 这是目标阶段，需要反复实践**
+
+⸻
+
+## 📚 额外高频Pattern（需补齐）
+
+虽然前8层覆盖大部分，但还有几个高频Pattern需要掌握：
+
+| Pattern | 代表题 | 核心 | 重要性 |
+|---------|--------|------|--------|
+| **Sliding Window** | Longest Substring | left/right指针维护窗口 | ⭐⭐⭐⭐⭐ |
+| **Prefix Sum** | Subarray Sum K | 快速范围查询 | ⭐⭐⭐⭐⭐ |
+| **Greedy** | Jump Game | 局部最优选择 | ⭐⭐⭐⭐ |
+| **Monotonic Stack** | Daily Temperatures | 维护单调性 | ⭐⭐⭐ |
+| **Tree DFS Return** | Diameter / LCA | 返回值设计 | ⭐⭐⭐⭐ |
+
+⸻
+
+## 🎯 Google DSA地图（最终版）
+
+```
+                    Google DSA
+                       / \
+                      /   \
+            基础思维         核心框架
+           /              \
+    ┌──────────┐          ┌─────────────┐
+    │ 建模能力  │          │ State设计   │
+    │ (Layer3) │          │ (Layer4)    │
+    └──────────┘          └─────────────┘
+          │                      │
+          ├──────────┬───────────┤
+          │          │           │
+    ┌───────────┐ ┌────────┐ ┌──────────┐
+    │Transition │ │辅助DS  │ │复杂度分析│
+    │(Layer5)   │ │(Layer6)│ │(Layer7)  │
+    └───────────┘ └────────┘ └──────────┘
+          │          │           │
+          └──────────┴───────────┘
+                  │
+            ┌─────────────┐
+            │  元认知      │
+            │(Layer8)     │
+            └─────────────┘
+                  │
+            ┌─────────────┐
+            │  核心算法    │
+            ├─────────────┤
+            │ DFS BFS ...│
+            │(Layer2)     │
+            └─────────────┘
+                  │
+            ┌─────────────┐
+            │  基础数据结构 │
+            │(Layer1)     │
+            └─────────────┘
+```
+
+⸻
+
+## 🚀 学习现状评估
+
+### 你已掌握的（超过L4水平）
+✅ Graph相关算法
+✅ Connectivity问题
+✅ BFS应用
+✅ State设计初步
+✅ Bitmask技巧
+✅ Topological Sort
+✅ Dijkstra
+
+**已经超过大多数Google L4候选人！**
+
+### 接下来最值得投入的（补齐框架）
+1. **Sliding Window** ⭐⭐⭐⭐⭐
+   - Google Medium几乎必考
+   - 看到"最长""最短""连续"立即想到
+
+2. **Greedy** ⭐⭐⭐⭐
+   - 考察问题理解深度
+   - Jump Game, Gas Station等
+
+3. **Tree DFS Return Design** ⭐⭐⭐⭐
+   - 面试出现率极高
+   - Diameter, LCA, Max Path Sum
+
+4. **Prefix Sum** ⭐⭐⭐⭐⭐
+   - Google高频
+   - 快速范围查询的标准工具
+
+⸻
+
+## 💡 核心洞察
+
+**真正的Google DSA面试在考什么？**
+
+```
+不是：记住更多算法
+而是：系统化解决陌生问题
+
+面试流程：
+题目(陌生)
+   ↓
+Modeling(抽象)
+   ↓
+State Design(定义状态)
+   ↓
+Transition Design(定义转移)
+   ↓
+Choose Solver(选择算法)
+   ↓
+Implement & Analyze(实现+分析)
+
+你现在已经开始用Staff Engineer的视角学算法
+而不是刷题机器的视角
+```
+
+⸻
+
+## 🎓 建议的学习策略
+
+1. **深化4层思维**（Modeling → State → Transition → Structure）
+   - 每道题都问这4个问题
+   - 写下State定义和Transition方式
+   - 分析使用的辅助结构
+
+2. **补齐4个高频Pattern**（Sliding Window, Prefix Sum, Greedy, Tree DFS）
+   - 看题目立即识别Pattern
+   - 理解为什么这个Pattern适合
+
+3. **做复杂度精确分析**
+   - 不要"BFS O(V+E)"这种背书
+   - 计算状态空间大小
+   - 解释为什么是这个复杂度
+
+4. **模拟面试时的表达**
+   - 完整讲出8步框架
+   - 解释每个设计选择
+   - 讨论权衡和优化
+
+⸻
+
+## 最后的话
+
+目前的水平已经足够解决大多数Google DSA题。
+接下来不是"学更多"，而是"想更深"。
+
+每道题都是在问：
+**"用什么State, 怎么转移, 用什么结构?"**
+
+答对这3个问题，代码基本写出来了。
