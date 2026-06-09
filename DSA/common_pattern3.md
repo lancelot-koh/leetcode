@@ -25,29 +25,47 @@ Modulo Prefix Sum	            prefix % k
 
 一、Sliding Window
 
-* 建模 Modeling: 将滑动窗口问题转化为数据结构设计问题，在每个窗口位置O(1)时间内找到最大值。问题本质：维护窗口内元素的单调性，而非存储所有窗口最大值。
+### What is Sliding Window?
+简单来说：用两个指针维护一个连续区间，根据题目条件动态扩张或收缩。  
+Simply put: Use two pointers to maintain a continuous interval, expanding or shrinking based on conditions.
 
-* Modeling: Transform the sliding window problem into a data structure design challenge to find the maximum in each window position in O(1) time. Core insight: maintain monotonicity of window elements rather than storing all maximums.
+**核心步骤 Core Steps:**
+1. right 指针向右扩展 → add new element
+2. 检查是否满足条件 → check condition
+3. 如果不满足 → left 指针向右收缩 → remove left element
+4. 更新答案 → update answer
 
-* 状态 State: 状态 = (窗口右边界位置 i)，窗口范围[i-k+1, i]。状态空间大小 = O(n)个窗口位置。隐含维度：单调队列中存储的是索引（而非值），保证队列单调递减且关键元素始终可见。
+---
 
-* State: State = (window right boundary position i), window range [i-k+1, i]. State space size = O(n) window positions. Implicit dimension: deque stores indices (not values), ensuring monotonic decreasing and critical elements always visible.
+* 建模 Modeling: 问题本质是在**连续子数组**中寻找某种特性（最长/最短）。不需要枚举所有子数组(O(n²))，而是通过维护一个有效窗口动态调整。
 
-* 辅助数据结构 Aux Structure: Deque<Integer>存储窗口内元素的索引(而非值)，维持严格递减顺序。删除策略：(1)移除超出窗口左边界的索引 (2)移除小于当前元素的尾部索引。队列头部始终指向当前窗口的最大值。
+* Modeling: The key is finding a property (longest/shortest) in **continuous subarrays**. Instead of checking all O(n²) subarrays, maintain a valid window and adjust it dynamically.
 
-* Aux Structure: Deque<Integer> stores indices of window elements (not values) in strictly decreasing order. Removal strategy: (1) remove indices outside left window boundary (2) remove tail indices smaller than current element. Queue front always points to current window maximum.
+* 状态 State: 状态 = (left 指针位置, right 指针位置, 窗口内数据)。状态空间 = O(n²) 个可能的窗口，但只需维护**一个有效窗口**。
 
-* 状态转移 Transition: 从位置i-1移动到位置i时：(1)从队列尾部删除所有小于nums[i]的索引(维持递减) (2)从队列头部删除索引<i-k+1的元素(维持窗口范围) (3)添加当前索引i到队列尾部 (4)队列非空时，头部索引对应的值就是当前窗口最大值。
+* State: State = (left pointer, right pointer, window data). State space = O(n²) possible windows, but we only maintain **one valid window at a time**.
 
-* Transition: When moving from position i-1 to i: (1) remove all indices from queue tail smaller than nums[i] (maintain decreasing) (2) remove indices < i-k+1 from queue front (maintain window bounds) (3) append current index i to queue tail (4) when queue is non-empty, value at front index is current window maximum.
+* 辅助数据结构 Aux Structure: 根据具体问题选择：Set(去重)、Map(频率统计)、或简单变量(和、计数)。目的：快速判断窗口是否满足条件。
 
-* 选择算法 Solver: 使用单调双端队列(Monotonic Deque)。理由：直接遍历数组O(n)，对每个元素O(1)操作(每个元素最多入队出队各一次)。相比堆/TreeMap的O(n log k)解法，单调队列更优。单调性保证：队列头部元素必为最大值，无需比较。
+* Aux Structure: Choose based on problem: Set (uniqueness), Map (frequency), or simple variables (sum, count). Purpose: quickly check if window is valid.
 
-* Solver: Use Monotonic Deque pattern. Rationale: single array pass O(n), each element O(1) processing (each element enqueued/dequeued at most once). Superior to heap/TreeMap O(n log k) solutions. Monotonicity guarantee: queue front element must be maximum, no comparison needed.
+* 状态转移 Transition: 三个关键动作：
+  * (1) right++ → 扩展窗口，加入新元素 | expand: add nums[right]
+  * (2) 检查是否违反条件 | check if invalid
+  * (3) left++ → 收缩窗口，移除左端元素 | shrink: remove nums[left]
 
-* 复杂度分析 Complexity: 时间复杂度O(n)，每个元素最多入队一次、出队一次，总操作数≤2n。空间复杂度O(k)，双端队列最多存储k个索引(窗口大小)。关键：尽管有嵌套循环外观，实际每个元素仅处理常数次。
+* Transition: Three key actions:
+  * (1) right++ → expand window, add nums[right]
+  * (2) check if condition violated
+  * (3) left++ → shrink window, remove nums[left]
 
-* Complexity Analysis: Time O(n), each element enqueued/dequeued at most once, total operations ≤2n. Space O(k), deque stores at most k indices (window size). Key: despite nested loop appearance, each element processes constant times.
+* 选择算法 Solver: 滑动窗口是一种**贪心策略**：当找到一个有效窗口后，left 不需要回退。这保证了时间复杂度是 O(n)，而不是 O(n²)。
+
+* Solver: Sliding window is a **greedy strategy**: once you find a valid window, left pointer never backtracks. This ensures O(n) time instead of O(n²).
+
+* 复杂度分析 Complexity: 时间 O(n) —— 每个元素最多被访问 2 次（一次 right，一次 left）。空间 O(?) —— 取决于辅助结构（通常 O(1) 或 O(alphabet size))。
+
+* Complexity Analysis: Time O(n) — each element visited at most twice (once by right, once by left). Space O(?) — depends on auxiliary structure (usually O(1) or O(alphabet size)).
 
 * 不变量 Invariant: (1)队列严格递减：队列中indices i1 < i2 必有 nums[i1] > nums[i2]。(2)队列头部索引始终在有效窗口范围[max(0, i-k+1), i]内。(3)所有被移除的元素要么超出窗口边界，要么被找到的更大元素遮挡(永不再被访问)。(4)最大值答案从不遗漏。
 
@@ -86,22 +104,42 @@ Fixed Size Window
 
 ### Problem 1: Fixed Size Window - Maximum Average Subarray
 **LeetCode 643 | Easy**
-**Link:** https://leetcode.com/problems/maximum-average-subarray-i/
-**Key Points:**
-- Find max average of contiguous subarray of fixed size k
-- Maintain window sum, slide by removing left and adding right
-- Average calculation after finding max sum
-- Time: O(n), Space: O(1)
+
+**核心思路 Key Idea:**
+- 固定窗口大小 = k
+- 滑动窗口：移除左端，加入右端
+- 维护最大和，最后除以 k 得平均值
+
+**7步框架 7-Step Framework:**
+
+1. 建模 Modeling: 在数组中找长度为 k 的子数组，使平均值最大
+   - Transform: 先找最大和 → 再除以 k = 最大平均值
+
+2. 状态 State: (windowSum) 当前窗口的和
+   - 窗口大小固定 = k，位置由 right 指针决定
+   
+3. 辅助数据 Aux Structure: 一个变量 `windowSum`，每次滑动更新它
+   
+4. 状态转移 Transition:
+   ```
+   右移：windowSum = windowSum - nums[i-k] + nums[i]
+   ```
+   
+5. 选择算法 Solver: 滑动窗口（单次遍历）
+   
+6. 复杂度 Complexity: O(n) 时间，O(1) 空间
+   
+7. 不变量 Invariant: 窗口始终包含恰好 k 个元素
 
 ```java
 /**
- * 建模 Modeling: 在给定数组中找到长度为k的连续子数组,使其平均值最大。| Modeling: Find a contiguous subarray of length k in the given array with the maximum average value.
- * 状态 State: 当前窗口的和以及滑动窗口的左右边界位置。| State: The sum of the current window and the left/right boundary positions of the sliding window.
- * 辅助数据结构 Aux Structure: 维持一个大小为k的固定窗口,记录窗口内元素之和。| Aux Structure: Maintain a fixed-size window of k elements and track the sum of elements within the window.
- * 状态转移 Transition: 向右扩展窗口,添加新元素到和中;当窗口大小超过k时,移除左端元素;更新最大和。| Transition: Expand the window to the right by adding the next element to the sum; remove the leftmost element when window size exceeds k; update the maximum sum.
- * 选择算法 Solver: 使用滑动窗口遍历数组一次,维护固定大小的窗口和,记录最大值,最后用最大和除以k得到最大平均值。| Solver: Use sliding window to traverse the array once, maintain the sum of a fixed-size window, record the maximum sum, and divide by k to get the maximum average.
- * 复杂度分析: 时间复杂度O(n),空间复杂度O(1)。| Complexity: Time complexity O(n), Space complexity O(1).
- * 不变量 Invariant: 窗口始终包含恰好k个元素,窗口内所有元素之和正确反映了当前位置的k元素子数组。| Invariant: The window always contains exactly k elements, and the sum within the window correctly represents the k-element subarray at the current position.
+ * 建模 Modeling: 找长度为k的子数组，使平均值最大 | Find subarray of length k with maximum average
+ * 状态 State: windowSum = 当前窗口的和 | windowSum = sum of current window
+ * 辅助数据结构 Aux Structure: 一个变量 windowSum | Simple variable windowSum
+ * 状态转移 Transition: 移除左端，加入右端 | Remove left, add right: windowSum = windowSum - nums[left] + nums[right]
+ * 选择算法 Solver: 滑动窗口 | Sliding window
+ * 复杂度分析: O(n) 时间，O(1) 空间 | Time O(n), Space O(1)
+ * 不变量 Invariant: 窗口大小恰好为 k | Window size always k
  */
 class Solution {
     public double findMaxAverage(int[] nums, int k) {
@@ -152,67 +190,47 @@ Google最喜欢
 
 ### Problem 2: Variable Size Window - Longest Substring Without Repeating Characters
 **LeetCode 3 | Medium**
-**Link:** https://leetcode.com/problems/longest-substring-without-repeating-characters/
-**Key Points:**
-- Find longest substring with all unique characters
-- Expand window by moving right, shrink when duplicate found
-- Use Set to track characters in current window
-- Time: O(n), Space: O(min(m, n)) where m=alphabet size
-- Two-pointer with character set tracking
+
+**核心思路 Key Idea:**
+- 维持一个**没有重复字符**的窗口
+- right 扩展窗口，发现重复时 left 收缩
+- 在窗口有效时更新答案
+
+**7步框架 7-Step Framework:**
+
+1. 建模 Modeling: 找最长的不含重复字符的子串
+   - Transform: 窗口内字符必须都不同 → 找最长的
+
+2. 状态 State: (left, right) 定义的窗口
+   - 窗口内的字符必须全部唯一
+   
+3. 辅助数据 Aux Structure: Set<Character>
+   - 快速判断字符是否在窗口中（O(1)）
+   
+4. 状态转移 Transition:
+   ```
+   right++ 加入新字符
+   ↓
+   如果字符重复：left++ 移除左端，直到重复消除
+   ↓
+   记录最长窗口长度
+   ```
+   
+5. 选择算法 Solver: 滑动窗口（变大小）
+   
+6. 复杂度 Complexity: O(n) 时间，O(min(字符集, n)) 空间
+   
+7. 不变量 Invariant: 窗口中永远没有重复字符
 
 ```java
 /**
- * ─────────────────────────────────────────────────────────────
- * 框架: Modeling → State → Aux → Transition → Solver
- * ─────────────────────────────────────────────────────────────
- * 
- * 建模 Modeling:
- *   问题：找最长不含重复字符的子串
- *   转化为窗口问题：维持一个字符不重复的滑动窗口
- *   动态扩张：right指针不断右移
- *   动态收缩：当发现重复字符时，left指针左移直到重复消除
- *
- * 状态 State:
- *   窗口 = [left, right] 的连续子串
- *   窗口状态 = 窗口内字符的频率集合
- *   不变量：窗口内不存在重复字符
- *   状态空间：O(n²)个可能的窗口
- *
- * 辅助数据结构 Aux Structure:
- *   - Set<Character> set: 维护当前窗口内的字符（去重）
- *   - int left: 左指针
- *   - int right: 隐含在for循环中
- *   - int result: 全局最大窗口长度
- *
- * 状态转移 Transition:
- *   每次迭代（right++）：
- *   1. 检查新字符s[right]是否在set中
- *   2. 如果存在：收缩窗口left++，直到重复字符被移除
- *   3. 加入新字符到set
- *   4. 记录最大窗口长度
- *   转移特点：动态调整left和right，保持不变量
- *
- * 选择算法 Solver:
- *   滑动窗口 (Sliding Window) - 变大小版本
- *   理由：
- *   - 子问题具有单调性（移除left元素后，right仍有效）
- *   - 无需重新初始化，left只增不减
- *   - 时间复杂度O(n)：每个字符最多被访问2次
- *
- * 复杂度分析:
- *   时间: O(n)
- *     - 外层：right从0到n-1（n次）
- *     - 内层while：left整个过程中最多增加n
- *     - 总操作：2n次字符访问
- *   空间: O(min(m, n))
- *     - m = 字符集大小（26-128）
- *     - set最多存储min(26, window_size)个字符
- *
- * 不变量 Invariant:
- *   - set中不存在重复字符
- *   - set中所有字符都在窗口[left,right]内
- *   - 如果字符在set中，在[left,right]内最后一次出现位置是right之前
- * ─────────────────────────────────────────────────────────────
+ * 建模 Modeling: 找最长不重复字符的子串 | Find longest substring without repeating chars
+ * 状态 State: [left, right] 窗口，窗口内字符全唯一 | Window with all unique chars
+ * 辅助数据结构 Aux Structure: Set<Character> 追踪窗口内的字符 | Track chars in window
+ * 状态转移 Transition: right扩展，发现重复→left收缩直到重复消除 | Expand with right, shrink with left when duplicate
+ * 选择算法 Solver: 滑动窗口 | Sliding window
+ * 复杂度分析: O(n) 时间，O(min(字符集, n)) 空间 | Time O(n), Space O(min(charset, n))
+ * 不变量 Invariant: 窗口内没有重复字符 | No duplicates in window
  */
 class Solution {
     public int lengthOfLongestSubstring(String s) {
@@ -275,23 +293,46 @@ At Most K
 
 ### Problem 3: At Most K Pattern - Longest Repeating Character Replacement
 **LeetCode 424 | Medium**
-**Link:** https://leetcode.com/problems/longest-repeating-character-replacement/
-**Key Points:**
-- Find longest substring with at most k character replacements
-- Key insight: windowSize - maxFrequency <= k means valid window
-- Track frequency of each character and max frequency
-- Shrink window when condition violated
-- Time: O(n), Space: O(1) (fixed 26 letters)
+
+**核心思路 Key Idea:**
+- 窗口中**最多替换 k 个字符**使所有字符相同
+- 判断条件：`窗口大小 - 最频繁字符的频率 <= k`
+- 如果超过 k，left 收缩窗口
+
+**7步框架 7-Step Framework:**
+
+1. 建模 Modeling: 找最长子串，最多替换 k 个字符使所有字符相同
+   - Key：只需替换那些"不是最频繁字符"的字符
+
+2. 状态 State: (left, right) 和 freq[] 字符频率
+   
+3. 辅助数据 Aux Structure: int[] freq（26个字母的频率）+ maxFreq（最高频率）
+   
+4. 状态转移 Transition:
+   ```
+   right++ 扩展窗口，更新 freq[]
+   ↓
+   检查：(窗口大小 - maxFreq) > k？
+   ↓
+   是 → left++ 收缩
+   否 → 继续扩展
+   ```
+   
+5. 选择算法 Solver: 滑动窗口
+   
+6. 复杂度 Complexity: O(n) 时间，O(1) 空间（固定 26 个字母）
+   
+7. 不变量 Invariant: 窗口满足条件后 left 不回退
 
 ```java
 /**
- * 建模 Modeling: 在字符串中找最长子串，使得通过最多K次替换可以使所有字符相同。| Modeling: Find the longest substring where at most K character replacements make all characters identical.
- * 状态 State: left和right指针定义滑动窗口，count[]记录窗口内每个字符的频数。| State: left and right pointers define sliding window, count[] tracks character frequencies in window.
- * 辅助数据结构 Aux Structure: 哈希表/数组维护窗口内字符频数，maxFreq记录最高频字符的计数。| Aux Structure: Hash table/array maintains character frequencies, maxFreq tracks maximum frequency.
- * 状态转移 Transition: 右指针扩展窗口，若(窗口长度-最高频)>K则左指针收缩，更新最长有效长度。| Transition: Expand with right pointer, shrink left pointer if (window_length - maxFreq) > K, track max length.
- * 选择算法 Solver: 双指针滑动窗口，单次遍历维护字符频数，时间高效。| Solver: Two-pointer sliding window, maintain frequencies in single pass, time-efficient.
- * 复杂度分析: 时间O(n)，空间O(1)(字母集固定)。| Complexity: Time O(n), Space O(1) (fixed alphabet size).
- * 不变量 Invariant: 窗口内满足条件则不回溯左指针，保证O(n)的滑动窗口不变式。| Invariant: Left pointer never backtracks when window valid, maintaining O(n) sliding window invariant.
+ * 建模 Modeling: 最长子串，最多替换k个字符使所有字符相同 | Find longest substring with at most k replacements
+ * 状态 State: [left, right] 窗口 + freq[] 频率 | Window + character frequencies
+ * 辅助数据结构 Aux Structure: int[] freq + int maxFreq | Frequency array + max frequency
+ * 状态转移 Transition: 扩展 right，检查 (size - maxFreq) <= k，如果否则收缩 left | Expand right, check condition, shrink left if needed
+ * 选择算法 Solver: 滑动窗口 | Sliding window
+ * 复杂度分析: O(n) 时间，O(1) 空间 | Time O(n), Space O(1)
+ * 不变量 Invariant: (窗口大小 - 最高频率) <= k | Window size - max frequency <= k
  */
 class Solution {
     public int characterReplacement(String s, int k) {
@@ -350,23 +391,49 @@ Minimum Window
 
 ### Problem 4: Minimum Window Pattern - Minimum Window Substring
 **LeetCode 76 | Hard**
-**Link:** https://leetcode.com/problems/minimum-window-substring/
-**Key Points:**
-- Find minimum window substring containing all chars from t
-- Two maps: need (required chars) and window (current window chars)
-- Expand right until window valid, then shrink to find minimum
-- Track count of formed requirements (when char frequency matches)
-- Time: O(m + n) where m=len(s), n=len(t); Space: O(1) (fixed charset)
+
+**核心思路 Key Idea:**
+- 找最小的窗口，**包含目标字符串的所有字符**
+- 两个 Map：`need`（目标） vs `window`（当前窗口）
+- right 扩展直到**有效**，left 收缩寻找**最小**
+
+**7步框架 7-Step Framework:**
+
+1. 建模 Modeling: 找最小子串，包含 t 中的所有字符
+   - Transform: 需要匹配字符种类数
+
+2. 状态 State: (left, right) + need[] + window[]
+   - `formed` = 有多少个字符的频率已匹配
+   
+3. 辅助数据 Aux Structure: 两个 HashMap
+   - `need`: 目标字符的频率（不变）
+   - `window`: 当前窗口的频率（动态）
+   
+4. 状态转移 Transition:
+   ```
+   阶段1：扩展（right++）
+   ↓ 直到窗口包含所有目标字符（formed == need.size()）
+   
+   阶段2：收缩（left++）
+   ↓ 记录最小窗口，移除字符直到窗口无效
+   ↓ 重复
+   ```
+   
+5. 选择算法 Solver: 双指针滑动窗口
+   
+6. 复杂度 Complexity: O(m+n) 时间，O(1) 空间（固定字符集）
+   
+7. 不变量 Invariant: 窗口要么包含所有目标字符，要么我们记录过一个有效窗口
 
 ```java
 /**
- * 建模 Modeling: 在字符串中找最小长度的子串，包含目标字符串中的所有字符。| Modeling: Find the minimum length substring containing all characters from target string.
- * 状态 State: left右指针位置，以及当前窗口内各字符的频率计数。| State: Left and right pointer positions, and character frequency counts within current window.
- * 辅助数据结构 Aux Structure: 哈希表存储目标字符频率，哈希表存储窗口字符频率。| Aux Structure: Hash map for target character frequencies, hash map for window character frequencies.
- * 状态转移 Transition: 右指针扩展窗口直至包含所有目标字符，左指针收缩以找最小窗口。| Transition: Expand right pointer until window contains all target chars, shrink left pointer to find minimum.
- * 选择算法 Solver: 双指针滑动窗口，贪心地在每步扩展或收缩指针。| Solver: Two-pointer sliding window with greedy expansion and contraction at each step.
- * 复杂度分析: 时间O(m+n)其中m为源字符串长度n为目标字符串长度；空间O(1)哈希表固定大小。| Complexity: Time O(m+n) where m is source length and n is target length; Space O(1) fixed hash table.
- * 不变量 Invariant: [left,right]窗口始终满足包含所有目标字符，或记录过的最小窗口有效。| Invariant: Window [left,right] always maintains all target chars or previously recorded minimum window is valid.
+ * 建模 Modeling: 找最小子串包含 t 的所有字符 | Find minimum window containing all chars from t
+ * 状态 State: [left, right] 窗口 + formed（匹配的字符种类数）| Window + formed count
+ * 辅助数据结构 Aux Structure: HashMap need（目标）+ HashMap window（当前）| Two hashmaps: need and window
+ * 状态转移 Transition: 扩展 right 直到有效，收缩 left 找最小 | Expand right until valid, shrink left to minimize
+ * 选择算法 Solver: 双指针滑动窗口 | Two-pointer sliding window
+ * 复杂度分析: O(m+n) 时间，O(1) 空间 | Time O(m+n), Space O(1)
+ * 不变量 Invariant: 窗口有效时包含所有目标字符 | When valid, window contains all target chars
  */
 class Solution {
     public String minWindow(String s, String t) {
@@ -445,24 +512,48 @@ Sliding Window + Deque
 
 ### Problem 5: Sliding Window + Deque - Sliding Window Maximum
 **LeetCode 239 | Hard**
-**Link:** https://leetcode.com/problems/sliding-window-maximum/
-**Key Points:**
-- Find maximum value in each sliding window of size k
-- Use deque to maintain indices of potential maximums
-- Deque stores indices in decreasing order of values
-- Remove indices outside window, remove smaller values when new max found
-- Time: O(n), Space: O(k) for deque
-- Each element added and removed once
+
+**核心思路 Key Idea:**
+- 找每个固定大小窗口中的**最大值**
+- 暴力：每个窗口 O(k)，总共 O(nk) ❌
+- 优化：用单调递减的双端队列维护候选值 ✅
+
+**7步框架 7-Step Framework:**
+
+1. 建模 Modeling: 每个窗口的最大值（固定大小 k）
+   - Key：不需要存储所有元素，只存"可能的最大值"
+
+2. 状态 State: Deque 存储索引（递减顺序）
+   - 队头 = 当前窗口的最大值索引
+   
+3. 辅助数据 Aux Structure: Deque<Integer>（单调递减）
+   - 存索引不存值（方便判断是否过期）
+   
+4. 状态转移 Transition:
+   ```
+   对每个新元素 nums[i]：
+   1. 移除过期索引（< i-k+1）
+   2. 移除队尾的"较小值"（< nums[i]）
+   3. 加入当前索引到队尾
+   4. 队头 = 当前窗口最大值
+   ```
+   
+5. 选择算法 Solver: 单调双端队列
+   
+6. 复杂度 Complexity: O(n) 时间，O(k) 空间
+   - 每个元素最多入队出队各 1 次
+   
+7. 不变量 Invariant: 队列严格递减，队头永远是最大值
 
 ```java
 /**
- * 建模 Modeling: 使用单调递减双端队列维护窗口内的最大值,当窗口滑动时动态更新。| Modeling: Use a monotonic decreasing deque to maintain the maximum value in the window; update dynamically as the window slides.
- * 状态 State: 双端队列中存储数组元素的索引,满足对应值单调递减。| State: Deque stores indices of array elements where corresponding values are monotonically decreasing.
- * 辅助数据结构 Aux Structure: 单调递减双端队列,队头为当前窗口的最大值索引。| Aux Structure: Monotonic decreasing deque with the front element being the index of the maximum value in the current window.
- * 状态转移 Transition: 移除窗口外的元素,删除队尾所有小于当前元素的索引,将当前索引加入队尾。| Transition: Remove elements outside the window; remove all indices from the back with smaller values than current element; add current index to the back.
- * 选择算法 Solver: 遍历数组,对每个位置维护单调队列,窗口形成后取队头元素值为最大值。| Solver: Traverse the array, maintain the monotonic deque at each position; after window forms, the value at the front of the deque is the maximum.
- * 复杂度分析: 时间复杂度 O(n),每个元素最多入队和出队一次;空间复杂度 O(k),队列最多存储k个元素。| Complexity: Time O(n), each element enters and exits the deque at most once; Space O(k), deque stores at most k elements.
- * 不变量 Invariant: 双端队列始终保持单调递减;队头索引对应的值始终是当前窗口的最大值。| Invariant: Deque always maintains monotonic decreasing order; the value at the front index always corresponds to the maximum in the current window.
+ * 建模 Modeling: 每个窗口的最大值（用单调队列）| Window maximum using monotonic deque
+ * 状态 State: Deque 存递减顺序的索引 | Deque with decreasing indices
+ * 辅助数据结构 Aux Structure: Deque<Integer>（单调递减）| Monotonic decreasing deque
+ * 状态转移 Transition: 移除过期 → 移除小值 → 加入当前 | Remove expired → remove smaller → add current
+ * 选择算法 Solver: 单调双端队列 | Monotonic deque
+ * 复杂度分析: O(n) 时间，O(k) 空间 | Time O(n), Space O(k)
+ * 不变量 Invariant: 队列递减，队头是最大值 | Queue decreasing, front is maximum
  */
 class Solution {
     public int[] maxSlidingWindow(int[] nums, int k) {
@@ -558,15 +649,22 @@ Sliding Window
 ⸻
 
 二、Prefix Sum
-这个很多人刷题时会做。
-但面试时认不出来。
 
-⸻
+### What is Prefix Sum?
+简单来说：预先计算累积和，使得任何区间的和都能在 O(1) 时间查询。  
+Simply put: Precompute cumulative sums so any range sum query is O(1).
 
-本质：
-快速计算区间和
+**核心公式 Core Formula:**
+```
+prefix[i] = prefix[i-1] + nums[i]
+查询区间和：sum(l, r) = prefix[r+1] - prefix[l]
+```
 
-⸻
+**为什么有用？Why useful?**
+- 暴力遍历：O(n²)（对每个范围求和）Brute force: O(n²)
+- Prefix Sum：O(n) 预处理 + O(1) 查询 Prefix Sum: O(n) preprocess + O(1) query
+
+---
 
 Pattern 1
 普通 Prefix Sum
@@ -574,48 +672,57 @@ Pattern 1
 ⸻
 
 State
-prefix[i]
+prefix[i] = 前 i 个元素的累积和 (cumulative sum of first i elements)
 
 ⸻
 
 Transition
-prefix[i]
-=
-prefix[i-1]
-+
-nums[i]
+前缀和递推：prefix[i] = prefix[i-1] + nums[i]
 
 ⸻
 
 查询
-sum(l,r)
-
-=
-prefix[r]
--
-prefix[l-1]
+任意区间 [l, r] 的和 = prefix[r+1] - prefix[l]
 
 ⸻
 
 ### Problem 6: Basic Prefix Sum - Range Sum Query
 **LeetCode 303 | Easy**
-**Link:** https://leetcode.com/problems/range-sum-query-immutable/
-**Key Points:**
-- Precompute prefix sums to enable O(1) range sum queries
-- prefix[i] = sum of elements from index 0 to i-1
-- Query sum(left, right) = prefix[right+1] - prefix[left]
-- Constructor: O(n), Query: O(1)
-- Space: O(n) for prefix array
+
+**核心思路 Key Idea:**
+- 预先计算 `prefix[i]` = 前 i 个元素的和
+- 任何区间和 = `prefix[right+1] - prefix[left]` → O(1) 查询
+
+**7步框架 7-Step Framework:**
+
+1. 建模 Modeling: 快速查询任意区间的和
+   - Transform：预计算 prefix 数组
+
+2. 状态 State: prefix[i] = nums[0] + nums[1] + ... + nums[i-1]
+   
+3. 辅助数据 Aux Structure: int[] prefix（长度 n+1）
+   - prefix[0] = 0（哨兵）
+   
+4. 状态转移 Transition:
+   ```
+   prefix[i] = prefix[i-1] + nums[i-1]
+   ```
+   
+5. 选择算法 Solver: 一次线性扫描构建 prefix 数组
+   
+6. 复杂度 Complexity: O(n) 预处理 + O(1) 查询，O(n) 空间
+   
+7. 不变量 Invariant: prefix[i] 准确反映前 i 个元素的和
 
 ```java
 /**
- * 建模 Modeling: 将数组分割成区间，预计算前缀和使得任意区间和可在O(1)时间内查询。| Modeling: Partition the array into segments and precompute prefix sums to answer range sum queries in O(1) time.
- * 状态 State: prefix[i] 表示数组前i个元素的累积和。| State: prefix[i] represents the cumulative sum of the first i elements.
- * 辅助数据结构 Aux Structure: 长度为n+1的一维前缀和数组，prefix[0]=0。| Aux Structure: One-dimensional prefix sum array of length n+1 with prefix[0]=0.
- * 状态转移 Transition: prefix[i] = prefix[i-1] + arr[i-1]；区间[L,R]的和 = prefix[R+1] - prefix[L]。| Transition: prefix[i] = prefix[i-1] + arr[i-1]; range sum [L,R] = prefix[R+1] - prefix[L].
- * 选择算法 Solver: 线性扫描一次数组构建前缀和数组。| Solver: Single linear scan to build the prefix sum array.
- * 复杂度分析: 时间O(n)预处理+O(1)查询；空间O(n)。| Complexity: O(n) preprocessing + O(1) query; O(n) space.
- * 不变量 Invariant: prefix[i] 始终维持前i个元素的准确累积和；任意合法区间查询结果正确。| Invariant: prefix[i] always maintains the accurate cumulative sum of the first i elements; any valid range query is correct.
+ * 建模 Modeling: 快速查询任意区间的和 | Fast range sum queries
+ * 状态 State: prefix[i] = 前 i 个元素的和 | Cumulative sum up to index i
+ * 辅助数据结构 Aux Structure: int[] prefix（长度 n+1）| Prefix array of size n+1
+ * 状态转移 Transition: prefix[i] = prefix[i-1] + nums[i-1] | Cumulative recurrence
+ * 选择算法 Solver: 线性扫描构建 | Linear scan to build
+ * 复杂度分析: O(n) 预处理 + O(1) 查询 | O(n) preprocess + O(1) query
+ * 不变量 Invariant: prefix[i] 准确 = sum(nums[0...i-1]) | Correct cumulative sum
  */
 class NumArray {
     int[] prefix;
@@ -644,70 +751,56 @@ Google超高频
 
 ### Problem 7: Prefix Sum + HashMap - Subarray Sum Equals K
 **LeetCode 560 | Medium**
-**Link:** https://leetcode.com/problems/subarray-sum-equals-k/
-**Key Points:**
-- Count number of subarrays with sum equal to k
-- Use prefix sum + map to find: if (currentSum - k) exists in map, found match
-- Key insight: sum[i] - sum[j] = k means subarray [j+1...i] sums to k
-- Track prefix sums in map with their frequencies
-- Time: O(n), Space: O(n)
-- Map approach beats sliding window (works with negative numbers)
+
+**核心思路 Key Idea:**
+- 找有多少个子数组的**和 = k**
+- 暴力：O(n²) 枚举所有子数组 ❌
+- 优化：前缀和 + HashMap，O(n) ✅
+
+**关键公式 Key Formula:**
+```
+prefix[i] - prefix[j] = k
+  ↓
+说明：区间 [j+1...i] 的和 = k
+
+转化为：prefix[i] - k 是否在 map 中？
+```
+
+**7步框架 7-Step Framework:**
+
+1. 建模 Modeling: 计算有多少个子数组和 = k
+   - Transform：从枚举子数组 → 查找前缀和对
+
+2. 状态 State: 当前的 prefix（累积和）
+   
+3. 辅助数据 Aux Structure: HashMap<Integer, Integer>
+   - Key = 前缀和值
+   - Value = 该前缀和出现的频率（可能多次）
+   
+4. 状态转移 Transition:
+   ```
+   对每个元素：
+   1. prefix += nums[i]（更新前缀和）
+   2. 查找 (prefix - k) 是否在 map 中
+   3. 如果在 → count += map.get(prefix - k)
+   4. map.put(prefix, map.get(prefix) + 1)
+   ```
+   
+5. 选择算法 Solver: 前缀和 + HashMap（支持负数）
+   
+6. 复杂度 Complexity: O(n) 时间，O(n) 空间
+   
+7. 不变量 Invariant: map 初始化包含 {0 → 1}；count 只增不减
 
 ```java
 /**
- * ─────────────────────────────────────────────────────────────
- * 框架: Modeling → State → Aux → Transition → Solver
- * ─────────────────────────────────────────────────────────────
- * 
- * 建模 Modeling:
- *   问题：计算子数组和等于k的个数
- *   关键洞察：前缀和差值 = 区间和
- *     sum[0...i] - sum[0...j] = sum[j+1...i]
- *   转化为：当前前缀和减去k，如果结果在map中，说明找到一个匹配
- *   本质：从查找子数组 → 查找前缀和对
- *
- * 状态 State:
- *   prefix = nums[0] + nums[1] + ... + nums[i]
- *   状态空间：O(n)个不同的前缀和值
- *   不变量：每个位置i都有一个累积的prefix和
- *   目标：找所有满足 prefix[i] - prefix[j] = k 的对(i,j)
- *
- * 辅助数据结构 Aux Structure:
- *   - Map<Integer, Integer> map: 前缀和 → 出现频率
- *   - map.put(0, 1): 初始化，代表空前缀
- *   - int prefix: 当前累积和
- *   - int count: 答案计数器
- *
- * 状态转移 Transition:
- *   对每个nums[i]：
- *   1. prefix += nums[i]（累加当前元素）
- *   2. 查找(prefix - k)是否存在于map
- *      如果存在n次 → 说明有n个子数组和等于k
- *   3. 将prefix加入map（记录频率）
- *   转移关键：同一个前缀和可能出现多次，所以需要计数
- *
- * 选择算法 Solver:
- *   前缀和 + HashMap (Prefix Sum + Hash Table)
- *   理由：
- *   - 可处理负数（vs 滑动窗口只适用非负）
- *   - O(1)查询vs O(n²)暴力
- *   - 数据流问题的天然选择
- *
- * 复杂度分析:
- *   时间: O(n)
- *     - 单次遍历：n个元素
- *     - 每个位置：getOrDefault O(1)，put O(1)
- *     - 总：n次O(1)操作
- *   空间: O(n)
- *     - map最坏情况：所有n个前缀和都不同
- *     - map存储最多n+1个条目
- *
- * 不变量 Invariant:
- *   - map中总是存在键0（初始）
- *   - map[prefix] = 有多少个位置的前缀和等于这个值
- *   - 当map包含(prefix-k)时，说明存在之前的位置j使得[j+1...i]和为k
- *   - count只增不减（单调递增）
- * ─────────────────────────────────────────────────────────────
+ * 建模 Modeling: 计算和 = k 的子数组个数 | Count subarrays with sum = k
+ * 状态 State: prefix = 当前累积和 | Current cumulative sum
+ * 辅助数据结构 Aux Structure: HashMap<Integer, Integer> 前缀和频率 | Prefix sum frequencies
+ * 状态转移 Transition: 查找 (prefix - k)，计数 | Check if (prefix - k) exists, count matches
+ * 选择算法 Solver: 前缀和 + HashMap | Prefix sum + HashMap
+ * 复杂度分析: O(n) 时间，O(n) 空间 | Time O(n), Space O(n)
+ * 不变量 Invariant: map 初始 {0 → 1}，count 单调增 | Map starts with {0→1}, count increases
  */
 class Solution {
     public int subarraySum(int[] nums, int k) {

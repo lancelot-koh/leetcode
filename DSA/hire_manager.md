@@ -18,9 +18,9 @@
 
 ## 🎯 Top 3 Expected Questions
 
-1. **What attracted you to Debug?**
-2. **Tell me about a project you're particularly proud of** (MDK or Read2U)
-3. **How do you approach a domain you've never worked in before?**
+1. 🔴 **What attracted you to Debug?**
+2. 🔴 **Tell me about a project you're particularly proud of** (`MDK` or `Read2U`)
+3. 🔴 **How do you approach a domain you've never worked in before?**
 
 ---
 
@@ -30,21 +30,49 @@
 
 Hi Joshua, thanks for taking the time today.
 
-I've been in software engineering for more than 20 years. I've worked across enterprise platforms, mobile development, cloud services, and leadership roles. Most recently I was at Grab, before that SAP.
+I've been in **software engineering for 20+ years**. Worked across:
+- 🔹 **Enterprise platforms** (SAP)
+- 🔹 **Mobile development**
+- 🔹 **Cloud services**
+- 🔹 **Leadership roles**
+- 🔹 **Large-scale operations** (Grab)
 
-What's stayed consistent is that I enjoy solving unfamiliar problems. I like understanding how systems work, building prototypes, and learning by doing.
+What's **stayed consistent:** I enjoy **solving unfamiliar problems** → **understanding how systems work** → **building prototypes** → **learning by doing**
 
-That's what attracted me to Debug.
+That's what attracted me to **Debug**.
 
-### Your Background & Why Debug
+---
 
-When I first heard about Debug, I thought it was just mosquito control. But after reading more, I realized the challenge is much broader.
+## 🚪 Why I Left Grab
+I enjoyed my time at Grab and learned a lot from working on **large-scale products and cross-functional initiatives**.
 
-It's really about using **technology — software, AI, automation, data systems** — to solve a real-world public health problem at scale.
+At this stage of my career, I'm looking for a place where I can **continue learning, explore new domains, and work on challenging problems that have real-world impact**. the environment that  place a stronger emphsis on engineering culture, empowering engineers to drive change.
 
-The engineering challenges felt surprisingly familiar: **scalability, reliability, monitoring, automation, cross-functional collaboration.**
+What attracted me to Debug was the **combination of technology, experimentation, and the opportunity to solve problems beyond traditional software products**.
 
-That's exactly what I've done at Grab (scaling operations across regions) and SAP (building complex operational systems).
+I also get the impression that **the team has a strong engineering culture**, where people are encouraged to **take ownership, explore ideas, and learn from experimentation**.
+
+That combination is what made me curious about the team.
+---
+
+### 📍 Your Background & Why Debug
+
+When I first heard about Debug, I thought it was just **mosquito control**. ❌
+
+But after reading more, I realized the challenge is **much broader.** ✅
+
+**It's really about:** `Technology` (software, AI, automation, data systems) → **solve public health at scale**
+
+🎯 **The engineering challenges felt FAMILIAR:**
+- 🚀 **Scalability**
+- 📊 **Reliability**
+- 📈 **Monitoring**
+- 🤖 **Automation**
+- 🤝 **Cross-functional collaboration**
+
+💡 **That's EXACTLY what I've done at:**
+- `Grab:` Scaling operations across regions
+- `SAP:` Building complex operational systems
 
 ---
 
@@ -52,30 +80,39 @@ That's exactly what I've done at Grab (scaling operations across regions) and SA
 
 ### Short Answer (30 seconds)
 
-I noticed Debug just announced their Singapore expansion — first international R&D hub. They're scaling from 6M to 10M+ mosquitoes per week, and explicitly hiring software engineers.
+🚀 **Key Facts About Debug:**
+- 📍 **Singapore expansion** — first **international R&D hub**
+- 📈 **Scaling:** 6M → 10M+ mosquitoes/week
+- ✅ **Proven:** 80-90% suppression, 70%+ dengue reduction
+- 💼 **Hiring:** Explicitly scaling **software engineers**
 
-What excites me is that they've proven the biology works (80-90% suppression, 70%+ dengue reduction). Now the challenge is scaling globally with AI automation, supply chain optimization, and government integration.
+**What excites me:** Now the challenge is **scaling globally** with:
+- 🤖 **AI automation**
+- 🔗 **Supply chain optimization**
+- 🏛️ **Government integration**
 
-That's exactly the kind of systems-at-scale work I've done.
+⚡ **That's exactly the `systems-at-scale` work I've done** at **Grab** and **SAP**.
 
 ### If he asks to elaborate (1 minute)
 
-The technical challenges are fascinating:
+⚡ **The technical challenges:**
 
-1. **Real-time AI systems** — Sex-sorting millions of mosquitoes using computer vision + ML
-2. **Operational scaling** — From 6M to 10M+ weekly releases means automating a complex biological supply chain
-3. **Global deployment** — Customizing solutions for different regions with different populations and climates
-4. **Data systems** — Tracking millions of mosquitoes, measuring dengue reduction, integrating with government agencies
+1. 🤖 **Real-time AI systems** — `Computer vision` + `ML` for sex-sorting millions
+2. 📊 **Operational scaling** — `6M → 10M+` weekly = automating **complex biological supply chain**
+3. 🌍 **Global deployment** — **Customizing** for different regions/populations/climates
+4. 📈 **Data systems** — Tracking millions, measuring **dengue reduction**, **government integration**
 
-These aren't just biology problems. They're systems engineering problems. And that's where I can contribute.
+💡 **Key insight:** These aren't just **biology** problems. They're **systems engineering** problems.
 
-### Key Context
+✅ **That's where I can contribute.**
 
-- **Project Wolbachia:** 2018-present, 80-90% mosquito suppression
-- **Impact:** 4 billion people globally affected by dengue; Asia bears 70% of burden
-- **Proven:** Government-validated (Singapore NEA)
-- **Expanding:** First international R&D hub in Singapore
-- **Hiring:** Explicitly scaling software team
+### 🎯 Key Context
+
+- 🧬 **Project Wolbachia:** `2018-present` → **80-90% suppression**
+- 🌍 **Impact:** `4 billion` people affected by **dengue** globally; **Asia = 70%** of burden
+- ✅ **Proven:** **Government-validated** (Singapore `NEA`)
+- 🚀 **Expanding:** **First international R&D hub** in **Singapore**
+- 💼 **Hiring:** **Explicitly scaling software team** ⬅️ YOU
 
 ---
 
@@ -83,11 +120,12 @@ These aren't just biology problems. They're systems engineering problems. And th
 
 ### Short Answer (30 seconds)
 
-Usually I start by understanding the problem and the main workflow.
+🎯 **My formula:**
+1️⃣ **Understand the problem** + **understand workflow**
+2️⃣ **Build something small**
+3️⃣ **Learn by doing**
 
-Then I build something small and learn by doing.
-
-*[Pause — let him ask for example]*
+*[PAUSE ⏸️ — let him ask for example]*
 
 ### Example 1: MDK at SAP (1-2 minutes if asked)
 
@@ -111,138 +149,171 @@ What I enjoyed wasn't the technology itself. It was starting from a real problem
 
 **Lesson:** Build something small, get feedback, learn quickly, iterate.
 
-### My Framework for New Domains
+### 📋 My Framework for New Domains
 
-**Systems Thinking:**
-- Understand the problem
-- Understand the workflow
-- Build a mental model
-- Identify key constraints
+🧠 **Systems Thinking:**
+1. **Understand the problem**
+2. **Understand the workflow**
+3. **Build a mental model**
+4. **Identify key constraints**
 
-**Builder Mindset:**
-- Build something small
-- Experiment
-- Validate assumptions
+🔨 **Builder Mindset:**
+1. **Build something small**
+2. **Experiment**
+3. **Validate assumptions**
 
-**Learn from Experts:**
-- Talk to Product/Business leads
-- Talk to QA/Operations
-- Talk to domain experts
-- Listen more than you talk
+👥 **Learn from Experts:**
+1. **Talk to Product/Business** leads
+2. **Talk to QA/Operations**
+3. **Talk to domain experts**
+4. **LISTEN more than talk** ⚡
 
 ---
 
 ## 🤝 Category 4: Cross-Functional Collaboration
 
-### How I Communicate Technical Ideas
+### 💬 How I Communicate Technical Ideas
 
-Different people care about different things:
+📌 **Different people care about DIFFERENT things:**
 
-- **Engineers** want to understand how something works and technical trade-offs
-- **Product Managers** are thinking about customer value, priorities, timelines
-- **Operations** care about reliability, cost, and measurable impact
+- 👨‍💻 **Engineers** → `How does it work?` + `Technical trade-offs`
+- 🎯 **Product Managers** → `Customer value` + `Priorities` + `Timelines`
+- ⚙️ **Operations** → `Reliability` + `Cost` + `Measurable impact`
 
-**My approach:** Understand what they care about first, then explain the same problem from their perspective.
+🔑 **My approach:**
+1. **Understand what they care about FIRST**
+2. **Explain the same problem from THEIR perspective**
 
-**Goal:** Help everyone understand the problem, constraints, and trade-offs so we can make informed decisions together.
+✅ **Goal:** Everyone understands **problem** + **constraints** + **trade-offs** → informed decisions together
 
-### How I Align Stakeholders
+### 🔗 How I Align Stakeholders
 
-The key insight: **People are usually not arguing about the same thing.**
+🚨 **KEY INSIGHT:** People usually **NOT arguing about the same thing**
 
-Different stakeholders have different goals and constraints.
+Different stakeholders = Different goals + Different constraints
 
-Before proposing a solution, I try to:
-1. Understand what success looks like for each group
-2. Make the trade-offs visible
-3. Find common ground on the desired outcome
+**Before proposing solution:**
+1. ✅ Understand what **success** looks like for each group
+2. 📊 **Make the trade-offs VISIBLE**
+3. 🎯 **Find common ground** on desired outcome
 
-Once people understand the trade-offs and agree on the goal, alignment becomes much easier.
+🔴 **Once aligned:** Stakeholders understand trade-offs + agree on goal = **Alignment becomes easy**
 
 ---
 
 ## 💡 Category 5: Curiosity & Learning Motivation
 
-### What Drives You?
+### 🔥 What Drives You?
 
-Curiosity gets me started, but solving problems keeps me engaged.
+🚀 **Curiosity gets me started**, but **problem-solving keeps me engaged**
 
-I enjoy:
-- Entering unfamiliar domains
-- Learning how systems work
-- Exploring different ways to solve a problem
-- Taking ideas from concept → prototype → useful solution
+🎯 **I enjoy:**
+- 🌟 **Entering unfamiliar domains**
+- 🧠 **Learning how systems work**
+- 💭 **Exploring different solutions**
+- 🔨 **Concept → Prototype → Solution**
 
-**Consistent theme:** Building things. Using technology to solve real problems faster.
+📍 **Consistent theme:** **Building things** + **using technology** to solve **real problems faster**
 
-### Why Still Learning After 20+ Years?
+### ⏰ Why Still Learning After 20+ Years?
 
-I still enjoy building things.
+🎵 **The feeling hasn't changed** — only the **tools** have changed
 
-I like seeing a problem, coming up with an idea, and turning that into something real.
+**What I enjoy:**
+1. See a **problem**
+2. Come up with an **idea**
+3. Turn it into **something REAL**
 
-Technology is just the tool I use. The feeling hasn't changed, even though the technologies have.
-
-With AI, I can explore ideas and build prototypes even faster than before.
-
----
-
-## ❓ Category 6: The Risk Question
-
-**"Most of your experience is enterprise software. Debug is quite different. Why would you be successful here?"**
-
-### Answer
-
-I don't think I'd be successful because I already know the domain. I don't.
-
-What gives me confidence is that throughout my career, I've entered unfamiliar domains multiple times and learned how to become effective:
-
-- Enterprise systems → Mobile platforms → Cloud services → Leadership roles
-- In each case, other people knew the domain much better than I did initially
-
-My approach is consistent:
-1. Understand the problem first
-2. Learn from people with deep domain expertise
-3. Build small experiments
-4. Gradually develop a stronger mental model
-
-The domain is different, but the process of learning, problem solving, and creating impact has been consistent.
-
-That's the same approach I would take at Debug.
+🤖 **With AI now:** Explore ideas + build prototypes **even FASTER** ⚡
 
 ---
 
-## ❓ Questions to Ask Joshua
+## ⚠️ Category 6: The Risk Question
 
-**Q1:** What has kept you excited and motivated to stay with Debug for so long? (Shows you understand the team's longevity)
+**Q:** "Most of your experience is **enterprise software**. Debug is quite different. Why would you be successful?"
 
-**Q2:** What do you think makes someone really successful in Debug? (Shows you're thinking about fit)
+### 🎯 Answer
 
-**Q3:** What are the biggest technical or organizational challenges the team is trying to solve right now? (Shows you want to understand real problems)
+🔴 **I don't think** I'd succeed because I **already know the domain.** I don't.
 
-**Q4:** Given my background, what would you recommend I focus on during the first few months to ramp up effectively and create value quickly? (Shows you're thinking about execution)
+✅ **What gives me confidence:** Throughout career, I've **entered unfamiliar domains MULTIPLE TIMES:**
+
+📌 **Career path:**
+```
+Enterprise systems → Mobile platforms → 
+Cloud services → Leadership roles
+```
+
+🧠 **In each case:** Other people knew domain BETTER than me initially
+
+### 🔑 My Consistent Approach
+
+1. ✅ **Understand the problem FIRST**
+2. 👥 **Learn from domain experts**
+3. 🧪 **Build small experiments**
+4. 🧩 **Gradually develop mental model**
+
+🎯 **Key insight:** Domain is different, but **learning + problem-solving + impact** has been **consistent**
+
+⚡ **That's the SAME approach I take at Debug.**
+
+---
+
+## 🎤 Questions to Ask Joshua
+
+### Q1️⃣ **Longevity & Motivation**
+
+> What has kept you excited and motivated to stay with Debug for so long?
+
+🎯 **Why:** Shows you understand the team's **longevity** + **sustained passion**
+
+---
+
+### Q2️⃣ **Success Factors**
+
+> What do you think makes someone **really successful in Debug?**
+
+🎯 **Why:** Shows you're thinking about **fit** + **success patterns**
+
+---
+
+### Q3️⃣ **Real Technical Challenges**
+
+> What are the **biggest technical or organizational challenges** the team is trying to solve **right now?**
+
+🎯 **Why:** Shows you want to understand **real problems** (not just marketing story)
+
+---
+
+### Q4️⃣ **Ramp-Up Strategy**
+
+> Given my background, what would you recommend I **focus on first** to **ramp up effectively** + **create value quickly?**
+
+🎯 **Why:** Shows you're thinking about **execution** + **impact**
 
 ---
 
 ## 🎬 The Actual Interview Flow (Predicted)
 
 ```
-5 min
-├─ Tell me about yourself
-├─ Why Debug?
+⏱️ 5 MIN — Opening Round
+├─ ✅ Tell me about yourself
+├─ ✅ Why Debug?
 
-10 min
-├─ Learning new domains
-├─ [MDK or Read2U example]
+⏱️ 10 MIN — Deep Dive
+├─ 🔹 Learning new domains
+├─ 🔹 [MDK or Read2U example]
 
-5 min
-├─ How do you work with different people?
+⏱️ 5 MIN — Collaboration
+├─ ✅ How do you work with different people?
 
-10 min
-├─ Your questions for Joshua
+⏱️ 10 MIN — Your Turn
+├─ 🎤 Your questions for Joshua
 
-Meeting ends
+⏹️ Meeting ends → No more questions left!
 ```
+
+**Total Time:** ~30 minutes
 
 ---
 
@@ -250,33 +321,38 @@ Meeting ends
 
 ### ✅ What I'm Doing Right
 
-- **Concrete examples** with real impact (Grab 2.5% → 0.01%, MDK end-to-end learning)
-- **Honest about gaps** (don't pretend to know biology)
-- **Systems thinker** (not just a coder)
-- **Curious mindset** (proven track record of learning)
-- **Real-world focus** (projects that matter)
+- 📊 **Concrete examples** with **real impact**
+  - `Grab:` **2.5% → 0.01%** blank page reduction
+  - `MDK:` **end-to-end learning** at scale
+- 🎯 **Honest about gaps** (don't pretend to know **biology**)
+- 🧠 **Systems thinker** (not just code)
+- 🔍 **Curious mindset** (proven learning track record)
+- 🌍 **Real-world focus** (projects that matter)
 
 ### ⚠️ What Could Go Wrong
 
-**Biggest Mistake:** Brain-dumping answers
+❌ **BIGGEST MISTAKE:** `Brain-dumping answers`
 ```
 Question
   ↓
-3-minute perfect answer
+❌ 3-minute perfect answer
   ↓
 Joshua forgets what he wanted to ask
 ```
 
-**Best Approach:**
+### ✅ Best Approach
+
 ```
 Question
   ↓
-30-second short answer
+✅ 30-second SHORT answer
   ↓
-PAUSE (let him drive the conversation)
+🔴 PAUSE (let HIM drive conversation)
   ↓
-Elaborate only if he asks
+💬 Elaborate ONLY if asked
 ```
+
+**This is the KEY to success.** ⚡
 
 ### 🎯 Your Competitive Advantage
 
@@ -288,41 +364,60 @@ Most candidates say: *"I'm excited about public health mission"*
 
 ## 📝 4 Stories You Have Ready
 
-| Story | Focus | When to Use |
-|-------|-------|-----------|
-| **MDK (SAP)** | Learning systems, large-scale platforms, end-to-end workflows | "How do you learn new domains?" |
-| **Read2U** | Curiosity, experimentation, learning multiple domains, starting from real problems | "What drives you?" / "Tell me about a project you're proud of" |
-| **Grab Blank-Page** | Debugging at scale, root cause analysis, systematic thinking, persistence | "Tell me about a difficult problem you solved" |
-| **Stakeholder Alignment** | Cross-functional work, communication, leadership | "How do you work with different people?" |
+| 🎬 Story | 🎯 Focus | ⚡ When to Use |
+|---------|---------|----------------|
+| 🏢 **MDK (SAP)** | Learning systems, large-scale platforms, end-to-end workflows | **"How do you learn new domains?"** |
+| 📱 **Read2U** | Curiosity, experimentation, learning multiple domains, **starting from real problems** | **"What drives you?"** / **"Tell me about a project you're proud of"** |
+| 🐛 **Grab Blank-Page** | **Debugging at scale**, root cause analysis, systematic thinking, persistence | **"Tell me about a difficult problem you solved"** |
+| 🤝 **Stakeholder Alignment** | Cross-functional work, communication, **leadership** | **"How do you work with different people?"** |
 
 ---
 
 ## 🚀 Final Verdict
 
-**Knowledge Level:** ✅ 91%  
-**Preparation Level:** ✅ 88%  
-**Confidence Level:** 💪 Ready
-
-You have **more than enough material** for this interview.
-
-**Your real challenge is NOT "do I know enough?"**  
-**Your real challenge is COMPRESSION — choosing the right 30 seconds, not finding another 30 minutes.**
-
-**Practice this:**
-1. Short answer (30 sec)
-2. Pause
-3. Let Joshua drive
-
-You've got this. 🎯
+| Metric | Status |
+|--------|--------|
+| 🧠 **Knowledge Level** | ✅ **91%** |
+| 📚 **Preparation Level** | ✅ **88%** |
+| 💪 **Confidence Level** | ✅ **READY** |
 
 ---
 
-## 📅 Before Tuesday
+### 💡 Key Insight
 
-- [ ] Read the Debug Singapore blog post fully
-- [ ] Understand Project Wolbachia basics (what/why/how)
-- [ ] Practice your "Why Debug?" answer out loud
-- [ ] Practice the pause technique
-- [ ] Get 8 hours of sleep Monday night
+You have **MORE THAN ENOUGH material** for this interview.
 
-**Good luck! 💪**
+❌ **Your real challenge is NOT:** *"Do I know enough?"*
+
+⚡ **Your real challenge IS:** **COMPRESSION**
+- Choose the **right 30 seconds**
+- Not finding another **30 minutes**
+
+### 🎯 Your Practice Script
+
+```
+1️⃣ Short answer (30 sec)
+2️⃣ PAUSE ⏸️
+3️⃣ Let Joshua drive the conversation
+```
+
+---
+
+### 🏆 YOU'VE GOT THIS. 🎯
+
+---
+
+## 📅 Before Tuesday (Checklist)
+
+✅ **Prep Tasks:**
+- [ ] 📖 Read the **Debug Singapore blog post** fully
+- [ ] 🧬 Understand **Project Wolbachia basics** (what/why/how)
+- [ ] 💬 **Practice "Why Debug?" answer** out loud
+- [ ] 🔴 **Practice the PAUSE technique**
+- [ ] 😴 Get **8 hours of sleep Monday night** 🌙
+
+---
+
+### 🎯 You're Ready.
+
+**Good luck! 💪✨**

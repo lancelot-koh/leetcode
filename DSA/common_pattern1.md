@@ -32,6 +32,59 @@ Day 1
 Pattern 1: BFS Grid 
 State: (row, col)
 
+---
+
+## What is BFS Grid?
+
+BFS Grid is a pattern for exploring cells in a grid/matrix where each cell is a node. You start from one or more cells and visit all connected cells level by level, where "connected" usually means adjacent in 4 or 8 directions.
+
+**Real-world examples:**
+- Counting islands of land surrounded by water
+- Spreading of infection or rotting from multiple sources
+- Finding shortest path in an unweighted grid
+
+---
+
+## 核心步骤 Core Steps
+
+### 7-Step BFS Grid Framework
+
+**1. Understand the Problem**
+- Identify what is a "cell" (node) in the grid
+- Define what "connected" means (4 adjacent: up, down, left, right OR 8 adjacent: including diagonals)
+- Determine starting position(s) (single source or multi-source)
+
+**2. State Definition**
+- State = `(row, col)` coordinates of current cell
+- State space size = rows × cols
+
+**3. Initialize Data Structures**
+- Create a `Queue` for BFS
+- Mark visited cells (use original grid, separate array, or set - choose one method)
+- Prepare direction vectors for neighboring cells: `{{-1,0}, {1,0}, {0,-1}, {0,1}}`
+
+**4. Initialization Loop**
+- For **single-source BFS**: Add starting cell to queue, mark visited
+- For **multi-source BFS**: Add all starting cells to queue, mark all visited
+
+**5. BFS Main Loop** (while queue not empty)
+- Get queue size (number of cells at current level)
+- Process each cell at this level:
+  - Extract current cell from queue
+  - Try all 4 (or 8) neighbors
+  - Check: within bounds + target condition + not visited
+  - Add valid neighbors to queue, mark visited
+
+**6. Track Progress** (if needed)
+- For level-by-level processing: increment level counter after processing all cells at current level
+- For counting: increment counter when discovering new valid states
+- For shortest path: steps = BFS level number
+
+**7. Return Answer**
+- Return the computed result (count, steps, visited cells, etc.)
+
+---
+
 ### Problem 1: Number of Islands
 **LeetCode 200 | Medium**
 **Link:** https://leetcode.com/problems/number-of-islands/
@@ -154,45 +207,41 @@ class Solution {
  * ─────────────────────────────────────────────────────────────
  * 
  * 建模 Modeling:
- *   状态扩展：从简单连通性 → 时间维度
- *   每分钟，所有腐烂橙子同时感染相邻的新鲜橙子
- *   问题转化为：多源BFS问题，求最短时间
- *   本质：状态扩展，从(r,c) → (r,c,time)
+ *   多源BFS：所有腐烂橙子(2)同时向相邻新鲜橙子(1)扩散
+ *   问题转化为：求最短时间使所有新鲜橙子腐烂
+ *   本质：多源最短路径，时间维度 = BFS层数
  *
  * 状态 State:
  *   单个状态 = (row, col) 一个单元格的坐标
- *   隐含的时间维度 = BFS层数（每层代表一分钟）
- *   多源初始化：所有腐烂橙子(2)都是源点
+ *   隐含时间维度 = BFS层数（每层代表一分钟）
+ *   多源初始化：所有腐烂橙子(2)都是起点
  *
  * 辅助数据结构 Aux Structure:
- *   - Queue<int[]>: BFS队列，维护当前腐烂的橙子
+ *   - Queue<int[]>: BFS队列，维护待处理的腐烂橙子
  *   - int fresh: 计数器，追踪未腐烂的新鲜橙子数
- *   - 修改原grid: 标记腐烂状态
- *   - int minutes: 层数计数器（时间维度）
+ *   - 修改原grid: 标记已腐烂状态（省空间）
+ *   - int[][] DIRECTIONS: 上下左右四个方向常量
  *
  * 状态转移 Transition:
- *   每一轮（一分钟）：
- *   1. 处理队列中所有当前元素（当前层）
- *   2. 感染相邻新鲜橙子(1) → 转换为腐烂(2)
- *   3. 新腐烂橙子加入队列（下一层）
- *   4. fresh计数器递减
- *   转移关键：按层处理，不是按元素处理
+ *   从状态(r,c)出发 → 检查四个相邻方向
+ *   条件：相邻单元格必须是新鲜橙子(1)且未腐烂
+ *   行为：标记为'2'（已腐烂），加入队列，fresh递减
+ *   转移公式：(r,c) → (r±1,c) 和 (r,c±1)
+ *   关键：按层处理，每层对应一分钟
  *
  * 选择算法 Solver:
  *   多源BFS (Multi-source BFS)
- *   理由：多个起点，求最短时间，BFS最优
- *   关键技巧：初始化所有源点同时入队
+ *   理由：多个起点，求最短时间，BFS按层处理保证正确性
  *
  * 复杂度分析:
  *   时间: O(rows × cols)  - 每个单元格最多访问一次
  *   空间: O(rows × cols)  - 队列最多存储所有单元格
  *   单位时间：4个方向检查 = O(4) = O(1)
- *   层数 = BFS深度 = 最多O(rows + cols)
  *
  * 不变量 Invariant:
- *   - fresh > 0 且队列为空 → 不可能腐烂所有橙子，返回-1
- *   - 同一轮处理的所有橙子距离源点相同
- *   - 每次minutes++对应一分钟的时间流逝
+ *   - 访问过的新鲜橙子一定被标记为'2'
+ *   - 同一层处理的橙子距源点距离相同
+ *   - fresh > 0 且队列为空 → 不可能腐烂所有橙子
  * ─────────────────────────────────────────────────────────────
  */
 class Solution {
@@ -268,67 +317,55 @@ State: node
 **LeetCode 133 | Medium**
 **Link:** https://leetcode.com/problems/clone-graph/
 **Key Points:**
-- Deep copy of a graph
-- Use HashMap to map original nodes to cloned nodes
-- BFS to traverse and build the clone
+- Deep copy of a graph structure
+- Use HashMap to map original → cloned nodes
+- BFS to traverse all nodes and rebuild edges
 - Handle null input gracefully
 - Time: O(N + E), Space: O(N) where N=nodes, E=edges
 
-* Clone Graph
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
- * 框架: Modeling → State → Aux → Transition → Solver → Complexity
+ * 框架: Modeling → State → Aux → Transition → Solver
  * ─────────────────────────────────────────────────────────────
  * 
  * 建模 Modeling:
- *   图的深拷贝问题 - 创建原图的完整副本，包含所有节点和边
- *   问题转化为：遍历原图所有节点，同时创建对应的克隆节点
- *   本质：图遍历 + 节点映射
+ *   图的深拷贝 - 遍历原图所有节点，创建克隆节点和边
+ *   问题转化为：图遍历 + 节点映射（原→克隆）
+ *   本质：无权图遍历，维持拓扑结构
  *
  * 状态 State:
- *   单个状态 = (node) 当前正在处理的节点
+ *   单个状态 = (node) 当前正在处理的原节点
  *   状态空间大小 = O(N) = 节点总数
- *   状态代表：当前正在克隆的原图节点
+ *   状态代表：当前遍历到的原图节点
  *
  * 辅助数据结构 Aux Structure:
- *   - Map<Node, Node> map: 映射原节点→克隆节点（避免重复创建）
+ *   - Map<Node, Node> map: 原节点→克隆节点的映射（避免重复创建）
  *   - Queue<Node> queue: BFS队列，维护待处理的原节点
- *   - 克隆节点维护neighbors列表（同原节点）
  *
  * 状态转移 Transition:
- *   从状态node出发：
- *   1. 检查node的所有邻接节点neighbor
- *   2. 如果neighbor未被克隆过，创建新的克隆节点
- *   3. 将克隆的neighbor加入克隆node的邻接表
- *   4. 新克隆节点加入队列（继续探索）
+ *   从状态node出发 → 检查所有邻接节点neighbor
+ *   条件：neighbor未被克隆过
+ *   行为：创建克隆neighbor，加入队列，添加边到克隆图
  *   转移公式：(node) → 所有未访问的neighbor
  *
  * 选择算法 Solver:
  *   BFS (Breadth-First Search)
- *   理由：无权图，需要遍历所有节点和边，BFS保证不漏掉任何节点
- *   Map保证已克隆的节点不会重复创建
+ *   理由：无权图，遍历所有节点和边，BFS保证不漏掉任何节点
+ *   Map去重：已克隆节点不会重复创建
  *
  * 复杂度分析:
- *   时间: O(N + E)
- *     - N个节点各处理一次
- *     - E条边各处理一次（添加到邻接表）
- *   空间: O(N)
- *     - Map存储N个节点的映射
- *     - 队列最多存储N个节点
+ *   时间: O(N + E)  - 访问N个节点，遍历E条边
+ *   空间: O(N)  - Map存储映射 + 队列空间
  *
  * 不变量 Invariant:
- *   - map中已存在的节点对应的克隆一定已完全创建
- *   - 队列中的所有节点的克隆都已在map中
- *   - 每次处理一个原节点 = 添加所有相邻边到克隆图
+ *   - map中的节点对应的克隆都已创建
+ *   - 每处理一个节点 = 添加其所有出边到克隆图
  * ─────────────────────────────────────────────────────────────
  */
 class Solution {
-
     public Node cloneGraph(Node node) {
-        if (node == null) {
-            return null;
-        }
+        if (node == null) return null;
 
         // Aux: HashMap映射 + BFS队列
         Map<Node, Node> map = new HashMap<>();
@@ -345,11 +382,9 @@ class Solution {
             
             // Transition: 处理当前节点的所有邻接节点
             for (Node neighbor : curr.neighbors) {
-                // State检查：邻接节点是否已克隆
+                // 邻接节点是否已克隆
                 if (!map.containsKey(neighbor)) {
-                    // 创建新的克隆节点
                     map.put(neighbor, new Node(neighbor.val));
-                    // 加入队列以继续探索
                     queue.offer(neighbor);
                 }
                 // 在克隆图中添加边
@@ -1361,12 +1396,107 @@ class Solution {
 
 ⸻
 
+### Problem 14: Valid Tree (DFS version)
+**LeetCode 261 | Medium**
+**Link:** https://leetcode.com/problems/graph-valid-tree/
+**Key Points:**
+- Tree has n nodes and n-1 edges
+- No cycles (connected acyclic graph)
+- Use DFS to check: start from node 0, visit all reachable nodes
+- If visited count = n, it's a valid tree
+- Time: O(N + E), Space: O(N)
+- Similar to Problem 10 but for general graphs instead of grids
+
+Valid Tree (DFS)
+State: node
+```java
+/**
+ * ─────────────────────────────────────────────────────────────
+ * 框架: Modeling → State → Aux → Transition → Solver → Complexity
+ * ─────────────────────────────────────────────────────────────
+ * 
+ * 建模 Modeling:
+ *   图连通性问题 - 判断给定边集是否形成树
+ *   树的定义：n个节点，n-1条边，连通（1个连通分量），无环
+ *   问题转化：(1) 边数检查 (2) 连通性检查 (通过DFS访问所有节点)
+ *   本质：图论中的连通分量问题（同Problem 10，但用DFS在一般图上）
+ *
+ * 状态 State:
+ *   单个状态 = (node) 当前正在访问的节点
+ *   状态空间大小 = O(n) 个节点状态
+ *   状态代表：当前DFS遍历中访问的节点
+ *
+ * 辅助数据结构 Aux Structure:
+ *   - Map<Integer, List<Integer>>: 邻接表表示图
+ *   - Set<Integer>: visited集合，标记已访问的节点
+ *   - 递归调用栈: DFS隐含的栈，维护探索路径
+ *
+ * 状态转移 Transition:
+ *   从状态(node)出发 → 递归检查所有邻接未访问节点
+ *   条件：邻接节点必须未被访问
+ *   行为：标记为已访问，递归探索
+ *   转移公式：dfs(neighbor) 对所有邻接未访问节点
+ *
+ * 选择算法 Solver:
+ *   DFS (Depth-First Search)
+ *   理由：无权无向图，检查连通性，DFS代码简洁
+ *   对比BFS：使用递归而非队列，相同时空复杂度
+ *
+ * 复杂度分析:
+ *   时间: O(n + m)  - 访问n个节点，遍历m=n-1条边
+ *   空间: O(n)  - 邻接表+visited+递归栈
+ *
+ * 不变量 Invariant:
+ *   - 访问过的节点一定在visited集合中
+ *   - 每次DFS完成 = 探索完一个连通分量
+ *   - visited.size() == n 且 edges.length == n-1 → 有效树
+ * ─────────────────────────────────────────────────────────────
+ */
+class Solution {
+    public boolean validTree(int n, int[][] edges) {
+        // 前置检查：树必须有恰好n-1条边
+        if (edges.length != n - 1) return false;
+
+        // 建立邻接表
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            graph.put(i, new ArrayList<>());
+        }
+        for (int[] edge : edges) {
+            graph.get(edge[0]).add(edge[1]);
+            graph.get(edge[1]).add(edge[0]);
+        }
+
+        // DFS遍历检查连通性
+        Set<Integer> visited = new HashSet<>();
+        dfs(0, graph, visited);
+
+        // 检查是否访问了所有节点(连通)
+        return visited.size() == n;
+    }
+
+    private void dfs(int node, Map<Integer, List<Integer>> graph, Set<Integer> visited) {
+        // 标记已访问
+        visited.add(node);
+
+        // 状态转移：递归探索所有邻接未访问节点
+        for (int neighbor : graph.get(node)) {
+            if (!visited.contains(neighbor)) {
+                dfs(neighbor, graph, visited);
+            }
+        }
+    }
+}
+```
+
+⸻
+
 ## Day 3: Backtracking Pattern
 
 Pattern 9: Backtracking Permutation
 State: (path, used[])
 
-### Problem 13: Permutations
+### Problem 14: Permutations
 **LeetCode 46 | Medium**
 **Link:** https://leetcode.com/problems/permutations/
 **Key Points:**
@@ -1465,7 +1595,7 @@ class Solution {
 }
 ```
 
-### Problem 14: Permutations II (with duplicates)
+### Problem 15: Permutations II (with duplicates)
 **LeetCode 47 | Medium**
 **Link:** https://leetcode.com/problems/permutations-ii/
 **Key Points:**
@@ -1547,7 +1677,7 @@ class Solution {
 Pattern 10: Backtracking Combination
 State: (index, path)
 
-### Problem 15: Combination Sum
+### Problem 16: Combination Sum
 **LeetCode 39 | Medium**
 **Link:** https://leetcode.com/problems/combination-sum/
 **Key Points:**
@@ -1614,7 +1744,7 @@ class Solution {
 }
 ```
 
-### Problem 16: Combination Sum II
+### Problem 17: Combination Sum II
 **LeetCode 40 | Medium**
 **Link:** https://leetcode.com/problems/combination-sum-ii/
 **Key Points:**
@@ -1693,7 +1823,7 @@ class Solution {
 Pattern 11: Backtracking Subset
 State: (index, path)
 
-### Problem 17: Subsets
+### Problem 18: Subsets
 **LeetCode 78 | Medium**
 **Link:** https://leetcode.com/problems/subsets/
 **Key Points:**
@@ -1753,7 +1883,7 @@ class Solution {
 }
 ```
 
-### Problem 18: Subsets II (with duplicates)
+### Problem 19: Subsets II (with duplicates)
 **LeetCode 90 | Medium**
 **Link:** https://leetcode.com/problems/subsets-ii/
 **Key Points:**
@@ -1818,7 +1948,7 @@ class Solution {
 }
 ```
 
-### Problem 19: Word Search
+### Problem 20: Word Search
 **LeetCode 79 | Medium**
 **Link:** https://leetcode.com/problems/word-search/
 **Key Points:**
@@ -1921,7 +2051,7 @@ Maximum Length
 Pattern 13: Binary Search Answer
 State: candidate answer
 
-### Problem 20: Koko Eating Bananas
+### Problem 21: Koko Eating Bananas
 **LeetCode 875 | Medium**
 **Link:** https://leetcode.com/problems/kokoeat-bananas/
 **Key Points:**
@@ -2004,7 +2134,7 @@ class Solution {
 Pattern 14: Heap Priority Queue
 State: (priority, value)
 
-### Problem 21: Top K Largest Elements
+### Problem 22: Top K Largest Elements
 **LeetCode 215 | Medium**
 **Link:** https://leetcode.com/problems/kth-largest-element-in-an-array/
 **Key Points:**
@@ -2065,7 +2195,7 @@ class Solution {
 }
 ```
 
-### Problem 22: Top K Frequent Elements
+### Problem 23: Top K Frequent Elements
 **LeetCode 347 | Medium**
 **Link:** https://leetcode.com/problems/top-k-frequent-elements/
 **Key Points:**
@@ -2130,7 +2260,7 @@ class Solution {
 }
 ```
 
-### Problem 23: Meeting Rooms
+### Problem 24: Meeting Rooms
 **LeetCode 252 | Easy**
 **Link:** https://leetcode.com/problems/meeting-rooms/
 **Key Points:**
@@ -2185,7 +2315,7 @@ class Solution {
 }
 ```
 
-### Problem 24: Dijkstra Shortest Path
+### Problem 25: Dijkstra Shortest Path
 **Standard Algorithm**
 **Examples:** Network Delay Time (LeetCode 743), Path With Minimum Effort (LeetCode 1631)
 **Key Points:**
@@ -2273,7 +2403,7 @@ Pattern 15: Connectivity - DFS/BFS
 State: node
 Questions: Connected? Reachable? Groups? Components? Province? Island?
 
-### Problem 25: Number of Connected Components
+### Problem 26: Number of Connected Components
 **LeetCode 323 | Medium**
 **Link:** https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/
 **Key Points:**
@@ -2399,7 +2529,7 @@ class Solution {
 }
 ```
 
-### Problem 26: Redundant Connection
+### Problem 27: Redundant Connection
 **LeetCode 684 | Medium**
 **Link:** https://leetcode.com/problems/redundant-connection/
 **Key Points:**
@@ -2561,7 +2691,7 @@ class Solution {
 }
 ```
 
-### Problem 27: Accounts Merge
+### Problem 28: Accounts Merge
 **LeetCode 721 | Hard**
 **Link:** https://leetcode.com/problems/accounts-merge/
 **Key Points:**
@@ -2681,7 +2811,7 @@ State: parent
 Pattern 17: Topological Sort
 State: indegree[]
 
-### Problem 28: Course Schedule
+### Problem 29: Course Schedule
 **LeetCode 207 | Medium**
 **Link:** https://leetcode.com/problems/course-schedule/
 **Key Points:**
@@ -2768,7 +2898,7 @@ class Solution {
 }
 ```
 
-### Problem 29: LC1293 Shortest Path in Grid with Obstacles Elimination
+### Problem 30: LC1293 Shortest Path in Grid with Obstacles Elimination
 **LeetCode 1293 | Hard**
 **Link:** https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/
 **Key Points:**
@@ -2875,7 +3005,7 @@ class Solution {
 
 ⸻
 
-### Problem 30: LC864 Shortest Path to Get All Keys
+### Problem 31: LC864 Shortest Path to Get All Keys
 **LeetCode 864 | Hard**
 **Link:** https://leetcode.com/problems/shortest-path-to-get-all-keys/
 **Key Points:**
@@ -3016,7 +3146,7 @@ class Solution {
 
 ⸻
 
-### Problem 31: LC847 Shortest Path Visiting All Nodes
+### Problem 32: LC847 Shortest Path Visiting All Nodes
 **LeetCode 847 | Hard**
 **Link:** https://leetcode.com/problems/shortest-path-visiting-all-nodes/
 **Key Points:**
