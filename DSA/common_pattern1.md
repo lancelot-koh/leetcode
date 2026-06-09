@@ -255,27 +255,27 @@ class Solution {
         Queue<int[]> queue = new LinkedList<>();
         int fresh = 0;
 
-        // Modeling: 初始化所有腐烂橙子作为多个源点
+        // Transition: 多源初始化 - 所有腐烂橙子入队
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 if (grid[r][c] == 2) {
                     queue.offer(new int[]{r, c});
                 } else if (grid[r][c] == 1) {
-                    fresh++; // 统计新鲜橙子数
+                    fresh++;
                 }
             }
         }
 
-        // 边界：如果没有新鲜橙子，直接返回0
+        // 边界检查：无新鲜橙子，无需腐烂
         if (fresh == 0) return 0;
 
-        // Solver: 多源BFS
+        // Solver: 多源BFS，按层处理
         int minutes = 0;
         while (!queue.isEmpty()) {
-            int size = queue.size(); // 当前层的元素数
-            boolean rottenThisRound = false;
+            int size = queue.size();
+            boolean changed = false;
 
-            // Transition: 按层处理（这是BFS的关键）
+            // Transition: 处理当前层所有腐烂橙子
             for (int i = 0; i < size; i++) {
                 int[] curr = queue.poll();
                 int r = curr[0], c = curr[1];
@@ -285,22 +285,19 @@ class Solution {
                     int newRow = r + dir[0];
                     int newCol = c + dir[1];
 
-                    // 边界检查 + 只感染新鲜橙子
-                    if (newRow < 0 || newRow >= rows || newCol < 0 ||
-                        newCol >= cols || grid[newRow][newCol] != 1) {
-                        continue;
+                    // 边界检查 + 状态检查：仅感染新鲜橙子
+                    if (newRow >= 0 && newRow < rows && newCol >= 0 && 
+                        newCol < cols && grid[newRow][newCol] == 1) {
+                        grid[newRow][newCol] = 2;
+                        fresh--;
+                        queue.offer(new int[]{newRow, newCol});
+                        changed = true;
                     }
-
-                    // Transition: 感染新鲜橙子
-                    grid[newRow][newCol] = 2;
-                    fresh--; // 新鲜橙子数递减
-                    queue.offer(new int[]{newRow, newCol}); // 加入下一层
-                    rottenThisRound = true; // 标记本轮有新感染
                 }
             }
 
-            // 本轮有新感染 → 时间推进（分钟加1）
-            if (rottenThisRound) minutes++;
+            // 本层有新感染 → 时间推进
+            if (changed) minutes++;
         }
 
         return fresh == 0 ? minutes : -1;
@@ -1396,7 +1393,7 @@ class Solution {
 
 ⸻
 
-### Problem 14: Valid Tree (DFS version)
+### Problem 13: Valid Tree (DFS version)
 **LeetCode 261 | Medium**
 **Link:** https://leetcode.com/problems/graph-valid-tree/
 **Key Points:**
