@@ -43,15 +43,26 @@ Transition: push / pop when finding greater element
 
 ### Problem 29: Daily Temperatures
 **LeetCode 739 | Medium**
-**Link:** https://leetcode.com/problems/daily-temperatures/
-**Key Points:**
-- Find days until warmer temperature for each day
-- Maintain decreasing monotonic stack of indices
-- When found warmer day: pop & record distance
-- Stack stores indices, not temperatures
-- Single pass: pop all smaller, push current
-- Time: O(N), Space: O(N)
-- Key: each element pushed and popped exactly once
+
+**💡 Key Insight & Why It Works:**
+
+对于每一天，你要找出下一个更温暖的日子有多少天之后。
+
+**暴力办法：** 对每一天，往后查找下一个更温暖的日子 → O(n²) 太慢
+
+**聪明办法：用单调栈**
+- 栈里存的是"还没找到答案的日子的索引"
+- 栈从底到顶：温度越来越低（递减）
+- 当来到一个新的热日子时：
+  - 把栈里所有"比它冷"的日子都弹出来，这些就是它们的答案！
+  - 因为这个日子就是它们之后第一个更温暖的
+
+**为什么快？** 每个日子最多进栈一次、出栈一次，所以是 O(n)
+
+**💬 For Interview - Just Say:**
+- 用单调递减栈存储日子索引
+- 新日子来时，弹出所有比它冷的日子，记录距离
+- 栈维持递减，每个元素最多弹出一次
 
 ```java
 /**
@@ -135,14 +146,24 @@ class Solution {
 
 ### Problem 30: Next Greater Element
 **LeetCode 496 | Easy**
-**Link:** https://leetcode.com/problems/next-greater-element-i/
-**Key Points:**
-- Find next greater element for each number in nums1 (must be in nums2)
-- Process nums2 with monotonic stack to find all next greater pairs
-- Store results in HashMap for O(1) lookup
-- Elements not found → -1
-- Time: O(N + M) where N=nums2, M=nums1
-- Space: O(N) for stack and map
+
+**💡 Key Insight & Why It Works:**
+
+对nums1中的每个数，在nums2中找到它右边第一个更大的数。
+
+**怎么做？单调栈扫描nums2**
+- 用栈维持递减的候选数字
+- 遍历nums2，每个数与栈顶比较
+- 如果当前数 > 栈顶，那当前数就是栈顶的"下一个更大数"
+- 弹出栈顶并记录答案，然后把当前数压栈
+- 最后用HashMap查询
+
+**为什么有效？** 栈中的递减序列确保第一个比它大的数被正确识别。
+
+**💬 For Interview - Just Say:**
+- 用单调栈处理nums2
+- 当current > stack.top时，current就是stack.top的下一个更大数
+- 用HashMap存储答案，处理nums1的查询
 
 ```java
 /**
@@ -197,15 +218,23 @@ class Solution {
 
 ### Problem 31: Largest Rectangle in Histogram
 **LeetCode 84 | Hard**
-**Link:** https://leetcode.com/problems/largest-rectangle-in-histogram/
-**Key Points:**
-- Find largest rectangular area in histogram
-- Use monotonic stack to track indices of increasing heights
-- Pop when current height < stack top height
-- Calculate area: height × width (between left and right boundaries)
-- Add sentinel 0 at end to pop remaining bars
-- Time: O(N), Space: O(N)
-- Key: for each bar, find how far left/right it can extend
+
+**💡 Key Insight & Why It Works:**
+
+找直方图中最大的矩形面积。关键：对每个高度，找出它左右各能扩展多远。
+
+**怎么做？单调栈找左右边界**
+- 栈维持递增的高度索引
+- 遇到更低的高度时，弹出所有更高的
+- 弹出的高度就能计算面积：高 × (右边界 - 左边界)
+- 右边界 = 当前索引，左边界 = 栈顶（弹出后）
+
+**为什么有效？** 单调栈快速找出每个高度的左右边界（第一个更矮的柱子）。
+
+**💬 For Interview - Just Say:**
+- 维持递增的高度索引栈
+- 遇到更低高度时，弹出并计算面积
+- 面积 = 高 × (右边界 - 左边界 - 1)
 
 ```java
 /**
@@ -261,15 +290,25 @@ Transition: addLast / removeLast / removeFirst
 
 ### Problem 32: Sliding Window Maximum
 **LeetCode 239 | Hard**
-**Link:** https://leetcode.com/problems/sliding-window-maximum/
-**Key Points:**
-- Find maximum in every window of size k
-- Maintain decreasing monotonic deque
-- Remove indices outside window (removeFirst)
-- Remove smaller elements when adding new (removeLast)
-- Front of deque is always maximum of current window
-- Time: O(N), Space: O(K)
-- Key: each element added and removed at most once
+
+**💡 Key Insight & Why It Works:**
+
+在大小为k的滑动窗口中找最大值。
+
+**怎么做？单调双端队列**
+- 维持一个递减的双端队列（存索引）
+- 每次加入新索引时：
+  - 移除队首超出窗口范围的索引
+  - 从队尾移除所有 ≤ 当前值的索引（它们不可能再是最大值）
+  - 把当前索引加入队尾
+- 队首始终是窗口的最大值
+
+**为什么有效？** 队列中元素递减，所以队首必是最大。不可能成为最大值的元素提前移除，保持O(n)。
+
+**💬 For Interview - Just Say:**
+- 维持递减的双端队列
+- 移除超出窗口的索引、移除小于等于当前的索引
+- 队首 = 当前窗口的最大值
 
 ```java
 /**
@@ -331,15 +370,24 @@ Transition: insert / search / dfs
 
 ### Problem 33: Word Search II
 **LeetCode 212 | Hard**
-**Link:** https://leetcode.com/problems/word-search-ii/
-**Key Points:**
-- Find all words from list existing in 2D board
-- Build Trie from word list first
-- DFS from each cell, following Trie paths
-- Mark visited cells to avoid revisiting in same DFS
-- Remove matched words from Trie (optimization)
-- Time: O(M×N×4^L) where L=word length
-- Space: O(W×L) for Trie where W=number of words
+
+**💡 Key Insight & Why It Works:**
+
+在2D网格中找多个单词。用Trie指导搜索，避免无效路径。
+
+**怎么做？Trie + DFS + 回溯**
+- 预先构建单词列表的Trie
+- 从网格每个位置启动DFS
+- DFS遵循Trie路径：只走Trie中存在的字符
+- 找到单词时加入结果，然后清空（避免重复）
+- 标记已访问，处理完后取消标记（回溯）
+
+**为什么有效？** Trie提前剪枝无效前缀，避免无意义的搜索。相比逐单词扫描，Trie让查找高效。
+
+**💬 For Interview - Just Say:**
+- 构建单词列表的Trie
+- 从每个网格位置DFS，遵循Trie路径
+- 找到单词→加入结果，标记、回溯处理已访问
 
 ```java
 /**
@@ -429,15 +477,22 @@ class Solution {
 
 ### Problem 34: Search Suggestions System
 **LeetCode 1268 | Medium**
-**Link:** https://leetcode.com/problems/search-suggestions-system/
-**Key Points:**
-- Given products and search word, return top 3 suggestions at each prefix
-- Sort products alphabetically first
-- Build Trie storing top 3 suggestions at each node
-- For each character in search word, follow Trie path
-- Return suggestions stored at each node
-- Time: O(N log N + M×3) where N=products, M=search length
-- Space: O(N×L) for Trie where L=product length
+
+**💡 Key Insight & Why It Works:**
+
+用户搜索时，显示匹配前缀的3个产品建议。
+
+**怎么做？Trie预计算建议**
+- 排序产品列表
+- 构建Trie，在每个节点存储通过该前缀的3个产品
+- 用户输入时，沿Trie路径走，直接返回节点的建议
+
+**为什么有效？** 预先计算避免了查询时的搜索。Trie高效利用前缀共性。
+
+**💬 For Interview - Just Say:**
+- 排序产品
+- 建Trie，每个节点存3个建议
+- 用户输入，跟随Trie返回建议
 
 ```java
 /**
@@ -516,15 +571,20 @@ Transition: query / update
 
 ### Problem 35: Range Sum Query - Immutable
 **LeetCode 303 | Easy**
-**Link:** https://leetcode.com/problems/range-sum-query-immutable/
-**Key Points:**
-- Given array, efficiently answer range sum queries
-- Precompute prefix sums: prefix[i] = sum of nums[0..i-1]
-- Query: prefix[right+1] - prefix[left]
-- Building prefix: O(N), Query: O(1)
-- Time: O(N) preprocessing + O(1) per query
-- Space: O(N)
-- Note: This uses Prefix Sum, not actual Segment Tree
+
+**💡 Key Insight & Why It Works:**
+
+快速回答区间和查询（不修改数组）。
+
+**怎么做？前缀和数组**
+- 预处理：prefix[i] = nums[0]到nums[i-1]的和
+- 查询：区间[left, right]的和 = prefix[right+1] - prefix[left]
+
+**为什么有效？** 预处理一次O(n)，查询永远O(1)。
+
+**💬 For Interview - Just Say:**
+- 构建前缀和数组
+- 查询 = prefix[right+1] - prefix[left]
 
 ```java
 /**
@@ -566,14 +626,22 @@ class NumArray {
 
 ### Problem 36: Count of Smaller Numbers After Self
 **LeetCode 315 | Hard**
-**Link:** https://leetcode.com/problems/count-of-smaller-numbers-after-self/
-**Key Points:**
-- For each element, count how many smaller elements exist after it
-- Can't use simple nested loop (O(N²))
-- Use modified merge sort to count inversions
-- Track indices while sorting to maintain original positions
-- Time: O(N log N), Space: O(N)
-- Alternative: Fenwick Tree or Binary Indexed Tree
+
+**💡 Key Insight & Why It Works:**
+
+对每个元素，数有多少个更小的元素在它右边。
+
+**怎么做？改进的合并排序计数逆序对**
+- 从右向左处理，用合并排序追踪右侧的小元素
+- 合并时，右侧比左侧小的数字就是逆序对
+- 追踪原始索引，保持答案和原位置对应
+
+**为什么有效？** 合并排序高效计数逆序对，O(n log n)。
+
+**💬 For Interview - Just Say:**
+- 改进的合并排序计数逆序对
+- 从右向左处理
+- 合并时统计右侧小于左侧的个数
 
 ```java
 /**
@@ -674,15 +742,22 @@ Transition: update / query
 
 ### Problem 37: Fenwick Tree - Count Smaller Numbers
 **LeetCode 315 | Hard (Fenwick approach)**
-**Link:** https://leetcode.com/problems/count-of-smaller-numbers-after-self/
-**Key Points:**
-- Alternative approach to Count Smaller using Fenwick Tree
-- BIT allows O(log N) update and query
-- Update: add element to its position in BIT
-- Query: count elements smaller than current
-- Time: O(N log N), Space: O(N)
-- More efficient than merge sort for large coordinates
-- Requires coordinate compression for large values
+
+**💡 Key Insight & Why It Works:**
+
+同Problem 36，但用Fenwick树实现（更高效的替代方案）。
+
+**怎么做？Fenwick树 + 坐标压缩**
+- 坐标压缩：大值域→小范围
+- 从右向左遍历：查询当前值以下有多少个已处理的
+- Fenwick树维护前缀和，O(log n)查询和更新
+
+**为什么有效？** Fenwick树优化，相比合并排序更清晰。
+
+**💬 For Interview - Just Say:**
+- 坐标压缩大值域
+- Fenwick树维护前缀和
+- 从右向左：查询 → 更新
 
 /**
  * ─────────────────────────────────────────────────────────────
@@ -784,16 +859,23 @@ Transition: process events chronologically
 
 ### Problem 38: Meeting Rooms II
 **LeetCode 253 | Medium**
-**Link:** https://leetcode.com/problems/meeting-rooms-ii/
-**Key Points:**
-- Find minimum meeting rooms needed for all meetings
-- Sort meetings by start time
-- Use min-heap to track room end times
-- If new meeting starts >= earliest room ending, reuse room
-- Otherwise, allocate new room
-- Heap size = max concurrent meetings needed
-- Time: O(N log N), Space: O(N)
-- Key: process events in time order
+
+**💡 Key Insight & Why It Works:**
+
+最少需要多少间会议室才能容纳所有会议？
+
+**怎么做？排序 + 最小堆复用房间**
+- 按开始时间排序
+- 用最小堆跟踪各房间的结束时间
+- 新会议开始时，检查是否有房间已结束
+- 如果有，复用（poll堆顶，offer新时间）；否则新增房间
+
+**为什么有效？** 堆顶总是最早结束的房间。复用策略最小化房间数。
+
+**💬 For Interview - Just Say:**
+- 排序，用最小堆跟踪房间结束时间
+- 新会议开始：检查堆顶房间是否结束
+- 复用或新增，堆的大小 = 需要的房间数
 
 /**
  * ─────────────────────────────────────────────────────────────
@@ -861,14 +943,23 @@ class Solution {
 
 ### Problem 39: The Skyline Problem
 **LeetCode 218 | Hard**
-**Link:** https://leetcode.com/problems/the-skyline-problem/
-**Key Points:**
-- Create events for building starts (negative height) and ends (positive height)
-- Sort events by x-coordinate, then by height (enter before leave)
-- Use max-heap to track active building heights
-- When max height changes, add key point to result
-- Time: O(N log N), Space: O(N)
-- Tricky: handle ties (multiple buildings at same x)
+
+**💡 Key Insight & Why It Works:**
+
+画建筑物的天际线。当建筑物重叠时，高度会变化。
+
+**怎么做？扫描线 + 最大堆**
+- 为每个建筑创建两个事件：开始和结束
+- 按x坐标排序事件
+- 用最大堆追踪活跃的建筑高度
+- 每次最大高度改变时，加入轮廓点
+
+**为什么有效？** 堆顶始终是当前最高的活跃建筑。高度变化 = 轮廓点。
+
+**💬 For Interview - Just Say:**
+- 创建开始/结束事件
+- 用最大堆追踪活跃高度
+- 高度变化时加入轮廓点
 
 ```java
 /**
@@ -953,14 +1044,23 @@ Transition: choose locally optimal
 
 ### Problem 40: Jump Game
 **LeetCode 55 | Medium**
-**Link:** https://leetcode.com/problems/jump-game/
-**Key Points:**
-- Check if can reach last index (make jumps forward)
-- Greedy: track farthest position reachable
-- If current index > farthest, can't reach that position
-- Update farthest: max(farthest, i + nums[i])
-- Time: O(N), Space: O(1)
-- Key: don't need to find actual path, just check reachability
+
+**💡 Key Insight & Why It Works:**
+
+能否通过跳跃到达数组末尾？每个位置能跳1到nums[i]步。
+
+**怎么做？贪心追踪最远可到达位置**
+- 维持一个"最远能到达的位置"变量
+- 遍历数组，每步更新最远位置
+- 如果当前索引 > 最远位置，无法到达
+- 最后检查最远位置是否 >= 数组长度-1
+
+**为什么有效？** 不需要找具体路径，只需验证可达性。贪心选择最远位置确保O(n)。
+
+**💬 For Interview - Just Say:**
+- 维持最远可达位置变量
+- 遍历，每步更新：farthest = max(farthest, i + nums[i])
+- 若当前位置 > farthest，返回false
 
 ```java
 /**
@@ -1006,14 +1106,23 @@ class Solution {
 
 ### Problem 41: Gas Station
 **LeetCode 134 | Medium**
-**Link:** https://leetcode.com/problems/gas-station/
-**Key Points:**
-- Find starting station to complete circular route
-- If total gas >= total cost, solution exists
-- Greedy: if tank negative at i, start must be > i
-- Track total (global balance) and tank (local balance)
-- Time: O(N), Space: O(1)
-- Key insight: only need to track where tank goes negative
+
+**💡 Key Insight & Why It Works:**
+
+环形路线，在哪个加油站开始，能绕一圈？
+
+**怎么做？贪心追踪油量**
+- 两个计数器：总油量(全局)和当前油量(局部)
+- 如果当前油量<0，说明不能从这个起点开始
+- 跳到下一个起点，重置当前油量
+- 最后检查总油量≥总消耗（有解存在）
+
+**为什么有效？** 如果从i无法到达i+1，则从0到i都不行（累积油量只会少）。直接跳到i+1尝试。
+
+**💬 For Interview - Just Say:**
+- 追踪总油量和当前油量
+- 若当前油量<0，跳到下一个起点，重置
+- 检查总油量≥总消耗
 
 ```java
 /**
@@ -1065,14 +1174,22 @@ Transition: left++ / right--
 
 ### Problem 42: Container With Most Water
 **LeetCode 11 | Medium**
-**Link:** https://leetcode.com/problems/container-with-most-water/
-**Key Points:**
-- Maximize area bounded by two lines
-- Start with widest container (left=0, right=end)
-- Move pointer with shorter height (limits area)
-- Area = width × min(height[left], height[right])
-- Time: O(N), Space: O(1)
-- Proof: moving taller pointer can't improve area
+
+**💡 Key Insight & Why It Works:**
+
+两条竖线，盛水面积由较短的线决定。找最大面积。
+
+**怎么做？双指针从两端逼近**
+- 从最宽的容器开始（左0，右末尾）
+- 移动较矮的指针（因为只有提高高度才能增加面积）
+- 面积 = 宽 × min(左高, 右高)
+
+**为什么有效？** 宽度已最大，移动高指针只会减少宽度。移动矮指针有可能找到更高的。
+
+**💬 For Interview - Just Say:**
+- 双指针从两端开始
+- 总是移动较矮的指针
+- 面积 = 宽 × min(高)
 
 ```java
 /**
@@ -1119,15 +1236,23 @@ class Solution {
 
 ### Problem 43: Two Sum II - Input is Sorted
 **LeetCode 167 | Easy**
-**Link:** https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
-**Key Points:**
-- Find two numbers that sum to target in sorted array
-- Two pointers: left and right from ends
-- If sum == target, found answer
-- If sum < target, increase left (need larger sum)
-- If sum > target, decrease right (need smaller sum)
-- Time: O(N), Space: O(1)
-- Return 1-indexed positions (not 0-indexed)
+
+**💡 Key Insight & Why It Works:**
+
+排序数组中找两个数和等于目标。
+
+**怎么做？双指针夹逼**
+- 从两端开始
+- 如果和 = 目标，找到答案
+- 如果和 < 目标，左指针右移（需要更大的和）
+- 如果和 > 目标，右指针左移（需要更小的和）
+
+**为什么有效？** 排序后从两端逼近，每步确定地排除不可能的区间。
+
+**💬 For Interview - Just Say:**
+- 双指针从两端开始
+- 根据和与目标的关系移动指针
+- 和 = 目标时返回
 
 ```java
 /**
@@ -1180,15 +1305,21 @@ Transition: slow += 1, fast += 2
 
 ### Problem 44: Linked List Cycle
 **LeetCode 141 | Easy**
-**Link:** https://leetcode.com/problems/linked-list-cycle/
-**Key Points:**
-- Detect if linked list has a cycle
-- Floyd's cycle detection algorithm
-- Slow moves 1 step, fast moves 2 steps
-- If they meet → cycle exists
-- If fast reaches null → no cycle
-- Time: O(N), Space: O(1)
-- Key: two different speeds will eventually collide if cycle exists
+
+**💡 Key Insight & Why It Works:**
+
+链表中是否有环？Floyd快慢指针算法。
+
+**怎么做？快慢指针相对运动**
+- 慢指针每步走1，快指针每步走2
+- 如果有环，快指针最终会追上慢指针
+- 如果没环，快指针先到达null
+
+**为什么有效？** 相对速度是1，在环中必然追上。无环时快指针先完成。
+
+**💬 For Interview - Just Say:**
+- 快慢指针，速度比2:1
+- 有环 → 相遇，无环 → 快指针到null
 
 ```java
 /**
@@ -1235,14 +1366,23 @@ public class Solution {
 
 ### Problem 45: Happy Number
 **LeetCode 202 | Easy**
-**Link:** https://leetcode.com/problems/happy-number/
-**Key Points:**
-- Check if number eventually reaches 1 after repeated digit squaring
-- Can use Set to detect cycle (non-happy falls into cycle)
-- Can use Floyd's cycle detection (fast/slow pointers with getNext)
-- If reaches 1 → happy, if cycles → not happy
-- Time: O(log n), Space: O(log n) for Set
-- Key: either reaches 1 or enters an infinite cycle
+
+**💡 Key Insight & Why It Works:**
+
+反复平方数字之和，最终到达1（快乐数）或陷入循环（非快乐数）。
+
+**怎么做？追踪已见过的数字**
+- 用Set记录见过的数
+- 计算数字平方和→新数字
+- 如果=1，返回true
+- 如果重复出现，陷入循环，返回false
+
+**为什么有效？** 状态空间有限，必然要么到1要么循环。
+
+**💬 For Interview - Just Say:**
+- 用Set记录已见的数
+- 反复计算平方和
+- 到1返回true，重复返回false
 
 ```java
 /**
@@ -1329,14 +1469,20 @@ State: (node, visitedMask)
 
 ### Problem 46: LC847 - Shortest Path Visiting All Nodes
 **LeetCode 847 | Hard**
-**Link:** https://leetcode.com/problems/shortest-path-visiting-all-nodes/
-**Key Points:**
-- Visit all nodes exactly once, find shortest path
-- State = (node, visitedMask) where mask tracks visited nodes
-- Can start from any node (try all n starting positions)
-- BFS to find shortest path in state space
-- Time: O(n × 2^n), Space: O(n × 2^n)
-- visitedMask = bitmask where bit i = visited node i
+
+**💡 Key Insight & Why It Works:**
+
+访问图中所有节点的最短路径。(已在Problem 9更新过)
+
+**状态 = (节点, 已访问位掩码)**
+- 同一节点不同访问集合 = 不同状态  
+- BFS探索所有状态组合
+- 位掩码紧凑表示集合
+
+**怎么做？**
+- 可从任何节点开始
+- BFS逐层扩展状态
+- 访问掩码全1时返回步数
 
 /**
  * 建模 Modeling: 将访问所有节点最短路径问题编码为状态空间搜索，用位掩码表示已访问节点集合。| Modeling: Encode the shortest path visiting all nodes as state-space search where bitmask represents the set of visited nodes.
@@ -1399,15 +1545,20 @@ class Solution {
 
 ### Problem 47: LC864 - Shortest Path to Get All Keys
 **LeetCode 864 | Hard**
-**Link:** https://leetcode.com/problems/shortest-path-to-get-all-keys/
-**Key Points:**
-- Grid with keys (a-f) and locks (A-F), find shortest path
-- State = (row, col, keyMask) tracking position and collected keys
-- keyMask: bit i = have key i
-- Can only pass lock if have corresponding key
-- BFS from starting position
-- Time: O(m × n × 2^6) = O(m × n), Space: O(m × n × 64)
-- Maximum 6 keys (a-f)
+
+**💡 Key Insight & Why It Works:**
+
+网格中收集所有钥匙。有钥匙a-f和门A-F。(已在Problem 31更新过)
+
+**状态 = (行, 列, 钥匙位掩码)**
+- 位置+已获钥匙集合确定状态
+- BFS最短路径
+- 最多6个钥匙，位掩码高效
+
+**怎么做？**
+- 从起点@开始
+- 获得钥匙时更新掩码
+- 门需对应钥匙才能通过
 
 /**
  * 建模 Modeling: 在网格中找到收集所有钥匙的最短路径，使用位掩码表示已获得的钥匙状态。| Modeling: Find the shortest path to collect all keys in a grid, using bitmask to represent acquired key states.
@@ -1555,14 +1706,22 @@ class Solution {
 
 ### Problem 48: Memoized DFS - Longest Increasing Path in Matrix
 **LeetCode 329 | Hard**
-**Link:** https://leetcode.com/problems/longest-increasing-path-in-matrix/
-**Key Points:**
-- Find longest increasing path in matrix
-- DFS from each cell, memoize results
-- Explore 4 directions if next > current
-- memo[i][j] = longest path starting from (i,j)
-- Time: O(m × n), Space: O(m × n) with memoization
-- Without memo: O(4^(m×n)) exponential
+
+**💡 Key Insight & Why It Works:**
+
+矩阵中最长的递增路径。相邻值必须严格递增。
+
+**怎么做？记忆化DFS**
+- 从每个格子DFS，记忆化结果
+- 向4个方向探索，如果下个值更大则继续
+- memo[i][j] = 从(i,j)开始的最长路径
+
+**为什么有效？** 记忆化避免重复计算，每个位置只算一次。
+
+**💬 For Interview - Just Say:**
+- 从每个格子DFS
+- 向4个方向，值递增时继续
+- 记忆化结果
 
 /**
  * 建模 Modeling: 从矩阵中每个单元格出发进行深度优先搜索，找到以该单元格为起点的最长递增路径长度。| Modeling: Perform depth-first search from each cell in the matrix to find the longest increasing path starting from that cell.
@@ -1581,14 +1740,22 @@ State: node, dp
 
 ### Problem 49: Course Schedule IV
 **LeetCode 1462 | Medium**
-**Link:** https://leetcode.com/problems/course-schedule-iv/
-**Key Points:**
-- Check if one course is prerequisite of another (transitively)
-- Floyd-Warshall: compute all reachable nodes from each node
-- For each k: check if can reach j from i via k
-- reachable[i][j] = true if j reachable from i
-- Time: O(n³), Space: O(n²)
-- Alternative: DFS from each course
+
+**💡 Key Insight & Why It Works:**
+
+课程A是B的前置条件吗？考虑传递关系。
+
+**怎么做？Floyd-Warshall传播可达性**
+- 初始化：直接的前置关系
+- 对每个中间节点k，检查能否通过k连接i到j
+- 最后reachable[i][j] = j是否可从i到达
+
+**为什么有效？** Floyd-Warshall动态规划地构建传递闭包。
+
+**💬 For Interview - Just Say:**
+- Floyd-Warshall三层循环
+- 更新传递关系：if i→k && k→j then i→j
+- 查询reachable数组
 
 ```java
 class Solution {
@@ -1777,14 +1944,23 @@ class Solution {
 
 ### Problem 50: Interval DP - Burst Balloons
 **LeetCode 312 | Hard**
-**Link:** https://leetcode.com/problems/burst-balloons/
-**Key Points:**
-- Maximize coins by bursting balloons in optimal order
-- dp[left][right] = max coins by bursting balloons between left and right
-- For each k in range: calculate coins if k is last balloon burst
-- Key: balloons outside range still exist when k is burst
-- Time: O(n³), Space: O(n²)
-- Tricky: need to think backwards about what remains
+
+**💡 Key Insight & Why It Works:**
+
+爆气球获得硬币，顺序影响硬币数（相邻气球相乘）。求最大硬币。
+
+**关键：逆向思维，最后爆哪个球**
+- 区间DP：dp[left][right] = 爆left和right间的所有球的最大硬币
+- 枚举最后爆的球k
+- 当k爆掉时，left和right还在，贡献 = left×k×right
+- 加上left→k和k→right的最大硬币
+
+**为什么有效？** 逆向思维避免状态爆炸。
+
+**💬 For Interview - Just Say:**
+- 区间DP，逆向考虑
+- 枚举最后爆的球k
+- 合并两个子区间的答案
 
 ```java
 /**
@@ -1816,13 +1992,22 @@ State: (day, holding/sold/rest)
 
 ### Problem 51: Best Time to Buy and Sell Stock
 **LeetCode 121 | Easy**
-**Link:** https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
-**Key Points:**
-- Find max profit with at most one buy-sell transaction
-- Track minimum price seen so far
-- For each price: max profit = price - minPrice
-- Time: O(N), Space: O(1)
-- Greedy: buy at lowest so far, sell at current if higher
+
+**💡 Key Insight & Why It Works:**
+
+股票最多买卖一次，求最大利润。
+
+**怎么做？追踪最低价格**
+- 遍历价格，追踪到目前为止的最低价格
+- 对每个价格，计算如果现在卖出的利润 = 当前价 - 最低价
+- 追踪最大利润
+
+**为什么有效？** 最大利润 = 最低价的右边找最大价。贪心永远在最低价买。
+
+**💬 For Interview - Just Say:**
+- 追踪最低价格和最大利润
+- 每个价格：利润 = 当前价 - 最低价
+- 更新最大利润
 
 ```java
 /**
@@ -1866,14 +2051,23 @@ State: queue with multiple starting points
 
 ### Problem 52: Rotting Oranges (Multi-source)
 **LeetCode 994 | Medium**
-**Link:** https://leetcode.com/problems/rotting-oranges/ (Multi-source approach)
-**Key Points:**
-- Add ALL rotten oranges to queue initially (multi-source)
-- BFS simultaneously from all sources
-- Each BFS level = 1 minute
-- Count fresh oranges rotted in each level
-- Time: O(m × n), Space: O(m × n)
-- Multi-source: all starting points explored level by level
+
+**💡 Key Insight & Why It Works:**
+
+腐烂的橙子每分钟感染相邻的新鲜橙子。求腐烂全部所需时间。(已在Problem 2更新过)
+
+**关键：多源BFS，从所有腐烂的橙子同时开始**
+- 初始化：所有腐烂的橙子加入队列
+- BFS分层处理，每层=1分钟
+- 每层更新相邻的新鲜橙子为腐烂
+- 队列空时，返回分钟数
+
+**为什么有效？** 多源BFS模拟同时传播。
+
+**💬 For Interview - Just Say:**
+- 多源BFS，所有腐烂橙子初始入队
+- 每层=1分钟
+- 感染相邻橙子
 
 ```java
 /**
@@ -1900,13 +2094,23 @@ State: queue with multiple starting points
 
 ### Problem 53: Walls and Gates (Multi-source)
 **LeetCode 286 | Medium**
-**Link:** https://leetcode.com/problems/walls-and-gates/
-**Key Points:**
-- Mark distance from each cell to nearest gate
-- Add all gates to queue initially (multi-source)
-- BFS from all gates simultaneously
-- Each level assigns distance
-- Time: O(m × n), Space: O(m × n)
+
+**💡 Key Insight & Why It Works:**
+
+求每个房间到最近门的距离。
+
+**怎么做？多源BFS从所有门开始**
+- 初始化：所有门(值=0)加入队列
+- BFS分层，每层=距离增加1
+- 相邻房间(INF)更新为当前距离+1
+- 距离直接写入grid
+
+**为什么有效？** BFS第一次到达 = 最短距离。
+
+**💬 For Interview - Just Say:**
+- 多源BFS，所有门初始入队
+- 每层距离+1
+- 更新相邻房间距离
 
 ```java
 /**
@@ -1938,14 +2142,23 @@ State: (beginSet, endSet)
 
 ### Problem 54: Word Ladder (Bidirectional)
 **LeetCode 127 | Hard (Bidirectional approach)**
-**Link:** https://leetcode.com/problems/word-ladder/ (Bidirectional optimization)
-**Key Points:**
-- Search from both beginWord and endWord simultaneously
-- Stop when sets meet (distance = sum of two searches)
-- Significantly faster than unidirectional BFS
-- Reduces search space exponentially
-- Time: O(N × L × 26) with bidirectional, Space: O(N)
-- Key: usually 2× faster than one-directional
+
+**💡 Key Insight & Why It Works:**
+
+从beginWord变到endWord的最短路径。从两头同时找更快！
+
+**怎么做？双向BFS从两端逼近**
+- 从beginWord和endWord同时启动BFS
+- 维持两个visited集合
+- 当两个搜索的集合相交→找到路径
+- 总距离 = 两个搜索的距离和
+
+**为什么有效？** 双向搜索指数级减少搜索空间，通常快2倍。
+
+**💬 For Interview - Just Say:**
+- 双向BFS从两端同时开始
+- 当visited集合相交→路径存在
+- 总距离 = 两个距离之和
 
 ```java
 /**
@@ -1977,13 +2190,23 @@ State: (cost, heuristic)
 
 ### Problem 55: Path Finding with A*
 **Algorithm**: A* Search with heuristic
-**Key Concepts:**
-- f(n) = g(n) + h(n) where g=cost, h=heuristic
-- Use PriorityQueue ordered by f score
-- h must be admissible (never overestimate)
-- For grids: Manhattan distance is common heuristic
-- Time/Space depends on heuristic quality
-- Google: occasionally appears in hard pathfinding problems
+
+**💡 Key Insight & Why It Works:**
+
+找从起点到终点的最短路径，比Dijkstra更快。
+
+**怎么做？用启发式函数指导搜索**
+- f(n) = g(n) + h(n)
+- g(n) = 已走距离，h(n) = 估计剩余距离(曼哈顿)
+- 用优先队列按f值排序，总是探索f最小的
+- 到达目标时返回
+
+**为什么有效？** 启发式函数引导搜索朝目标。比无目标搜索快。
+
+**💬 For Interview - Just Say:**
+- f = 已走距离 + 估计剩余距离
+- 用优先队列按f排序
+- 启发式 = 曼哈顿距离
 
 ```java
 /**
@@ -2032,15 +2255,23 @@ Transition: follow defined rules
 
 ### Problem 56: Design Snake Game
 **LeetCode 353 | Medium**
-**Link:** https://leetcode.com/problems/design-snake-game/
-**Key Points:**
-- Simulate snake game mechanics
-- Deque for snake body (add head, remove tail unless eating)
-- Set for occupied cells (for collision detection)
-- Track food consumption
-- Each move: new head position, check collision, handle food
-- Time: O(1) per move, Space: O(w × h) worst case
-- Key: carefully manage game state transitions
+
+**💡 Key Insight & Why It Works:**
+
+模拟贪吃蛇游戏：移动→碰撞→吃食物。
+
+**怎么做？状态机模拟**
+- 双端队列存蛇身(头→尾)
+- 集合存蛇的所有位置(快速碰撞检测)
+- 每次移动：计算新头 → 检查碰撞 → 检查食物 → 更新蛇身
+- 碰撞=游戏结束，吃食物=蛇长+1
+
+**为什么有效？** 清晰的状态转移，Deque+Set高效。
+
+**💬 For Interview - Just Say:**
+- Deque维护蛇身
+- Set快速检测碰撞
+- 移动：加头→检查食物→移除尾或保留
 
 /**
  * 建模 Modeling: 用队列模拟蛇身体，用集合跟踪蛇身位置，模拟蛇的移动和进食过程 | Modeling: Use a queue to simulate the snake's body, use a set to track occupied positions, and simulate movement and food consumption

@@ -25,111 +25,49 @@ Modulo Prefix Sum	            prefix % k
 
 一、Sliding Window
 
-### What is Sliding Window?
-简单来说：用两个指针维护一个连续区间，根据题目条件动态扩张或收缩。  
-Simply put: Use two pointers to maintain a continuous interval, expanding or shrinking based on conditions.
+### 🎯 Sliding Window - Simple Explanation
 
-**核心步骤 Core Steps:**
-1. right 指针向右扩展 → add new element
-2. 检查是否满足条件 → check condition
-3. 如果不满足 → left 指针向右收缩 → remove left element
-4. 更新答案 → update answer
+**概念:** 用两个指针（left 和 right）维护一个窗口，根据条件动态扩张或收缩。
 
----
+**为什么？** 不用 O(n²) 逐个检查所有子数组，而是聪明地维护"有效窗口"。
 
-* 建模 Modeling: 问题本质是在**连续子数组**中寻找某种特性（最长/最短）。不需要枚举所有子数组(O(n²))，而是通过维护一个有效窗口动态调整。
+**三个关键步骤：**
+```
+1. right 向右扩展 → 加入新元素
+2. 检查窗口是否有效
+3. 如果无效 → left 向右收缩 → 移除左端元素
+```
 
-* Modeling: The key is finding a property (longest/shortest) in **continuous subarrays**. Instead of checking all O(n²) subarrays, maintain a valid window and adjust it dynamically.
-
-* 状态 State: 状态 = (left 指针位置, right 指针位置, 窗口内数据)。状态空间 = O(n²) 个可能的窗口，但只需维护**一个有效窗口**。
-
-* State: State = (left pointer, right pointer, window data). State space = O(n²) possible windows, but we only maintain **one valid window at a time**.
-
-* 辅助数据结构 Aux Structure: 根据具体问题选择：Set(去重)、Map(频率统计)、或简单变量(和、计数)。目的：快速判断窗口是否满足条件。
-
-* Aux Structure: Choose based on problem: Set (uniqueness), Map (frequency), or simple variables (sum, count). Purpose: quickly check if window is valid.
-
-* 状态转移 Transition: 三个关键动作：
-  * (1) right++ → 扩展窗口，加入新元素 | expand: add nums[right]
-  * (2) 检查是否违反条件 | check if invalid
-  * (3) left++ → 收缩窗口，移除左端元素 | shrink: remove nums[left]
-
-* Transition: Three key actions:
-  * (1) right++ → expand window, add nums[right]
-  * (2) check if condition violated
-  * (3) left++ → shrink window, remove nums[left]
-
-* 选择算法 Solver: 滑动窗口是一种**贪心策略**：当找到一个有效窗口后，left 不需要回退。这保证了时间复杂度是 O(n)，而不是 O(n²)。
-
-* Solver: Sliding window is a **greedy strategy**: once you find a valid window, left pointer never backtracks. This ensures O(n) time instead of O(n²).
-
-* 复杂度分析 Complexity: 时间 O(n) —— 每个元素最多被访问 2 次（一次 right，一次 left）。空间 O(?) —— 取决于辅助结构（通常 O(1) 或 O(alphabet size))。
-
-* Complexity Analysis: Time O(n) — each element visited at most twice (once by right, once by left). Space O(?) — depends on auxiliary structure (usually O(1) or O(alphabet size)).
-
-* 不变量 Invariant: (1)队列严格递减：队列中indices i1 < i2 必有 nums[i1] > nums[i2]。(2)队列头部索引始终在有效窗口范围[max(0, i-k+1), i]内。(3)所有被移除的元素要么超出窗口边界，要么被找到的更大元素遮挡(永不再被访问)。(4)最大值答案从不遗漏。
-
-* Invariant: (1) Queue strictly decreasing: for indices i1 < i2 in queue, nums[i1] > nums[i2]. (2) Queue front index always in valid window [max(0, i-k+1), i]. (3) All removed elements either exceed window bounds or shadowed by found larger elements (never accessed again). (4) maximum value answer never missed.
+**关键洞察：** 
+- left 只向右移，从不回退
+- 每个元素最多被访问 2 次（一次 right，一次 left）
+- 所以时间复杂度 = O(n)，不是 O(n²)
 
 很多人以为：
 Sliding Window
 =
 两个指针
-其实不是。
-本质是：
-维护一个连续区间(Window)
-并动态扩张/收缩
-
-⸻
-
-核心 State
-最基础：
-left
-right
-
-⸻
-
-State Transition
-扩张
-right++
-收缩
-left++
-
-⸻
-
-Pattern 1
-Fixed Size Window
-
-⸻
 
 ### Problem 1: Fixed Size Window - Maximum Average Subarray
 **LeetCode 643 | Easy**
 
-**核心思路 Key Idea:**
-- 固定窗口大小 = k
-- 滑动窗口：移除左端，加入右端
-- 维护最大和，最后除以 k 得平均值
+**💡 Key Insight & Why It Works:**
 
-**7步框架 7-Step Framework:**
+想象你要在数组里找一个长度固定为 k 的子数组，让平均数最大。
 
-1. 建模 Modeling: 在数组中找长度为 k 的子数组，使平均值最大
-   - Transform: 先找最大和 → 再除以 k = 最大平均值
+**笨办法：** 一个一个算，每次都重新加一遍 k 个数 → 慢
 
-2. 状态 State: (windowSum) 当前窗口的和
-   - 窗口大小固定 = k，位置由 right 指针决定
-   
-3. 辅助数据 Aux Structure: 一个变量 `windowSum`，每次滑动更新它
-   
-4. 状态转移 Transition:
-   ```
-   右移：windowSum = windowSum - nums[i-k] + nums[i]
-   ```
-   
-5. 选择算法 Solver: 滑动窗口（单次遍历）
-   
-6. 复杂度 Complexity: O(n) 时间，O(1) 空间
-   
-7. 不变量 Invariant: 窗口始终包含恰好 k 个元素
+**聪明办法：** 
+- 第一次：加第一个 k 个数，得到和
+- 第二次：只需要移除最左边的数，加上新的数
+- 比较所有的和，最大的和除以 k 就是答案
+
+**为什么这样快？** 每个数只看两次，不用重复计算
+
+**💬 For Interview - Just Say:**
+- 维持一个**大小固定为 k 的窗口**
+- 每次右移：移除左端，加入右端的新元素
+- 追踪最大的窗口和，最后除以 k 就是最大平均值
 
 ```java
 /**
@@ -162,47 +100,38 @@ class Solution {
 ```
 ⸻
 
-State
-left
-right
-windowSum
-
-⸻
-
-Transition
-add nums[right]
-
-remove nums[left]
-
-⸻
-
-Window Size 固定
-例如：
-长度 = k
-
-⸻
-
-Pattern 2
-Variable Size Window
-Google最喜欢
-
-⸻
-
 ### Problem 2: Variable Size Window - Longest Substring Without Repeating Characters
 **LeetCode 3 | Medium**
 
-**核心思路 Key Idea:**
+**💡 Key Insight & Why It Works:**
+
+想象你拿着一个透明的框，框着字符串的一部分。框的左边和右边可以移动。
+
+你的目标：找到最长的一段，里面的字母都不重复。
+
+**怎么做？**
+- 你的右手不断向右移，把新字母加进框里
+- 如果框里出现了重复的字母，你的左手就从左往右移，把重复的字母扔出去
+- 你记住沿路中最大的框是多大
+
+**为什么这样做有效？**
+- 不用检查所有可能的子串（那样太慢了）
+- 左手只向右走，永远不回头，所以整个过程只需要遍历一遍字符串
+- 那个最大的合法框就是你的答案
+
+**💬 For Interview - Just Say:**
 - 维持一个**没有重复字符**的窗口
 - right 扩展窗口，发现重复时 left 收缩
-- 在窗口有效时更新答案
+- 在窗口有效时更新最长长度
 
-**7步框架 7-Step Framework:**
-
-1. 建模 Modeling: 找最长的不含重复字符的子串
-   - Transform: 窗口内字符必须都不同 → 找最长的
-
-2. 状态 State: (left, right) 定义的窗口
-   - 窗口内的字符必须全部唯一
+**📚 For Learning - Full Framework:**
+- **Modeling:** 找最长的不含重复字符的子串
+- **State:** (left, right) 定义的窗口，窗口内字符全部唯一
+- **Aux Structure:** Set<Character> 追踪窗口内的字符
+- **Transition:** right 扩展时添加字符；发现重复 → left 收缩直到重复消除
+- **Solver:** 滑动窗口（变大小）
+- **Complexity:** O(n) 时间，O(min(字符集, n)) 空间
+- **Invariant:** 窗口中永远没有重复字符
    
 3. 辅助数据 Aux Structure: Set<Character>
    - 快速判断字符是否在窗口中（O(1)）
@@ -262,49 +191,25 @@ class Solution {
 ```
 ⸻
 
-State
-left
-right
-frequencyMap
-
-⸻
-
-Transition
-扩张：
-right++
-
-⸻
-
-发现重复：
-left++
-直到合法
-
-⸻
-
-这里 Window 大小不断变化。
-
-⸻
-
-Pattern 3
-At Most K
-超高频
-
-⸻
-
 ### Problem 3: At Most K Pattern - Longest Repeating Character Replacement
 **LeetCode 424 | Medium**
 
-**核心思路 Key Idea:**
-- 窗口中**最多替换 k 个字符**使所有字符相同
-- 判断条件：`窗口大小 - 最频繁字符的频率 <= k`
-- 如果超过 k，left 收缩窗口
+**💡 Key Insight & Why It Works:**
 
-**7步框架 7-Step Framework:**
+你想让一个字符串的一部分所有字母都相同，最多改 k 个字母。
 
-1. 建模 Modeling: 找最长子串，最多替换 k 个字符使所有字符相同
-   - Key：只需替换那些"不是最频繁字符"的字符
+**关键问题：** 我需要改几个字母才能让窗口内所有字母都一样？
 
-2. 状态 State: (left, right) 和 freq[] 字符频率
+**答案：** 窗口里最常见的字母有多少个，就只需要改剩下的
+
+比如：窗口有 10 个字母，最常见的字母出现 7 次，就只需要改 3 个。
+
+**所以条件是：** `窗口大小 - 最高频率 <= k`
+
+**💬 For Interview - Just Say:**
+- 维持窗口，追踪每个字符的频率
+- 判断条件：`窗口大小 - 最高频率 <= k` 就有效
+- 如果超过 k，left 收缩；记录最长有效窗口
    
 3. 辅助数据 Aux Structure: int[] freq（26个字母的频率）+ maxFreq（最高频率）
    
@@ -360,50 +265,23 @@ class Solution {
 ```
 ⸻
 
-State
-left
-right
-countMap
-maxFrequency
-
-⸻
-
-判断：
-windowSize - maxFrequency <= k
-
-⸻
-
-不满足：
-left++
-
-⸻
-
-Google特别喜欢：
-At Most K
-类问题。
-
-⸻
-
-Pattern 4
-Minimum Window
-
-⸻
-
 ### Problem 4: Minimum Window Pattern - Minimum Window Substring
 **LeetCode 76 | Hard**
 
-**核心思路 Key Idea:**
-- 找最小的窗口，**包含目标字符串的所有字符**
-- 两个 Map：`need`（目标） vs `window`（当前窗口）
-- right 扩展直到**有效**，left 收缩寻找**最小**
+**💡 Key Insight & Why It Works:**
 
-**7步框架 7-Step Framework:**
+你要在一个大字符串里找最小的子串，里面包含了所有目标字母。
 
-1. 建模 Modeling: 找最小子串，包含 t 中的所有字符
-   - Transform: 需要匹配字符种类数
+**两个阶段：**
+1. **扩展阶段：** 右手不断向右，加字母，直到窗口包含了所有目标字母
+2. **收缩阶段：** 左手向右移，去掉不需要的字母，找到最小的有效窗口
 
-2. 状态 State: (left, right) + need[] + window[]
-   - `formed` = 有多少个字符的频率已匹配
+**关键：** 一旦右手找到了所有字母，左手就开始尽可能地缩小窗口，找最短的答案。
+
+**💬 For Interview - Just Say:**
+- 用 two pointers + 两个 Map（目标字符频率 vs 窗口字符频率）
+- right 扩展直到窗口包含所有必需字符
+- 然后 left 收缩寻找最小的有效窗口
    
 3. 辅助数据 Aux Structure: 两个 HashMap
    - `need`: 目标字符的频率（不变）
@@ -484,47 +362,30 @@ class Solution {
 ```
 ⸻
 
-State
-left
-right
-needMap
-windowMap
-
-⸻
-
-Transition
-扩张：
-right++
-
-⸻
-
-满足条件后：
-不断收缩
-left++
-寻找最短答案
-
-⸻
-
-Pattern 5
-Sliding Window + Deque
-
-⸻
-
 ### Problem 5: Sliding Window + Deque - Sliding Window Maximum
 **LeetCode 239 | Hard**
 
-**核心思路 Key Idea:**
-- 找每个固定大小窗口中的**最大值**
-- 暴力：每个窗口 O(k)，总共 O(nk) ❌
-- 优化：用单调递减的双端队列维护候选值 ✅
+**💡 Key Insight & Why It Works:**
 
-**7步框架 7-Step Framework:**
+你要找每个 k 大小窗口里的最大值。
 
-1. 建模 Modeling: 每个窗口的最大值（固定大小 k）
-   - Key：不需要存储所有元素，只存"可能的最大值"
+**笨办法：** 每个窗口都扫一遍，找最大值 → 很慢
 
-2. 状态 State: Deque 存储索引（递减顺序）
-   - 队头 = 当前窗口的最大值索引
+**聪明办法：** 用一个特殊的队列，只存"可能是最大值"的元素
+
+**队列的规则：**
+- 队列从大到小排列（后面的数都比前面的小）
+- 新数来了：把所有比它小的数扔出队列（它们永远赢不了）
+- 过期的数（超出窗口）也要扔出来
+- 队头永远是当前窗口的最大值
+
+**为什么快？** 每个数最多进队和出队一次，不用每次都比较
+
+**💬 For Interview - Just Say:**
+- 用**单调递减的 Deque** 存索引
+- 移除窗口外的索引（左边过期）
+- 移除队尾所有比当前元素小的索引，然后加入当前索引
+- 队头始终是当前窗口的最大值
    
 3. 辅助数据 Aux Structure: Deque<Integer>（单调递减）
    - 存索引不存值（方便判断是否过期）
@@ -650,19 +511,19 @@ Sliding Window
 
 二、Prefix Sum
 
-### What is Prefix Sum?
-简单来说：预先计算累积和，使得任何区间的和都能在 O(1) 时间查询。  
-Simply put: Precompute cumulative sums so any range sum query is O(1).
+### 🎯 Prefix Sum - Simple Explanation
 
-**核心公式 Core Formula:**
+**概念:** 预先计算每个位置前面所有元素的和，这样查询任意区间的和只需 O(1)。
+
+**核心公式：**
 ```
-prefix[i] = prefix[i-1] + nums[i]
-查询区间和：sum(l, r) = prefix[r+1] - prefix[l]
+prefix[i] = 前 i 个元素的和
+查询 [L, R] 的和 = prefix[R+1] - prefix[L]
 ```
 
-**为什么有用？Why useful?**
-- 暴力遍历：O(n²)（对每个范围求和）Brute force: O(n²)
-- Prefix Sum：O(n) 预处理 + O(1) 查询 Prefix Sum: O(n) preprocess + O(1) query
+**为什么有用？**
+- 暴力方法：每次查询都要遍历，O(n²) 太慢
+- Prefix Sum：一次初始化 O(n)，之后每次查询 O(1)
 
 ---
 
@@ -689,16 +550,24 @@ Transition
 ### Problem 6: Basic Prefix Sum - Range Sum Query
 **LeetCode 303 | Easy**
 
-**核心思路 Key Idea:**
-- 预先计算 `prefix[i]` = 前 i 个元素的和
-- 任何区间和 = `prefix[right+1] - prefix[left]` → O(1) 查询
+**💡 Key Insight & Why It Works:**
 
-**7步框架 7-Step Framework:**
+你经常要查询"数组从某个位置到另一个位置的和是多少"。
 
-1. 建模 Modeling: 快速查询任意区间的和
-   - Transform：预计算 prefix 数组
+**笨办法：** 每次查询都重新加一遍 → 慢
 
-2. 状态 State: prefix[i] = nums[0] + nums[1] + ... + nums[i-1]
+**聪明办法：** 提前算好每个位置的"累计和"
+
+比如数组是 `[1, 2, 3, 4]`，累计和是 `[0, 1, 3, 6, 10]`
+
+要查询位置 1 到 3 的和？ 就是 `6 - 1 = 5`（就是 2 + 3）
+
+**为什么？** 因为：`累计和[3] - 累计和[1] = 中间部分的和`
+
+**💬 For Interview - Just Say:**
+- 预计算 prefix 数组，prefix[i] = 前 i 个元素的和
+- 查询区间 [L, R] 的和 = prefix[R+1] - prefix[L]
+- 初始化 O(n)，查询 O(1)
    
 3. 辅助数据 Aux Structure: int[] prefix（长度 n+1）
    - prefix[0] = 0（哨兵）
@@ -752,26 +621,24 @@ Google超高频
 ### Problem 7: Prefix Sum + HashMap - Subarray Sum Equals K
 **LeetCode 560 | Medium**
 
-**核心思路 Key Idea:**
-- 找有多少个子数组的**和 = k**
-- 暴力：O(n²) 枚举所有子数组 ❌
-- 优化：前缀和 + HashMap，O(n) ✅
+**💡 Key Insight & Why It Works:**
 
-**关键公式 Key Formula:**
-```
-prefix[i] - prefix[j] = k
-  ↓
-说明：区间 [j+1...i] 的和 = k
+你要数有多少个子数组的和等于某个目标 k。
 
-转化为：prefix[i] - k 是否在 map 中？
-```
+**关键想法：** 如果我现在的累计和是 10，我要找和为 3 的子数组，那我需要找有没有累计和为 7 的时刻。因为 10 - 7 = 3！
 
-**7步框架 7-Step Framework:**
+**步骤：**
+1. 走过数组，记住"我到这儿累计和是多少"
+2. 对于每个位置，看看之前是否出现过 `当前和 - k` 这个值
+3. 如果出现过，说明中间有个子数组的和等于 k
 
-1. 建模 Modeling: 计算有多少个子数组和 = k
-   - Transform：从枚举子数组 → 查找前缀和对
+**为什么用 HashMap？** 因为可能同一个累计和出现很多次，我们要记住它出现了几次
 
-2. 状态 State: 当前的 prefix（累积和）
+**💬 For Interview - Just Say:**
+- 用 HashMap 记录每个 prefix 出现的次数
+- 初始化 map.put(0, 1)
+- 遍历数组：prefix += num，查找 (prefix - k) 是否在 map 中
+- 如果存在，count += map.get(prefix - k)，然后 map.put(prefix, ...)
    
 3. 辅助数据 Aux Structure: HashMap<Integer, Integer>
    - Key = 前缀和值
@@ -872,13 +739,24 @@ k = 7
 
 ### Problem 8: Modulo Prefix Sum - Subarrays Divisible By K
 **LeetCode 974 | Medium**
-**Link:** https://leetcode.com/problems/subarrays-divisible-by-k/
-**Key Points:**
-- Count subarrays whose sum is divisible by k
-- Key insight: if prefix1 % k == prefix2 % k, then sum between them is divisible by k
-- Handle negative modulo: ((prefix % k) + k) % k
-- Store mod values in map with frequencies
-- Time: O(n), Space: O(k)
+
+**💡 Key Insight & Why It Works:**
+
+你要数有多少个子数组的和能被 k 整除。
+
+**神奇的规律：** 如果两个不同位置的累计和除以 k 的余数相同，那么这两个位置之间的子数组和就能被 k 整除！
+
+比如：
+- 位置 3 的累计和是 17，17 % 5 = 2
+- 位置 7 的累计和是 32，32 % 5 = 2
+- 那么位置 4 到 7 的和一定能被 5 整除（因为 32 - 17 = 15，15 能被 5 整除）
+
+**所以：** 我们只需要记住每个余数出现过几次，就能数出有多少个这样的子数组。
+
+**💬 For Interview - Just Say:**
+- 如果两个位置的 prefix % k 相同，那么中间的子数组和一定被 k 整除
+- 用 HashMap 记录每个 mod 值出现的次数
+- 遍历：mod = ((prefix % k) + k) % k，查找并计数
 
 ```java
 /**
@@ -911,13 +789,24 @@ class Solution {
 
 ### Problem 9: Modulo Prefix Sum - Continuous Subarray Sum
 **LeetCode 523 | Medium**
-**Link:** https://leetcode.com/problems/continuous-subarray-sum/
-**Key Points:**
-- Find if subarray with sum divisible by k exists (with length >= 2)
-- Same modulo logic: if two indices have same prefix % k, subarray between them divisible by k
-- Store first occurrence index of each mod value
-- Ensure subarray length >= 2 (i - index >= 2)
-- Time: O(n), Space: O(k)
+
+**💡 Key Insight & Why It Works:**
+
+和 Problem 8 很像，但这次还要求子数组长度至少为 2。
+
+**关键：** 如果两个位置的累计和除以 k 的余数相同，中间的子数组和就能被 k 整除。
+
+**额外检查：** 只有当这两个位置距离 >= 2 时，才符合要求。
+
+比如：
+- 位置 1 的余数是 3
+- 位置 4 的余数也是 3
+- 距离 = 4 - 1 = 3 >= 2，所以有效！
+
+**💬 For Interview - Just Say:**
+- 如果两个位置的 prefix % k 相同，中间的子数组和被 k 整除
+- 用 HashMap 记录每个 mod 值第一次出现的位置
+- 保证距离 >= 2 才算有效
 
 ```java
 /**
@@ -978,14 +867,27 @@ prefix2 % k
 
 ### Problem 10: 2D Prefix Sum - Matrix Range Sum Query
 **LeetCode 304 | Medium**
-**Link:** https://leetcode.com/problems/range-sum-query-2d-immutable/
-**Key Points:**
-- Precompute 2D prefix sums for O(1) range sum queries
-- Formula: prefix[r][c] = prefix[r-1][c] + prefix[r][c-1] - prefix[r-1][c-1] + matrix[r-1][c-1]
-- Query: sum = prefix[r2+1][c2+1] - prefix[r1][c2+1] - prefix[r2+1][c1] + prefix[r1][c1]
-- Constructor: O(m×n), Query: O(1)
-- Space: O(m×n)
-- 2D principle extends 1D: inclusion-exclusion for overlapping rectangles
+
+**💡 Key Insight & Why It Works:**
+
+这是 1D 前缀和的 2D 版本。你要快速查询矩阵里任意矩形区域的和。
+
+**思路：** 提前算好"从左上角到任何位置"的累计和
+
+**查询时的技巧：** 用"容斥原理"（加法和减法）
+
+比如你要查询右下角位置为 (5,5)，左上角为 (2,2) 的矩形：
+- 先加上完整的大矩形（0,0 到 5,5）
+- 减去上面的矩形（0,0 到 1,5）
+- 减去左边的矩形（0,0 到 5,1）
+- 再加回被减了两次的左上角（0,0 到 1,1）
+
+这样就得到中间矩形的和。
+
+**💬 For Interview - Just Say:**
+- 预计算 2D prefix 数组：prefix[r][c] = 左上角 (0,0) 到 (r-1,c-1) 的和
+- 公式：prefix[r][c] = prefix[r-1][c] + prefix[r][c-1] - prefix[r-1][c-1] + matrix[r-1][c-1]
+- 查询矩形和用容斥原理：加减四个大矩形的和
 
 ```java
 /**
@@ -1138,15 +1040,26 @@ prefix % k
 
 ### Problem 11: Prefix Sum Variant - Contiguous Array
 **LeetCode 525 | Medium**
-**Link:** https://leetcode.com/problems/contiguous-array/
-**Key Points:**
-- Find max length subarray with equal 0s and 1s
-- Convert problem: treat 0 as -1, find subarray sum = 0
-- Use prefix balance map (0 → -1, 1 → +1)
-- If prefixBalance repeats, subarray between equals 0
-- Track first occurrence of each balance, store max distance
-- Time: O(n), Space: O(n)
-- Creative prefix sum transformation
+
+**💡 Key Insight & Why It Works:**
+
+你要找最长的子数组，里面有相同数量的 0 和 1。
+
+**创意技巧：** 把问题转换一下！
+- 把所有 0 变成 -1
+- 把所有 1 保持为 +1
+- 现在，"0 和 1 一样多"就变成了"和为 0"
+
+比如 `[1, 0, 1, 0]` 变成 `[1, -1, 1, -1]`，和为 0，所以整个数组满足条件！
+
+**然后：** 用前缀和 + HashMap 的方法来找最长的和为 0 的子数组。
+
+**为什么这样聪明？** 因为我们已经知道怎么快速找"和为某个值"的子数组，只需要套用同样的方法。
+
+**💬 For Interview - Just Say:**
+- 创意转换：0 当做 -1，1 当做 +1
+- 这样等数量的 0 和 1 的子数组，其和 = 0
+- 转化成：找最长的子数组和 = 0，用 HashMap + prefix 方法
 
 ```java
 /**

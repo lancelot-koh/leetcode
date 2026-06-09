@@ -87,12 +87,22 @@ BFS Grid is a pattern for exploring cells in a grid/matrix where each cell is a 
 
 ### Problem 1: Number of Islands
 **LeetCode 200 | Medium**
-**Link:** https://leetcode.com/problems/number-of-islands/
-**Key Points:** 
-- Count connected components in a grid
-- Mark visited cells to avoid revisiting
-- Use BFS to explore all connected 1s
-- Time: O(rows × cols), Space: O(rows × cols)
+
+**💡 Key Insight & Why It Works:**
+
+想象一个地图，上面有陆地（1）和水（0）。相邻的陆地连在一起，组成一个岛屿。你要数有多少个岛屿。
+
+**怎么做？** 
+- 从任何未访问的陆地开始，用 BFS 把整个岛屿的所有陆地都"探索"一遍，标记为已访问
+- 每完成一次 BFS，就是找到了一个岛屿
+- 继续找下一个未访问的陆地，重复
+
+**为什么用 BFS？** 因为我们只关心"连通"，不关心距离，所以 BFS 很完美。
+
+**💬 For Interview - Just Say:**
+- 从每个未访问的陆地开始，用 BFS 探索整个岛屿
+- 标记已访问的陆地，避免重复计算
+- 每完成一次 BFS = 找到一个岛屿
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -192,13 +202,22 @@ class Solution {
 
 ### Problem 2: Rotting Oranges
 **LeetCode 994 | Medium**
-**Link:** https://leetcode.com/problems/rotting-oranges/
-**Key Points:**
-- Multi-source BFS problem (start from all rotten oranges)
-- Track fresh oranges and time elapsed
-- Each BFS level = 1 minute
-- Return -1 if not all oranges rot, otherwise return minutes
-- Time: O(rows × cols), Space: O(rows × cols)
+
+**💡 Key Insight & Why It Works:**
+
+橙子会腐烂。腐烂的橙子会把相邻的新鲜橙子也感染腐烂。你要计算多少分钟后所有橙子都腐烂（或判断不可能）。
+
+**关键：多源 BFS**
+- 不是从一个起点，而是从所有腐烂的橙子同时开始
+- 每一"层" BFS = 过去一分钟，所有腐烂的橙子同时去感染相邻的
+- BFS 的层数 = 需要的分钟数
+
+**为什么这样？** 因为所有腐烂的橙子同时工作，所以 BFS 的分层正好对应时间。
+
+**💬 For Interview - Just Say:**
+- 从所有腐烂的橙子同时开始，用多源 BFS
+- 每一"层" = 过去一分钟
+- BFS 的层数就是答案
 
 ```java
 /**
@@ -312,13 +331,23 @@ State: node
 
 ### Problem 3: Clone Graph
 **LeetCode 133 | Medium**
-**Link:** https://leetcode.com/problems/clone-graph/
-**Key Points:**
-- Deep copy of a graph structure
-- Use HashMap to map original → cloned nodes
-- BFS to traverse all nodes and rebuild edges
-- Handle null input gracefully
-- Time: O(N + E), Space: O(N) where N=nodes, E=edges
+
+**💡 Key Insight & Why It Works:**
+
+你要复制一个图（不是复制引用，而是真正的深拷贝）。原图和新图的结构完全一样，但是完全独立的两个图。
+
+**怎么做？用BFS加一个映射表**
+- 想象你有一本书，记录"原节点→新节点"的对应关系
+- 从起点开始，用BFS逐个访问原图的节点
+- 每访问一个新节点，就在新图中创建对应的节点，记录在映射表里
+- 对于每个节点的邻接节点，如果还没创建过，就创建；如果已经创建过，就直接连接
+
+**为什么有效？** 映射表确保每个节点只创建一次，BFS确保不漏掉任何节点。
+
+**💬 For Interview - Just Say:**
+- 用BFS遍历原图，同时在新图中创建对应节点
+- 用HashMap记录"原→新"的映射，避免重复创建
+- 对每个节点，连接其新节点的所有邻接点
 
 ```java
 /**
@@ -396,15 +425,23 @@ class Solution {
 
 ### Problem 4: Valid Tree / Graph Valid Tree
 **LeetCode 261 | Medium**
-**Link:** https://leetcode.com/problems/graph-valid-tree/
-**Key Points:**
-- Tree has n nodes and n-1 edges
-- No cycles (connected acyclic graph)
-- Use BFS to check: start from node 0, visit all reachable nodes
-- If visited count = n, it's a valid tree
-- Time: O(N + E), Space: O(N)
 
-* Valid Tree
+**💡 Key Insight & Why It Works:**
+
+你要判断一个给定的边集合是否构成一个有效的树。树有个特殊性质：n个节点，恰好n-1条边，所有节点连通，没有环。
+
+**怎么做？BFS计数**
+- 从节点0开始，用BFS访问所有能到达的节点
+- 如果访问的节点数 = n，说明所有节点连通
+- 如果边数 ≠ n-1，说明不是树
+
+**为什么有效？** 树的定义就是：连通 + n-1条边。BFS确保检查连通性，边数检查确保没有环。
+
+**💬 For Interview - Just Say:**
+- 检查边数：必须等于 n-1
+- 用BFS从节点0开始遍历
+- 如果访问的节点数 = n，说明是树；否则不是
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -493,17 +530,23 @@ State: word
 
 ### Problem 5: Word Ladder
 **LeetCode 127 | Hard**
-**Link:** https://leetcode.com/problems/word-ladder/
-**Key Points:**
-- Transform beginWord to endWord by changing one letter at a time
-- Each intermediate word must be in wordList
-- Find the shortest transformation sequence (minimum steps)
-- Use BFS to find shortest path
-- Each level of BFS = 1 transformation step
-- Time: O(N × L × 26) where N=words, L=word length
-- Space: O(N)
 
-* Word Ladder
+**💡 Key Insight & Why It Works:**
+
+你要从一个单词变换到另一个单词，每次只能改一个字母，中间的每个单词都必须在词表中。求最少要改几次。
+
+**怎么做？想象单词转换的"距离"，用BFS找最短距离**
+- 把每个单词看作一个节点，如果两个单词只差一个字母，就有条边
+- 用BFS从起始单词开始，一层一层地探索
+- 第一次到达目标单词时，BFS的层数 = 最少改的次数
+
+**为什么有效？** BFS在无权图中找最短路径。每一层代表改一次字母。
+
+**💬 For Interview - Just Say:**
+- 建模：把单词和转换关系看成图
+- 用BFS从起始单词开始，每次探索"只差一个字母"的单词
+- 第一次到达目标单词时，返回层数（改的次数）
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -603,17 +646,24 @@ State: combination (string representation)
 
 ### Problem 6: Open the Lock
 **LeetCode 752 | Medium**
-**Link:** https://leetcode.com/problems/open-the-lock/
-**Key Points:**
-- 4-digit combination lock with values 0-9
-- Each wheel can turn up or down (wraps around)
-- Deadends are invalid states to avoid
-- Find minimum turns from "0000" to target
-- Each BFS level = 1 turn
-- Use BFS to find shortest path in state space
-- Time: O(10^4 × 4) = O(40000), Space: O(10^4)
 
-* Open the lock 
+**💡 Key Insight & Why It Works:**
+
+你有个转盘锁，4个数字（0-9），你要从"0000"转到目标组合。有些组合是"死锁"，不能经过。问最少要转多少次？
+
+**怎么做？BFS搜索所有可能的转盘状态**
+- 把每个转盘组合看成一个"状态"
+- 从"0000"开始，每个状态可以转到8个新状态（4个数字，每个可以±1）
+- 用BFS逐层探索，跳过死锁状态
+- 第一次到达目标组合时，BFS的层数 = 最少转的次数
+
+**为什么有效？** BFS在无权图中找最短路径。每一层代表转一次。
+
+**💬 For Interview - Just Say:**
+- 建模：每个转盘组合是一个状态
+- 用BFS从"0000"开始，生成相邻的8个状态（±1每位数字）
+- 跳过死锁，第一次到达目标时返回层数
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -719,18 +769,24 @@ State: (position, speed)
 
 ### Problem 7: Race Car
 **LeetCode 818 | Hard**
-**Link:** https://leetcode.com/problems/race-car/
-**Key Points:**
-- Car starts at position 0 with speed 1
-- Accelerate: position += speed, speed *= 2
-- Reverse: speed *= -1 (changes direction)
-- Find minimum steps to reach target position
-- State = (position, speed) not just position
-- Use BFS to explore all valid state transitions
-- Prune: position should not be too far from target
-- Time: O(target × log target), Space: O(target × log target)
 
-Race Car
+**💡 Key Insight & Why It Works:**
+
+小车从位置0开始，速度1，加速时位置加速度（速度翻倍），反向时速度变反号。要最少几步到达目标？
+
+**关键：不仅是位置，还有速度！**
+- 同一个位置，不同速度 = 不同状态
+- 状态是(位置, 速度)对，不只是位置
+- 用BFS探索所有可能的(位置, 速度)变化
+- 修剪：不要走离目标太远的位置
+
+**为什么有效？** BFS在状态空间中找最短路径。状态包括位置和速度两个维度。
+
+**💬 For Interview - Just Say:**
+- 关键：状态 = (位置, 速度)，不只是位置
+- 用BFS从(0, 1)开始探索：选择加速或反向
+- 修剪远离目标太远的状态，第一次到达目标时返回步数
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -828,17 +884,24 @@ State: (node, remaining_k)
 
 ### Problem 8: Cheapest Flights Within K Stops
 **LeetCode 787 | Medium**
-**Link:** https://leetcode.com/problems/cheapest-flights-within-k-stops/
-**Key Points:**
-- Find cheapest flight from src to dst with at most k stops
-- State = (city, cost, stops) not just city
-- Multiple paths to same city with different stop counts are different states
-- Use BFS/Dijkstra to explore state space
-- Can use PriorityQueue for better performance
-- Dijkstra: O((V + E) log V), BFS: O(V × K)
-- Space: O(V × K)
 
-Cheapest Flights Within K Stops
+**💡 Key Insight & Why It Works:**
+
+从一个城市飞到另一个城市，最多只能停靠k次。每个航班有成本。要找最便宜的方案。
+
+**关键：同一城市，不同停靠次数的成本可能不同！**
+- 不是简单地找某城市的最小成本
+- 状态是(城市, 停靠次数)对
+- 到达某城市经过3次停靠 vs 2次停靠 = 不同状态，成本也不同
+- 用Dijkstra按成本逐个探索，直到第一次到达目标
+
+**为什么有效？** Dijkstra贪心保证：第一次到达目标时，该成本就是最优的。
+
+**💬 For Interview - Just Say:**
+- 关键：状态 = (城市, 停靠次数)，不只是城市
+- 用优先队列（按成本排序）从起点开始
+- 第一次到达目标城市时返回成本
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1000,18 +1063,25 @@ State: (node, visitedMask)
 
 ### Problem 9: Shortest Path Visiting All Nodes
 **LeetCode 847 | Hard**
-**Link:** https://leetcode.com/problems/shortest-path-visiting-all-nodes/
-**Key Points:**
-- Visit all nodes and find shortest path
-- State = (node, visitedMask) not just node
-- visitedMask uses bitmask to represent which nodes visited
-- Same node with different visited states = different problem states
-- Can start from any node (try all n starting points)
-- Use BFS to find shortest path in state space
-- Time: O(n × 2^n), Space: O(n × 2^n)
-- Memory: visited[n][2^n] boolean array
 
-Shortest Path Visiting All Nodes
+**💡 Key Insight & Why It Works:**
+
+你要找一条最短的路径，访问所有节点。注意：不是最短路径从A到B，而是要访问所有节点。
+
+**关键：同一个节点，访问过的节点集合不同 = 不同状态！**
+- 状态是(当前节点, 已访问节点集合)的组合
+- 用位掩码(bitmask)表示已访问的节点集合（对n≤15的图很优雅）
+- 到达同一节点，但已访问节点集合不同 = 完全不同的状态
+- 用BFS探索所有状态，直到找到访问全部节点的最短路径
+
+**为什么有效？** 位掩码巧妙编码了"访问过哪些节点"的信息，使状态空间有限且可遍历。
+
+**💬 For Interview - Just Say:**
+- 关键：状态 = (节点, 已访问集合)，不是只有节点
+- 用位掩码表示已访问的节点（比如第bit位=1表示节点已访问）
+- 用BFS从所有可能的起点开始（或逐个尝试）
+- 当找到访问完全部节点的状态时，返回步数
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1135,15 +1205,23 @@ State: node / path / depth
 
 ### Problem 10: Number of Islands (DFS version)
 **LeetCode 200 | Medium**
-**Link:** https://leetcode.com/problems/number-of-islands/ (DFS approach)
-**Key Points:**
-- Similar to BFS but uses recursion (DFS) instead of queue
-- Mark visited cells in place (no separate visited array needed)
-- Simpler code, but uses call stack (may overflow on very large grids)
-- Time: O(rows × cols), Space: O(rows × cols) worst case
-- Easier to understand and implement than BFS variant
 
-DFS number of island:
+**💡 Key Insight & Why It Works:**
+
+数岛屿的DFS版本。和BFS版本一样，但用递归代替队列。代码更简洁，但栈可能溢出。
+
+**怎么做？递归探索每个连通的陆地区域**
+- 扫描每个格子，发现陆地就启动DFS
+- DFS递归探索四个方向的相邻陆地
+- 标记已访问的格子（改成水），避免重复
+- 每启动一次DFS = 一个完整的岛屿
+
+**为什么有效？** 递归自然地探索一个连通分量的所有节点，无需额外的visited数组。
+
+**💬 For Interview - Just Say:**
+- 扫描每个格子，发现'1'就岛屿数+1，启动DFS
+- DFS递归探索四个方向，标记已访问
+- 比BFS代码简洁，但大网格可能栈溢出
 
 ```java
 /**
@@ -1233,17 +1311,23 @@ class Solution {
 
 ### Problem 11: Path Sum
 **LeetCode 112 | Easy**
-**Link:** https://leetcode.com/problems/path-sum/
-**Key Points:**
-- Check if tree has root-to-leaf path summing to targetSum
-- Recursion passes down: targetSum - node.val
-- Base case: leaf node with sum 0 = found path
-- DFS explores both left and right subtrees
-- Time: O(N), Space: O(H) where H=height, O(N) worst case
-- Remember: "path" means root to leaf, not any node to any node
 
-Path Sum
-State: (node, sum)
+**💡 Key Insight & Why It Works:**
+
+检查树中是否存在从根到叶子节点的路径，其和等于目标值。
+
+**怎么做？递归减法**
+- 沿着路径从根往下走，每次减去当前节点的值
+- 到达叶子节点时，检查剩余的和是否为0
+- 递归探索左右子树
+
+**为什么有效？** 递归自然地遍历从根到叶的所有路径，减法避免了累加和的重复计算。
+
+**💬 For Interview - Just Say:**
+- 递归检查：是否存在根到叶的路径，和等于目标
+- 递归函数传递 targetSum - node.val（不是累加）
+- 到达叶子节点时，检查 targetSum - node.val == 0
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1312,19 +1396,24 @@ class Solution {
 
 ### Problem 12: Binary Tree Diameter
 **LeetCode 543 | Easy**
-**Link:** https://leetcode.com/problems/diameter-of-binary-tree/
-**Key Points:**
-- Find longest path between any two nodes
-- Path doesn't have to go through root
-- Use DFS returning height, calculate diameter at each node
-- Diameter at node = leftHeight + rightHeight
-- Track global maximum during traversal
-- Time: O(N), Space: O(H)
-- Key insight: update max while exploring, not in the result
 
-Diameter
-State: node
-Return: height
+**💡 Key Insight & Why It Works:**
+
+树的直径 = 任意两节点间最长的路径。注意：路径不一定经过根节点。
+
+**怎么做？每个节点计算它的左右子树高，然后相加**
+- 对每个节点，计算左子树高和右子树高
+- 经过该节点的最长路径 = 左高 + 右高
+- 在DFS过程中追踪全局最大值
+- 最后返回该节点到叶子的高度（供上层使用）
+
+**为什么有效？** 最长路径一定经过某个节点，那个节点的左右高度之和就是经过它的最长路径。
+
+**💬 For Interview - Just Say:**
+- 用DFS后序遍历（先计算子树高度）
+- 在每个节点，计算 leftHeight + rightHeight（经过该节点的路径长）
+- 追踪全局最大，返回本节点的高度供上层用
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1395,17 +1484,23 @@ class Solution {
 
 ### Problem 13: Valid Tree (DFS version)
 **LeetCode 261 | Medium**
-**Link:** https://leetcode.com/problems/graph-valid-tree/
-**Key Points:**
-- Tree has n nodes and n-1 edges
-- No cycles (connected acyclic graph)
-- Use DFS to check: start from node 0, visit all reachable nodes
-- If visited count = n, it's a valid tree
-- Time: O(N + E), Space: O(N)
-- Similar to Problem 10 but for general graphs instead of grids
 
-Valid Tree (DFS)
-State: node
+**💡 Key Insight & Why It Works:**
+
+判断边的集合是否能构成一棵树。树的定义：n个节点，n-1条边，连通，无环。
+
+**怎么做？边数 + DFS连通性检查**
+- 先检查边数是否等于n-1
+- 再用DFS从节点0开始遍历所有可达的节点
+- 如果访问到了n个节点，说明连通且无环 = 是树
+
+**为什么有效？** 树就是连通 + n-1条边。DFS检查连通性，边数检查确保无环。
+
+**💬 For Interview - Just Say:**
+- 检查边数：必须等于 n-1
+- 用DFS从节点0开始递归遍历
+- 如果访问的节点数 = n，说明是树；否则不是
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1495,16 +1590,24 @@ State: (path, used[])
 
 ### Problem 14: Permutations
 **LeetCode 46 | Medium**
-**Link:** https://leetcode.com/problems/permutations/
-**Key Points:**
-- Generate all permutations of a list
-- Use visited/used array to track which elements included
-- Choose → Explore → Unchoose (backtrack)
-- Add to result when path.size() == nums.length
-- Time: O(N! × N), Space: O(N) for recursion depth
-- Example: [1,2,3] → all 6 permutations
 
-Permutation 1
+**💡 Key Insight & Why It Works:**
+
+生成一个列表的所有排列。比如[1,2,3]要生成6个排列。
+
+**怎么做？回溯：选择→递归→撤销**
+- 想象在构建一个排列，一步步选择数字
+- 每选一个，标记为"已用"，再递归处理剩余的
+- 当排列长度等于原列表长度，找到一个答案
+- 然后"撤销选择"，恢复状态，尝试其他数字
+
+**为什么有效？** 回溯会遍历所有可能的选择顺序，同时撤销确保不会重复或遗漏。
+
+**💬 For Interview - Just Say:**
+- 用回溯：选 → 递归 → 撤销
+- 追踪已用的数字（visited数组）
+- 排列长度 = 输入长度时，保存答案
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1594,16 +1697,24 @@ class Solution {
 
 ### Problem 15: Permutations II (with duplicates)
 **LeetCode 47 | Medium**
-**Link:** https://leetcode.com/problems/permutations-ii/
-**Key Points:**
-- Generate all permutations where input has duplicates
-- Must sort first to group duplicates together
-- Skip if current == previous AND previous not visited
-- This avoids generating duplicate permutations
-- Time: O(N! × N), Space: O(N)
-- Key: when to skip duplicates (only if previous not visited in same recursion level)
 
-Permutation 2 has dueplicated
+**💡 Key Insight & Why It Works:**
+
+生成含重复数字的列表的所有**唯一**排列。比如[1,1,2]要生成3个唯一排列（不是6个）。
+
+**关键：排序 + 聪明的跳过重复**
+- 先排序，把重复的数字放在一起
+- 在同一个递归层，如果两个数字相同，只选第一个
+- 跳过规则：如果当前 = 前一个 且 前一个还没被选 → 跳过
+- 这样避免生成重复的排列
+
+**为什么有效？** 排序分组重复元素，跳过规则确保在决策树中不会生成重复的分支。
+
+**💬 For Interview - Just Say:**
+- 先排序，把重复的聚在一起
+- 用回溯：选 → 递归 → 撤销
+- 跳过重复：if (nums[i] == nums[i-1] && !visited[i-1]) continue
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1676,14 +1787,23 @@ State: (index, path)
 
 ### Problem 16: Combination Sum
 **LeetCode 39 | Medium**
-**Link:** https://leetcode.com/problems/combination-sum/
-**Key Points:**
-- Find all combinations that sum to target
-- Elements can be reused (no used[] array needed)
-- Pass start=i (not i+1) to allow reuse of same element
-- Prune: if remaining < 0, return early
-- Time: O(N^(T/M)) where T=target, M=min element
-- Space: O(T/M) for recursion depth
+
+**💡 Key Insight & Why It Works:**
+
+找所有的组合，使得它们的和等于目标。关键：同一个数字可以用多次。
+
+**怎么做？回溯，但这次允许重复使用**
+- 从当前位置开始，选择一个数字加入组合
+- 递归时，还是从当前位置开始（允许重复选择同一个数字）
+- 如果和等于目标，找到一个答案
+- 如果和超过目标，剪枝返回
+
+**为什么有效？** 传入 start=i（不是i+1）允许下一次选择从同一位置开始，从而重复使用该数字。
+
+**💬 For Interview - Just Say:**
+- 回溯：选 → 递归（从同一位置） → 撤销
+- 用 remaining 追踪还需多少和
+- 剪枝：remaining < 0 时返回
 
 ```java
 /**
@@ -1743,17 +1863,24 @@ class Solution {
 
 ### Problem 17: Combination Sum II
 **LeetCode 40 | Medium**
-**Link:** https://leetcode.com/problems/combination-sum-ii/
-**Key Points:**
-- Elements can ONLY be used once (unlike Combination Sum I)
-- Input has duplicates
-- Must sort first to handle duplicates
-- Skip duplicates: if current == previous at same recursion level
-- Pass start=i+1 (not i) to use each element only once
-- Time: O(2^N), Space: O(N) for recursion depth
 
-Combination Sum II
-Difference: each number can only be used once and duplicates exist
+**💡 Key Insight & Why It Works:**
+
+找所有组合使得和等于目标。关键：每个数字**只能用一次**（不像Problem 16），而且数字可能重复。
+
+**怎么做？排序 + 回溯 + 跳过重复**
+- 先排序把重复数字聚在一起
+- 从当前位置开始，选择一个数字
+- 递归时，从下一位置开始（start=i+1，确保每个数字只用一次）
+- 跳过重复：如果当前 = 前一个 且 前一个还没被用 → 跳过
+
+**为什么有效？** start=i+1确保每个元素只用一次；排序+跳过规则避免生成重复组合。
+
+**💬 For Interview - Just Say:**
+- 先排序
+- 回溯：选 → 递归（从下一位置 start=i+1） → 撤销
+- 跳过重复：if (nums[i] == nums[i-1] && !used[i-1]) continue
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1822,14 +1949,22 @@ State: (index, path)
 
 ### Problem 18: Subsets
 **LeetCode 78 | Medium**
-**Link:** https://leetcode.com/problems/subsets/
-**Key Points:**
-- Generate all 2^n subsets (including empty set)
-- Add to result BEFORE exploring (not after)
-- For each index, either include it or skip it
-- Pass start=i+1 to avoid duplicates
-- Time: O(2^N), Space: O(N) for recursion depth
-- Result naturally sorted if input is sorted
+
+**💡 Key Insight & Why It Works:**
+
+生成一个列表的所有2^n个子集（包括空集）。比如[1,2]要生成[[],[1],[2],[1,2]]。
+
+**怎么做？回溯，对每个位置选或不选**
+- 先把当前路径加入结果（关键：先加，再探索）
+- 然后从当前位置开始，对每个元素，选它→递归→撤销
+- 最后返回
+
+**为什么有效？** 对每个元素有"选"或"不选"两种选择，递归枚举所有组合。先加入结果确保空集也被包括。
+
+**💬 For Interview - Just Say:**
+- 对每个元素：选或不选
+- 先把当前子集加入结果
+- 然后递归探索：选当前元素 → 从下一位置继续 → 撤销
 
 ```java
 /**
@@ -1882,16 +2017,25 @@ class Solution {
 
 ### Problem 19: Subsets II (with duplicates)
 **LeetCode 90 | Medium**
-**Link:** https://leetcode.com/problems/subsets-ii/
-**Key Points:**
-- Generate all unique subsets when input has duplicates
-- Sort first to group duplicates
-- Skip duplicates: if current == previous AND index > start
-- This ensures each unique subset appears only once
-- Time: O(2^N), Space: O(N)
-- Still generate 2^N subsets, but many are pruned due to duplicates
 
-Subset II: No duplicates 
+**💡 Key Insight & Why It Works:**
+
+生成含重复数字的列表的所有**唯一**子集。关键是避免生成重复的子集。
+
+**怎么做？排序 + 聪明的跳过**
+- 先排序，把重复数字聚在一起
+- 先加入当前子集到结果
+- 对每个元素，如果它等于前一个 且 前一个还没在本层选过 → 跳过
+- 否则选它→递归→撤销
+
+**为什么有效？** 排序把重复元素聚在一起，跳过规则在决策树的同一层避免重复选择，从而避免生成重复子集。
+
+**💬 For Interview - Just Say:**
+- 先排序
+- 先加入当前子集
+- 跳过重复：if (i > start && nums[i] == nums[i-1]) continue
+- 然后选元素 → 递归 → 撤销
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -1947,18 +2091,25 @@ class Solution {
 
 ### Problem 20: Word Search
 **LeetCode 79 | Medium**
-**Link:** https://leetcode.com/problems/word-search/
-**Key Points:**
-- Find if word exists in 2D grid (moving 4 directions)
-- State = (row, col, wordIndex) - track position and progress in word
-- Use DFS with backtracking
-- Mark visited cells (modify board) to avoid revisiting in same DFS path
-- Early return on first found (return true immediately)
-- Time: O(N × M × 4^L) where L=word length
-- Space: O(L) for recursion depth
 
-Pattern 12: Backtracking Word Search
-State: (row, col, index)
+**💡 Key Insight & Why It Works:**
+
+在2D网格中查找一个单词是否存在。可以上下左右移动，但不能重复访问同一个格子。
+
+**怎么做？回溯 + 4方向DFS**
+- 从每个格子开始，尝试匹配单词的第一个字母
+- 如果匹配，标记该格子为已访问
+- 向4个方向探索，继续匹配单词的下一个字母
+- 如果整个单词都匹配了，返回true
+- 如果当前路径失败，撤销访问标记，回溯
+
+**为什么有效？** 递归枚举所有可能的路径，同时通过访问标记避免在同一条路径中重复访问。
+
+**💬 For Interview - Just Say:**
+- 从每个格子开始，尝试匹配单词
+- 如果当前格子 = 单词当前字母，标记访问，向4个方向递归
+- 如果访问完了整个单词，返回true
+- 撤销访问标记，回溯
 
 ```java
 /**
@@ -2050,17 +2201,28 @@ State: candidate answer
 
 ### Problem 21: Koko Eating Bananas
 **LeetCode 875 | Medium**
-**Link:** https://leetcode.com/problems/kokoeat-bananas/
-**Key Points:**
-- Find minimum eating speed to finish all bananas in h hours
-- Classic "binary search on answer" pattern
-- Search space: [1, max(piles)]
-- Check function: can finish in time with given speed?
-- If yes: try slower speed (right = mid)
-- If no: try faster speed (left = mid + 1)
-- Time: O(N × log(max pile)), Space: O(1)
 
-KOKO
+**💡 Key Insight & Why It Works:**
+
+Koko在h小时内吃完香蕉，每小时固定速度。要找最慢的速度。
+
+**关键：在答案上二分**
+- 答案的范围是[1, max(piles)]
+- 如果速度s能在时间内吃完，那么任何 > s 的速度也行
+- 如果速度s不能在时间内吃完，那么任何 < s 的速度也不行
+- 这个单调性允许我们二分搜索
+
+**怎么做？**
+- 左右指针：left=1，right=max(piles)
+- 对每个中点速度mid，检查是否能在时间内吃完
+- 如果行：试更慢的速度（right=mid）
+- 如果不行：试更快的速度（left=mid+1）
+
+**💬 For Interview - Just Say:**
+- 答案具有单调性：s能完成 → 所有>s都能完成
+- 二分搜索答案而不是数据
+- 每次检查：计算该速度需要多少小时
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -2133,16 +2295,24 @@ State: (priority, value)
 
 ### Problem 22: Top K Largest Elements
 **LeetCode 215 | Medium**
-**Link:** https://leetcode.com/problems/kth-largest-element-in-an-array/
-**Key Points:**
-- Find K-th largest element in array
-- Maintain min-heap of size K
-- When heap size > K, remove smallest (peek/poll)
-- Final result: heap.peek() = K-th largest
-- Time: O(N log K), Space: O(K)
-- Alternative: quick select O(N) average
 
-Top K Largest Elements
+**💡 Key Insight & Why It Works:**
+
+找数组中第K大的元素。
+
+**关键：维护一个大小为K的最小堆**
+- 想象你有一个堆，最多放K个最大的数字
+- 遍历数组，每个数字和堆顶（最小值）比较
+- 如果大于堆顶，移除堆顶，加入新数字
+- 最后堆顶就是第K大
+
+**为什么有效？** 最小堆保证堆顶是K个元素中最小的（也就是第K大）。任何小于堆顶的数字肯定不在前K大里。
+
+**💬 For Interview - Just Say:**
+- 维护K大小的最小堆
+- 遍历数组：如果 num > heap.peek()，poll堆顶，offer新数字
+- 最后 heap.peek() = 第K大
+
 ```java
 /**
  * ─────────────────────────────────────────────────────────────
@@ -2194,13 +2364,24 @@ class Solution {
 
 ### Problem 23: Top K Frequent Elements
 **LeetCode 347 | Medium**
-**Link:** https://leetcode.com/problems/top-k-frequent-elements/
-**Key Points:**
-- Find K most frequent elements
-- First: count frequency of all elements using HashMap
-- Then: use min-heap to track top K elements
-- Compare by frequency: freq.get(a) vs freq.get(b)
-- Time: O(N log K), Space: O(N) for frequency map + O(K) for heap
+
+**💡 Key Insight & Why It Works:**
+
+找频率最高的K个不同元素。
+
+**怎么做？两步走：统计 + 堆**
+- 第一步：用HashMap统计每个元素出现的次数
+- 第二步：维护一个大小为K的最小堆，按频率排序
+- 遍历HashMap的所有元素，用频率和堆顶比较
+- 如果频率 > 堆顶频率，poll堆顶，offer新元素
+- 最后堆中的K个元素就是最频繁的K个
+
+**为什么有效？** 最小堆按频率排序，堆顶始终是K个元素中频率最低的。任何频率低于堆顶的元素肯定不是最频繁的K个。
+
+**💬 For Interview - Just Say:**
+- 用HashMap统计频率
+- 维护K大小的最小堆（按频率）
+- 遍历HashMap：如果 freq > heap.peek().freq，poll堆顶，offer新元素
 
 ```java
 /**
@@ -2259,14 +2440,23 @@ class Solution {
 
 ### Problem 24: Meeting Rooms
 **LeetCode 252 | Easy**
-**Link:** https://leetcode.com/problems/meeting-rooms/
-**Key Points:**
-- Check if a person can attend all meetings (no overlaps)
-- Sort intervals by start time
-- Check if any meeting overlaps with previous
-- Overlap: current_start < previous_end
-- Time: O(N log N) for sorting, Space: O(1)
-- Greedy approach: always take earliest meeting
+
+**💡 Key Insight & Why It Works:**
+
+检查一个人能否参加所有会议（时间不冲突）。
+
+**怎么做？排序 + 检查相邻重叠**
+- 按会议开始时间排序
+- 逐个检查相邻的两个会议
+- 如果当前会议开始时间 < 前一个会议结束时间 → 重叠，不行
+- 反复检查，如果没有重叠，可以参加所有会议
+
+**为什么有效？** 排序后，如果存在任何重叠，必定表现为相邻的两个会议重叠。无需检查所有对。
+
+**💬 For Interview - Just Say:**
+- 排序：按会议开始时间
+- 检查相邻会议：if (current.start < previous.end) 返回false
+- 如果完整扫描无重叠，返回true
 
 ```java
 /**
@@ -2314,15 +2504,24 @@ class Solution {
 
 ### Problem 25: Dijkstra Shortest Path
 **Standard Algorithm**
-**Examples:** Network Delay Time (LeetCode 743), Path With Minimum Effort (LeetCode 1631)
-**Key Points:**
-- Find shortest path from source to all nodes
-- Use min-heap (priority queue) to always process nearest unvisited node
-- State: (distance, node) where distance is shortest distance found so far
-- Update: if newDist < dist[neighbor], update and add to heap
-- Skip outdated entries: if current distance > recorded distance
-- Time: O((V + E) log V), Space: O(V)
-- Works with non-negative edge weights
+
+**💡 Key Insight & Why It Works:**
+
+找从一个节点到其他所有节点的最短路径（有权图，权重非负）。
+
+**怎么做？贪心 + 最小堆**
+- 用数组记录到每个节点的最短距离，初始都是无穷
+- 起点距离设为0，加入优先队列
+- 每次从队列弹出距离最小的节点
+- 更新它的所有邻接节点的距离
+- 如果发现更短的路，更新距离，加入队列
+
+**为什么有效？** 最小堆保证每次处理的都是"当前已知最短距离的节点"。一旦确定最短距离，就不会变化。
+
+**💬 For Interview - Just Say:**
+- 用最小堆按距离排序（距离, 节点）
+- 弹出距离最小的节点，更新其邻接点
+- 如果发现更短路径，更新距离并加入队列
 
 ```java
 /**
@@ -2402,13 +2601,24 @@ Questions: Connected? Reachable? Groups? Components? Province? Island?
 
 ### Problem 26: Number of Connected Components
 **LeetCode 323 | Medium**
-**Link:** https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/
-**Key Points:**
-- Find number of connected components in undirected graph
-- Build adjacency list from edges
-- For each unvisited node: DFS/BFS to mark all connected nodes
-- Increment component count each time we start new DFS/BFS
-- Time: O(V + E), Space: O(V + E) for graph
+
+**💡 Key Insight & Why It Works:**
+
+数无向图中有多少个连通分量（独立的连通区域）。
+
+**怎么做？DFS计数**
+- 扫描每个未访问过的节点
+- 对于每个未访问节点，启动DFS
+- DFS会访问该节点的所有连通的节点
+- 每启动一次DFS = 一个连通分量
+- 计数DFS被启动的次数
+
+**为什么有效？** DFS会探索一个连通分量的所有节点，一旦DFS结束，该分量的所有节点都被标记为已访问。下一次启动DFS时，就是新的分量。
+
+**💬 For Interview - Just Say:**
+- 扫描每个节点，若未访问，启动DFS，分量数+1
+- DFS标记该节点及其所有连通的节点为已访问
+- 最后分量数 = DFS启动的次数
 
 ```java
 /**
@@ -2528,17 +2738,24 @@ class Solution {
 
 ### Problem 27: Redundant Connection
 **LeetCode 684 | Medium**
-**Link:** https://leetcode.com/problems/redundant-connection/
-**Key Points:**
-- Find edge creating a cycle in an undirected graph (tree + 1 edge)
-- Classic Union Find application
-- For each edge: if already in same component, this is redundant edge
-- Return the first edge that creates a cycle
-- Time: O(N × α(N)) ≈ O(N), Space: O(N)
-- Key: when union fails (returns false), we found redundant edge
 
-Pattern 16: Union Find
-State: parent[]
+**💡 Key Insight & Why It Works:**
+
+找无向图中造成环的边。一个树有n个节点和n-1条边，这里有n条边，说明多了一条。
+
+**怎么做？Union Find找重复边**
+- 初始化：每个节点自成一个分量
+- 对每条边，检查两个端点是否已在同一分量
+- 如果已在同一分量，这条边会造成环，返回它
+- 否则，合并两个分量，继续下一条边
+
+**为什么有效？** Union Find快速检查连通性。一旦发现两个端点已连通，新边就会造成环。
+
+**💬 For Interview - Just Say:**
+- 用Union Find维护连通分量
+- 对每条边：检查两端点是否已连通
+- 已连通 → 这条边造成环，返回它
+- 未连通 → 合并分量，继续
 
 ```java
 /**
@@ -2690,14 +2907,23 @@ class Solution {
 
 ### Problem 28: Accounts Merge
 **LeetCode 721 | Hard**
-**Link:** https://leetcode.com/problems/accounts-merge/
-**Key Points:**
-- Merge accounts that share emails (transitively)
-- Union Find: treat emails as nodes, unite when in same account
-- After union: group emails by root, sort each group
-- Result: name + sorted unique emails for each account
-- Time: O(N × K log K) where N=accounts, K=avg emails per account
-- Use String-based Union Find (Map instead of int array)
+
+**💡 Key Insight & Why It Works:**
+
+多个账户，如果它们共享邮箱，就应该合并。要找出所有应该合并的账户。
+
+**怎么做？Union Find基于邮箱**
+- 把邮箱看作节点，同一账户的邮箱都连在一起
+- 对每个账户，合并其所有邮箱到第一个邮箱
+- 扫描完所有账户后，用邮箱的根分组
+- 每组邮箱按字母排序，加上账户名
+
+**为什么有效？** 邮箱是持久化的身份标识。共享邮箱的账户必定属于同一个人，Union Find高效地追踪这种关系。
+
+**💬 For Interview - Just Say:**
+- Union Find基于邮箱而非账户号
+- 对每个账户，合并其邮箱到第一个邮箱
+- 按邮箱的根分组，排序后输出
 
 ```java
 /**
@@ -2810,16 +3036,24 @@ State: indegree[]
 
 ### Problem 29: Course Schedule
 **LeetCode 207 | Medium**
-**Link:** https://leetcode.com/problems/course-schedule/
-**Key Points:**
-- Detect cycle in directed graph (check if all courses can be taken)
-- Build graph + compute indegree for each course
-- BFS: process all courses with indegree 0 (no prerequisites)
-- Decrease indegree of dependent courses
-- When indegree becomes 0, add to queue
-- If all courses processed → no cycle, return true
-- Time: O(V + E), Space: O(V + E)
-- Key: indegree tells how many prerequisites remain
+
+**💡 Key Insight & Why It Works:**
+
+有先决条件的课程。能否完成所有课程？如果存在环（A需要B，B需要A），就无法完成。
+
+**怎么做？拓扑排序检查环**
+- 计算每门课程的入度（还需多少前置课程）
+- 把入度为0的课程（没有前置条件）加入队列
+- 处理一门课程，它的所有依赖课程的入度-1
+- 如果依赖课程入度变为0，加入队列
+- 如果能处理所有课程，说明无环
+
+**为什么有效？** 如果有环，总有课程入度不能变为0，永远无法处理。无环 ⟺ 能处理全部课程。
+
+**💬 For Interview - Just Say:**
+- 计算入度（前置条件数）
+- 处理入度为0的课程，减少依赖课程的入度
+- 如果处理了全部课程，无环，返回true
 
 ```java
 /**
@@ -2897,14 +3131,22 @@ class Solution {
 
 ### Problem 30: LC1293 Shortest Path in Grid with Obstacles Elimination
 **LeetCode 1293 | Hard**
-**Link:** https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/
-**Key Points:**
-- Find shortest path in grid where obstacles can be eliminated
-- State = (row, col, remainingK) not just (row, col)
-- Can pass through obstacles only k times
-- Same position with different remaining k values = different states
-- Use BFS to explore state space
-- Time: O(rows × cols × k), Space: O(rows × cols × k)
+
+**💡 Key Insight & Why It Works:**
+
+在网格中找最短路，但可以穿过最多k个障碍。关键：同一位置，不同的"剩余消除次数" = 不同的状态。
+
+**怎么做？多维度状态BFS**
+- 状态是(行, 列, 剩余消除次数)
+- 比如到达(2,3)且还有3次消除机会 vs 2次消除 = 不同状态
+- BFS探索所有状态，找到目标位置的最短路
+
+**为什么有效？** 保留消除次数的信息使我们能发现更优路径。一个位置可能从不同的"消除次数"到达，选择最优的。
+
+**💬 For Interview - Just Say:**
+- 状态 = (行, 列, 剩余消除次数)不仅仅位置
+- 用BFS，对每个状态尝试4个方向
+- 如果遇到障碍且还有消除次数，消除它→转到新状态
 
 ```java
 /**
@@ -3004,15 +3246,26 @@ class Solution {
 
 ### Problem 31: LC864 Shortest Path to Get All Keys
 **LeetCode 864 | Hard**
-**Link:** https://leetcode.com/problems/shortest-path-to-get-all-keys/
-**Key Points:**
-- Find shortest path in maze to collect all 6 keys
-- State = (x, y, keyMask) not just (x, y)
-- keyMask is a 6-bit integer representing collected keys
-- Doors can only be passed if you have the corresponding key
-- Same position with different key sets = different states
-- Use BFS to explore state space
-- Time: O(M × N × 2^6), Space: O(M × N × 2^6)
+
+**💡 Key Insight & Why It Works:**
+
+在迷宫中收集所有钥匙，有些门需要对应的钥匙才能通过。求最短路。
+
+**关键：位置 + 已有的钥匙集合 = 状态**
+- 同一位置，有钥匙集合A vs 集合B = 不同状态
+- 用位掩码(6bit)表示6个钥匙是否已收集
+- BFS探索所有(位置, 钥匙集合)的组合
+
+**怎么做？**
+- 状态：(x, y, keyMask)其中keyMask = 01010101... 表示有哪些钥匙
+- 移动时，如果遇到门，检查是否有对应钥匙
+- 如果捡到钥匙，更新keyMask
+- 当 keyMask = 全1（所有钥匙） 且 在终点 → 返回步数
+
+**💬 For Interview - Just Say:**
+- 状态 = (位置, 钥匙位掩码)
+- 用BFS，每次检查移动后是否有钥匙或钥匙是否足以过门
+- 位掩码更新后是新的状态
 
 ```java
 /**
@@ -3145,15 +3398,27 @@ class Solution {
 
 ### Problem 32: LC847 Shortest Path Visiting All Nodes
 **LeetCode 847 | Hard**
-**Link:** https://leetcode.com/problems/shortest-path-visiting-all-nodes/
-**Key Points:**
-- Visit all nodes in a graph and find shortest path
-- State = (node, visitedMask) not just node
-- visitedMask is an n-bit integer representing visited nodes
-- Same node with different visited states = different problem states
-- Can start from any node (try all n starting points)
-- Use BFS to find shortest path in state space
-- Time: O(n × 2^n), Space: O(n × 2^n)
+
+**💡 Key Insight & Why It Works:**
+
+访问图中所有节点，求最短路径。（这和Problem 9是同一题）
+
+**关键：位置 + 已访问的节点集合 = 状态**
+- 同一个节点，访问过的节点集合不同 = 不同的状态
+- 用位掩码(n bit)表示访问过的节点集合
+- BFS探索所有(节点, 访问掩码)的组合
+
+**怎么做？**
+- 状态：(节点, 访问掩码)
+- 可从任何节点开始（尝试所有n个起点）
+- 每次移动到邻接节点，更新访问掩码
+- 当访问掩码全1（所有节点访问过） → 返回步数
+
+**💬 For Interview - Just Say:**
+- 状态 = (节点, 访问位掩码)不仅仅是节点
+- BFS从所有可能的起点开始
+- 每次尝试移动到邻接节点，更新访问掩码
+- 访问掩码全1时返回步数
 
 ```java
 /**
