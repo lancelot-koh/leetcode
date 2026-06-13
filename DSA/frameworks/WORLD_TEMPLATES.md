@@ -21,6 +21,8 @@
 | **9. Scheduling** | interval, overlap, merge, meeting, activity, schedule | Greedy Interval | O(n log n) | Optimize interval selection |
 | **10. State Transition** | state, transition, stock, cooldown, DP, regex, word | State Machine DP | O(n·states) | Track valid state sequences |
 | **11. Trees** | tree, node, parent, subtree, hierarchy, traversal, binary | DFS/BFS/Tree DP | O(n) | Process hierarchical structures |
+| **12. Data Structure Design** | design, cache, LRU, LFU, implement, custom structure | HashMap + List/Trie | O(1) or O(logn) | Design efficient custom data structures |
+| **13. String Processing** | string, pattern, anagram, palindrome, encoding, matching | KMP/Frequency/Expansion | O(n) or O(n²) | Match patterns, transform strings |
 
 ### ⚡ Decision Path (Fastest Way to Pick World)
 
@@ -36,6 +38,8 @@
 9. Merge/optimize intervals? → WORLD 9 (Greedy Interval)
 10. Track states/transitions? → WORLD 10 (State Machine DP)
 11. Tree structure? → WORLD 11 (DFS/BFS/Tree DP)
+12. Design data structure? → WORLD 12 (LRU/LFU/Trie/Custom)
+13. Process strings/patterns? → WORLD 13 (KMP/Anagram/Palindrome)
 ```
 
 ---
@@ -94,7 +98,9 @@ public List<Integer> topologicalSort(int n, List<List<Integer>> edges) {
     for (List<Integer> edge : edges) {
         int from = edge.get(0);
         int to = edge.get(1);
-        graph.putIfAbsent(from, new ArrayList<>());
+        if (!graph.containsKey(from)) {
+            graph.put(from, new ArrayList<>());
+        }
         graph.get(from).add(to);
         indegree[to]++;
     }
@@ -135,8 +141,11 @@ public List<Integer> topologicalSort(int n, List<List<Integer>> edges) {
 public List<Integer> topologicalSortDFS(int n, List<List<Integer>> edges) {
     Map<Integer, List<Integer>> graph = new HashMap<>();
     for (List<Integer> edge : edges) {
-        graph.putIfAbsent(edge.get(0), new ArrayList<>());
-        graph.get(edge.get(0)).add(edge.get(1));
+        int from = edge.get(0);
+        if (!graph.containsKey(from)) {
+            graph.put(from, new ArrayList<>());
+        }
+        graph.get(from).add(edge.get(1));
     }
     
     int[] state = new int[n];  // 0: unvisited, 1: visiting, 2: visited
@@ -183,8 +192,11 @@ public List<Integer> lexicographicalTopSort(int n, List<List<Integer>> edges) {
     int[] indegree = new int[n];
     
     for (List<Integer> edge : edges) {
-        graph.putIfAbsent(edge.get(0), new ArrayList<>());
-        graph.get(edge.get(0)).add(edge.get(1));
+        int from = edge.get(0);
+        if (!graph.containsKey(from)) {
+            graph.put(from, new ArrayList<>());
+        }
+        graph.get(from).add(edge.get(1));
         indegree[edge.get(1)]++;
     }
     
@@ -221,8 +233,11 @@ public boolean hasCycle(int n, List<List<Integer>> edges) {
     int[] state = new int[n];  // 0: unvisited, 1: visiting, 2: visited
     
     for (List<Integer> edge : edges) {
-        graph.putIfAbsent(edge.get(0), new ArrayList<>());
-        graph.get(edge.get(0)).add(edge.get(1));
+        int from = edge.get(0);
+        if (!graph.containsKey(from)) {
+            graph.put(from, new ArrayList<>());
+        }
+        graph.get(from).add(edge.get(1));
     }
     
     for (int i = 0; i < n; i++) {
@@ -2273,7 +2288,7 @@ Tree World:
 
 ---
 
-## 📊 Complete 11-World Decision Guide
+## 📊 Complete 13-World Decision Guide
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -2287,7 +2302,7 @@ Tree World:
    → WORLD 2: DFS/BFS/Union Find
 
 3. SHORTEST PATH? (Minimum distance, least cost)
-   → WORLD 3: BFS/Dijkstra/Bellman-Ford
+   → WORLD 3: BFS/Dijkstra/Bellman-Ford/Floyd-Warshall
 
 4. OPTIMIZATION? (Maximize, minimize, best choice)
    → WORLD 4: DP/Greedy
@@ -2312,13 +2327,20 @@ Tree World:
 
 11. TREE STRUCTURE? (Hierarchical nodes, parent-child, traversals)
     → WORLD 11: Tree Traversal & Tree DP
+
+12. DESIGN DATA STRUCTURE? (LRU, LFU, Trie, custom)
+    → WORLD 12: Custom Data Structure Design
+
+13. PROCESS STRINGS? (Pattern matching, anagram, palindrome)
+    → WORLD 13: String Processing
 ```
 
 ---
 
 ## 🎓 Complete World Reference
 
-All 11 worlds with primary templates and 3-4 variants each = **44 complete solutions** ready to use.
+All 13 worlds with primary templates and 3-4 variants each = **50+ complete solutions** ready to use.
+Plus 10 micro-technique utilities with code examples.
 
 ### Study order:
 
@@ -2405,6 +2427,30 @@ World 11: Trees (Traversal & DP)
   ├─ Tree DP (LCA, diameter)
   ├─ In-order BST validation
   └─ Morris Traversal (O(1) space)
+
+World 12: Data Structure Design (LRU/LFU/Trie/Custom)
+  ├─ LRU Cache (Least Recently Used)
+  ├─ LFU Cache (Least Frequently Used)
+  ├─ Trie (Prefix Tree)
+  └─ Custom Counter/Frequency Map
+
+World 13: String Processing (Pattern/Anagram/Palindrome)
+  ├─ KMP Pattern Matching
+  ├─ Anagram Detection
+  ├─ Palindrome Expansion
+  └─ String Encoding/Decoding
+
+MICRO-TECHNIQUES (10 Essential Utilities):
+  ├─ Frequency Map/Counter
+  ├─ HashMap Techniques
+  ├─ Visited Set/Tracking
+  ├─ Swap Techniques
+  ├─ StringBuilder/Character Array
+  ├─ Modulo/GCD/LCM Utilities
+  ├─ Comparator Patterns
+  ├─ Bit Manipulation Tricks
+  ├─ Range/Prefix Utilities
+  └─ Array/List Utilities
 ```
 
 Use together: Templates reference each other for comparative analysis.
@@ -3486,6 +3532,865 @@ Legend: ✓ = Good choice | ✓✓ = Excellent | ✓✓✓ = Best | O(X) = Time 
 1. Initialize queue with all sources
 2. Process level-by-level (BFS) or by distance (Dijkstra)
 3. Natural handling of simultaneity
+
+---
+
+## 🌍 WORLD 12: DATA STRUCTURE DESIGN WORLD
+
+**Problem Pattern:** Design custom data structure that supports specific operations efficiently.
+
+### Template Structure
+
+```
+OPERATIONS: What operations must be supported?
+CONSTRAINTS: Time/space requirements for each?
+STORAGE:    What data needs to be maintained?
+SOLUTION:   Combine appropriate data structures
+```
+
+### Primary Template: LRU Cache (Least Recently Used)
+
+```java
+class LRUCache {
+    private int capacity;
+    private HashMap<Integer, Integer> cache;
+    private LinkedHashMap<Integer, Integer> lru;
+    
+    // Simpler approach using LinkedHashMap
+    class LRUCacheSimple {
+        private int capacity;
+        private LinkedHashMap<Integer, Integer> cache;
+        
+        public LRUCacheSimple(int capacity) {
+            this.capacity = capacity;
+            // Access-order LinkedHashMap: maintains insertion/access order
+            this.cache = new LinkedHashMap<Integer, Integer>(capacity, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry eldest) {
+                    return size() > capacity;
+                }
+            };
+        }
+        
+        public int get(int key) {
+            return cache.getOrDefault(key, -1);  // Access updates order
+        }
+        
+        public void put(int key, int value) {
+            cache.put(key, value);  // Update order if exists, insert if not
+        }
+    }
+    
+    // Manual approach: HashMap + Doubly Linked List
+    class Node {
+        int key, val;
+        Node prev, next;
+        Node(int k, int v) { key = k; val = v; }
+    }
+    
+    HashMap<Integer, Node> map;
+    Node head, tail;  // Dummy nodes
+    
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        map = new HashMap<>();
+        head = new Node(0, 0);
+        tail = new Node(0, 0);
+        head.next = tail;
+        tail.prev = head;
+    }
+    
+    private void addToHead(Node node) {
+        node.next = head.next;
+        node.prev = head;
+        head.next.prev = node;
+        head.next = node;
+    }
+    
+    private void removeNode(Node node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+    
+    public int get(int key) {
+        if (!map.containsKey(key)) return -1;
+        Node node = map.get(key);
+        removeNode(node);
+        addToHead(node);  // Mark as recently used
+        return node.val;
+    }
+    
+    public void put(int key, int value) {
+        if (map.containsKey(key)) {
+            Node node = map.get(key);
+            node.val = value;
+            removeNode(node);
+            addToHead(node);
+        } else {
+            Node node = new Node(key, value);
+            map.put(key, node);
+            addToHead(node);
+            
+            if (map.size() > capacity) {
+                Node lru = tail.prev;
+                removeNode(lru);
+                map.remove(lru.key);  // Remove least recently used
+            }
+        }
+    }
+}
+```
+
+**Use case:** LeetCode 146 (LRU Cache)
+**Complexity:** O(1) for both get and put
+
+### Variant 1: LFU Cache (Least Frequently Used)
+
+```java
+class LFUCache {
+    int capacity, time = 0, minFreq = 0;
+    HashMap<Integer, Integer> vals = new HashMap<>();
+    HashMap<Integer, Integer> freq = new HashMap<>();
+    HashMap<Integer, LinkedHashSet<Integer>> freqList = new HashMap<>();
+    
+    public LFUCache(int capacity) {
+        this.capacity = capacity;
+    }
+    
+    public int get(int key) {
+        if (!vals.containsKey(key)) return -1;
+        
+        int f = freq.get(key);
+        freq.put(key, f + 1);
+        
+        freqList.get(f).remove(key);
+        if (freqList.get(f).isEmpty()) {
+            freqList.remove(f);
+            if (f == minFreq) minFreq++;
+        }
+        
+        if (!freqList.containsKey(f + 1)) {
+            freqList.put(f + 1, new LinkedHashSet<>());
+        }
+        freqList.get(f + 1).add(key);
+        
+        return vals.get(key);
+    }
+    
+    public void put(int key, int value) {
+        if (capacity <= 0) return;
+        
+        if (vals.containsKey(key)) {
+            vals.put(key, value);
+            get(key);
+            return;
+        }
+        
+        if (vals.size() >= capacity) {
+            int evict = freqList.get(minFreq).iterator().next();
+            freqList.get(minFreq).remove(evict);
+            vals.remove(evict);
+            freq.remove(evict);
+        }
+        
+        vals.put(key, value);
+        freq.put(key, 1);
+        minFreq = 1;
+        if (!freqList.containsKey(1)) {
+            freqList.put(1, new LinkedHashSet<>());
+        }
+        freqList.get(1).add(key);
+    }
+}
+```
+
+**Use case:** LeetCode 460 (LFU Cache)
+**Complexity:** O(1) amortized
+
+### Variant 2: Trie (Prefix Tree)
+
+```java
+class TrieNode {
+    HashMap<Character, TrieNode> children = new HashMap<>();
+    boolean isWord = false;
+}
+
+class Trie {
+    TrieNode root = new TrieNode();
+    
+    public void insert(String word) {
+        TrieNode node = root;
+        for (char c : word.toCharArray()) {
+            if (!node.children.containsKey(c)) {
+                node.children.put(c, new TrieNode());
+            }
+            node = node.children.get(c);
+        }
+        node.isWord = true;
+    }
+    
+    public boolean search(String word) {
+        TrieNode node = find(word);
+        return node != null && node.isWord;
+    }
+    
+    public boolean startsWith(String prefix) {
+        return find(prefix) != null;
+    }
+    
+    private TrieNode find(String prefix) {
+        TrieNode node = root;
+        for (char c : prefix.toCharArray()) {
+            node = node.children.get(c);
+            if (node == null) return null;
+        }
+        return node;
+    }
+}
+```
+
+**Use case:** LeetCode 208 (Implement Trie), 211 (Design Add and Search Words)
+**Complexity:** O(L) where L = word length
+
+### Variant 3: Custom Counter/Frequency Map
+
+```java
+class FrequencyMap {
+    private Map<Integer, Integer> counter = new HashMap<>();
+    private Map<Integer, Integer> frequency = new HashMap<>();
+    private Map<Integer, Set<Integer>> freqToElements = new HashMap<>();
+    
+    public void add(int num) {
+        int count = counter.getOrDefault(num, 0);
+        counter.put(num, count + 1);
+        
+        // Update frequency tracking
+        if (frequency.containsKey(num)) {
+            freqToElements.get(frequency.get(num)).remove(num);
+        }
+        
+        frequency.put(num, count + 1);
+        if (!freqToElements.containsKey(count + 1)) {
+            freqToElements.put(count + 1, new HashSet<>());
+        }
+        freqToElements.get(count + 1).add(num);
+    }
+    
+    public int getMostFrequent() {
+        int maxFreq = 0;
+        for (int freq : frequency.values()) {
+            maxFreq = Math.max(maxFreq, freq);
+        }
+        return freqToElements.get(maxFreq).iterator().next();
+    }
+}
+```
+
+**Use case:** Top K frequent elements, frequency tracking
+**Complexity:** O(1) for add, O(n) for getMostFrequent
+
+---
+
+## 🌍 WORLD 13: STRING PROCESSING WORLD
+
+**Problem Pattern:** Process strings with pattern matching, transformation, or searching.
+
+### Template Structure
+
+```
+INPUT:     What string are we processing?
+PATTERN:   What pattern/rule are we matching?
+OUTPUT:    What transformation/result needed?
+SOLUTION:  String algorithms or character tracking
+```
+
+### Primary Template: Pattern Matching (KMP - Knuth-Morris-Pratt)
+
+```java
+// Find first occurrence of pattern in text
+int strStr(String text, String pattern) {
+    if (pattern.isEmpty()) return 0;
+    
+    int[] lps = computeLPS(pattern);
+    int i = 0, j = 0;
+    
+    while (i < text.length()) {
+        if (text.charAt(i) == pattern.charAt(j)) {
+            i++;
+            j++;
+            if (j == pattern.length()) return i - j;
+        } else {
+            if (j > 0) {
+                j = lps[j - 1];
+            } else {
+                i++;
+            }
+        }
+    }
+    
+    return -1;
+}
+
+int[] computeLPS(String pattern) {
+    int[] lps = new int[pattern.length()];
+    int j = 0;
+    
+    for (int i = 1; i < pattern.length(); i++) {
+        while (j > 0 && pattern.charAt(i) != pattern.charAt(j)) {
+            j = lps[j - 1];
+        }
+        if (pattern.charAt(i) == pattern.charAt(j)) {
+            j++;
+        }
+        lps[i] = j;
+    }
+    
+    return lps;
+}
+```
+
+**Use case:** LeetCode 28 (Find the Index of the First Occurrence), substring search
+**Complexity:** O(n + m) where n = text length, m = pattern length
+
+### Variant 1: Anagram Detection
+
+```java
+// Check if two strings are anagrams
+boolean isAnagram(String s, String t) {
+    if (s.length() != t.length()) return false;
+    
+    int[] freq = new int[26];
+    for (char c : s.toCharArray()) {
+        freq[c - 'a']++;
+    }
+    
+    for (char c : t.toCharArray()) {
+        if (--freq[c - 'a'] < 0) return false;
+    }
+    
+    return true;
+}
+
+// Find all anagrams in list
+List<String> findAnagrams(String s, String t) {
+    List<String> result = new ArrayList<>();
+    if (s.length() < t.length()) return result;
+    
+    int[] sFreq = new int[26];
+    int[] tFreq = new int[26];
+    
+    for (char c : t.toCharArray()) {
+        tFreq[c - 'a']++;
+    }
+    
+    for (int i = 0; i < s.length(); i++) {
+        sFreq[s.charAt(i) - 'a']++;
+        
+        if (i >= t.length()) {
+            sFreq[s.charAt(i - t.length()) - 'a']--;
+        }
+        
+        if (Arrays.equals(sFreq, tFreq)) {
+            result.add(String.valueOf(i - t.length() + 1));
+        }
+    }
+    
+    return result;
+}
+```
+
+**Use case:** LeetCode 242 (Valid Anagram), 438 (Find All Anagrams)
+**Complexity:** O(n)
+
+### Variant 2: Palindrome Checking & Expansion
+
+```java
+// Expand around center to find palindromes
+int expandAroundCenter(String s, int left, int right) {
+    while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
+        left--;
+        right++;
+    }
+    return right - left - 1;  // Length of palindrome
+}
+
+// Longest palindromic substring
+String longestPalindrome(String s) {
+    if (s.length() < 2) return s;
+    
+    int start = 0, maxLen = 0;
+    
+    for (int i = 0; i < s.length(); i++) {
+        int len1 = expandAroundCenter(s, i, i);      // Odd length
+        int len2 = expandAroundCenter(s, i, i + 1);  // Even length
+        
+        int len = Math.max(len1, len2);
+        if (len > maxLen) {
+            maxLen = len;
+            start = i - (len - 1) / 2;
+        }
+    }
+    
+    return s.substring(start, start + maxLen);
+}
+```
+
+**Use case:** LeetCode 5 (Longest Palindromic Substring), 647 (Palindromic Substrings)
+**Complexity:** O(n²)
+
+### Variant 3: String Transformation & Encoding
+
+```java
+// Encode string with run-length encoding
+String encode(String s) {
+    StringBuilder sb = new StringBuilder();
+    int i = 0;
+    
+    while (i < s.length()) {
+        int j = i;
+        while (j < s.length() && s.charAt(j) == s.charAt(i)) {
+            j++;
+        }
+        sb.append(s.charAt(i)).append(j - i);
+        i = j;
+    }
+    
+    return sb.toString();
+}
+
+// Decode run-length encoded string
+String decode(String s) {
+    StringBuilder sb = new StringBuilder();
+    
+    for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i);
+        i++;  // Move to number
+        int count = 0;
+        while (i < s.length() && Character.isDigit(s.charAt(i))) {
+            count = count * 10 + (s.charAt(i) - '0');
+            i++;
+        }
+        i--;  // Back one since loop will increment
+        
+        for (int j = 0; j < count; j++) {
+            sb.append(c);
+        }
+    }
+    
+    return sb.toString();
+}
+```
+
+**Use case:** LeetCode 443 (String Compression), encoding/decoding
+**Complexity:** O(n)
+
+---
+
+## 🔧 MICRO-TECHNIQUE LAYER - Essential Tricks & Utilities
+
+### 1️⃣ FREQUENCY MAP / COUNTER
+
+```java
+// Count character frequencies
+Map<Character, Integer> charFreq = new HashMap<>();
+for (char c : s.toCharArray()) {
+    charFreq.put(c, charFreq.getOrDefault(c, 0) + 1);
+}
+
+// Or using Array (for lowercase letters only)
+int[] freq = new int[26];
+for (char c : s.toCharArray()) {
+    freq[c - 'a']++;
+}
+
+// Check if all frequencies match
+boolean frequenciesMatch(int[] freq1, int[] freq2) {
+    for (int i = 0; i < 26; i++) {
+        if (freq1[i] != freq2[i]) return false;
+    }
+    return true;
+}
+
+// Get most frequent element
+Entry<Character, Integer> mostFrequent = charFreq.entrySet().stream()
+    .max(Comparator.comparingInt(Entry::getValue))
+    .orElse(null);
+```
+
+**When to use:** Anagrams, character counting, frequency-based problems
+
+---
+
+### 2️⃣ HASHMAP TECHNIQUES
+
+```java
+// Group by property
+Map<String, List<String>> groups = new HashMap<>();
+for (String word : words) {
+    String key = getSignature(word);  // e.g., sort characters
+    if (!groups.containsKey(key)) {
+        groups.put(key, new ArrayList<>());
+    }
+    groups.get(key).add(word);
+}
+
+// Default mapping
+Map<Integer, Integer> map = new HashMap<>();
+map.put(key, map.getOrDefault(key, 0) + 1);
+
+// Two-directional mapping (bidirectional)
+Map<A, B> aToB = new HashMap<>();
+Map<B, A> bToA = new HashMap<>();
+aToB.put(a, b);
+bToA.put(b, a);
+
+// String index mapping (for quick lookup)
+Map<String, Integer> wordToIndex = new HashMap<>();
+for (int i = 0; i < words.length; i++) {
+    wordToIndex.put(words[i], i);
+}
+```
+
+**When to use:** Grouping, caching, bidirectional lookups, index tracking
+
+---
+
+### 3️⃣ VISITED SET / TRACKING
+
+```java
+// Boolean visited array
+boolean[] visited = new boolean[n];
+for (int i = 0; i < n; i++) {
+    if (!visited[i]) {
+        dfs(i, visited);
+    }
+}
+
+// HashSet for visited nodes
+Set<Integer> visited = new HashSet<>();
+visited.add(node);
+if (visited.contains(node)) { ... }
+
+// String set for visited strings
+Set<String> seen = new HashSet<>();
+if (seen.contains(word)) {
+    // Already processed
+} else {
+    seen.add(word);
+}
+
+// Track parent for cycle detection
+Map<Integer, Integer> parent = new HashMap<>();
+parent.put(current, previous);
+// Later: trace back to root
+```
+
+**When to use:** DFS/BFS, cycle detection, avoiding duplicates, tree traversal
+
+---
+
+### 4️⃣ SWAP TECHNIQUES
+
+```java
+// Standard swap
+int temp = arr[i];
+arr[i] = arr[j];
+arr[j] = temp;
+
+// XOR swap (no extra space, only for integers)
+a = a ^ b;
+b = a ^ b;
+a = a ^ b;
+
+// In-place array reversal using swap
+void reverse(int[] arr) {
+    int left = 0, right = arr.length - 1;
+    while (left < right) {
+        int temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
+        left++;
+        right--;
+    }
+}
+
+// Rotate array using swap
+void rotate(int[] nums, int k) {
+    k %= nums.length;
+    reverse(nums, 0, nums.length - 1);
+    reverse(nums, 0, k - 1);
+    reverse(nums, k, nums.length - 1);
+}
+
+void reverse(int[] nums, int start, int end) {
+    while (start < end) {
+        int temp = nums[start];
+        nums[start] = nums[end];
+        nums[end] = temp;
+        start++;
+        end--;
+    }
+}
+```
+
+**When to use:** In-place modifications, array rotation, sorting
+
+---
+
+### 5️⃣ STRING BUILDER / CHARACTER ARRAY
+
+```java
+// More efficient than string concatenation
+StringBuilder sb = new StringBuilder();
+for (char c : s.toCharArray()) {
+    sb.append(c);
+}
+String result = sb.toString();
+
+// Reverse using character array
+String reverse = new StringBuilder(s).reverse().toString();
+
+// Convert string to char array for modification
+char[] chars = s.toCharArray();
+// ... modify chars ...
+String result = new String(chars);
+
+// Efficient string building with conditions
+StringBuilder sb = new StringBuilder();
+for (String word : words) {
+    if (sb.length() > 0) sb.append(",");
+    sb.append(word);
+}
+```
+
+**When to use:** String building in loops, reversing, character-level modifications
+
+---
+
+### 6️⃣ MODULO / GCD / LCM UTILITIES
+
+```java
+// GCD using Euclidean algorithm
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+// LCM
+int lcm(int a, int b) {
+    return a / gcd(a, b) * b;
+}
+
+// Modulo for large numbers
+long result = (num1 * num2) % MOD;
+// Prevent overflow
+long result = ((num1 % MOD) * (num2 % MOD)) % MOD;
+
+// Check if prime
+boolean isPrime(int n) {
+    if (n < 2) return false;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}
+```
+
+**When to use:** Number theory problems, modular arithmetic, prime checking
+
+---
+
+### 7️⃣ COMPARATOR PATTERNS
+
+```java
+// Sort by custom property
+Collections.sort(intervals, (a, b) -> {
+    if (a[0] != b[0]) return a[0] - b[0];
+    return a[1] - b[1];
+});
+
+// Reverse sort
+Collections.sort(list, Collections.reverseOrder());
+
+// Custom comparator for objects
+Comparator<Person> byAge = Comparator.comparingInt(p -> p.age);
+Comparator<Person> byAgeDesc = byAge.reversed();
+
+// Chain comparators
+Comparator<Employee> multiSort = 
+    Comparator.comparingInt((Employee e) -> e.dept)
+    .thenComparingInt(e -> e.salary);
+
+// For priority queue
+PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+PriorityQueue<Integer> maxHeap = new PriorityQueue<>((a, b) -> b - a);
+```
+
+**When to use:** Sorting, priority queues, custom ordering
+
+---
+
+### 8️⃣ BIT MANIPULATION TRICKS
+
+```java
+// Check if power of 2
+boolean isPowerOfTwo(int n) {
+    return n > 0 && (n & (n - 1)) == 0;
+}
+
+// Count set bits
+int countBits(int n) {
+    int count = 0;
+    while (n > 0) {
+        count += n & 1;
+        n >>= 1;
+    }
+    return count;  // Or use Integer.bitCount(n)
+}
+
+// XOR all elements (finds single non-pair)
+int result = 0;
+for (int num : nums) {
+    result ^= num;
+}
+
+// Get i-th bit
+boolean isBitSet(int num, int i) {
+    return ((num >> i) & 1) == 1;
+}
+
+// Set i-th bit
+int setBit(int num, int i) {
+    return num | (1 << i);
+}
+
+// Clear i-th bit
+int clearBit(int num, int i) {
+    return num & ~(1 << i);
+}
+```
+
+**When to use:** Bit manipulation problems, optimization, parity checking
+
+---
+
+### 9️⃣ RANGE / PREFIX UTILITIES
+
+```java
+// Prefix sum for quick range queries
+int[] prefix = new int[n + 1];
+for (int i = 0; i < n; i++) {
+    prefix[i + 1] = prefix[i] + arr[i];
+}
+// Query sum from i to j: prefix[j+1] - prefix[i]
+
+// 2D prefix sum
+int[][] prefix = new int[m + 1][n + 1];
+for (int i = 1; i <= m; i++) {
+    for (int j = 1; j <= n; j++) {
+        prefix[i][j] = matrix[i-1][j-1] + prefix[i-1][j] + 
+                       prefix[i][j-1] - prefix[i-1][j-1];
+    }
+}
+
+// Binary Indexed Tree (Fenwick Tree) for dynamic range sum
+class BIT {
+    int[] tree;
+    int n;
+    
+    public BIT(int n) {
+        this.n = n;
+        tree = new int[n + 1];
+    }
+    
+    public void update(int i, int delta) {
+        for (++i; i <= n; i += i & (-i)) {
+            tree[i] += delta;
+        }
+    }
+    
+    public int query(int i) {
+        int sum = 0;
+        for (++i; i > 0; i -= i & (-i)) {
+            sum += tree[i];
+        }
+        return sum;
+    }
+}
+```
+
+**When to use:** Range sum queries, dynamic range updates, optimization
+
+---
+
+### 🔟 ARRAY / LIST UTILITIES
+
+```java
+// Quick sort-based partition for kth element
+int findKthLargest(int[] nums, int k) {
+    return findKth(nums, 0, nums.length - 1, nums.length - k);
+}
+
+int findKth(int[] nums, int start, int end, int k) {
+    if (start == end) return nums[start];
+    
+    int pivot = partition(nums, start, end);
+    if (k == pivot) return nums[k];
+    else if (k < pivot) return findKth(nums, start, pivot - 1, k);
+    else return findKth(nums, pivot + 1, end, k);
+}
+
+// Find missing number in range [1, n]
+int findMissing(int[] nums) {
+    int n = nums.length + 1;
+    long sum = (long) n * (n + 1) / 2;
+    long actual = 0;
+    for (int num : nums) actual += num;
+    return (int) (sum - actual);
+}
+
+// Remove duplicates in-place
+int removeDuplicates(int[] nums) {
+    int i = 0;
+    for (int j = 1; j < nums.length; j++) {
+        if (nums[j] != nums[i]) {
+            nums[++i] = nums[j];
+        }
+    }
+    return i + 1;
+}
+
+// Rotate array
+void rotate(int[] nums, int k) {
+    k %= nums.length;
+    reverse(nums, 0, nums.length - 1);
+    reverse(nums, 0, k - 1);
+    reverse(nums, k, nums.length - 1);
+}
+```
+
+**When to use:** Array operations, in-place modifications, finding missing/duplicate elements
+
+---
+
+## 📋 QUICK LOOKUP - Micro-Technique by Problem Type
+
+```
+String matching          → KMP, substring, pattern matching
+Frequency problems       → Frequency map, HashMap counter
+Grouping problems        → HashMap groups, signature function
+Anagram problems         → Frequency array, character count
+Palindrome problems      → Expand around center, DP
+Visited tracking         → Set/Array tracking, parent map
+In-place modifications   → Swap, two pointers, character array
+Range queries            → Prefix sum, Binary Indexed Tree
+Bit problems             → Bit manipulation tricks, XOR
+Priority/Top K           → Heap/PriorityQueue, Comparator
+```
 
 ---
 
